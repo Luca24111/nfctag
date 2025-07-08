@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+{% block title %}Prodotto Creato{% endblock %}
+{% block body %}
+<link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+<style>
+  body {
+      background: #121212;
+      color: white;
+      text-align: center;
+      padding: 2rem;
+      font-family: 'SF Pro Text', sans-serif;
+  }
+  h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+  }
+  p {
+      color: #aaa;
+      margin-bottom: 2rem;
+  }
+  .toggle-btn {
+      background: #fff;
+      color: #424244;
+      border: none;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.6rem 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      cursor: pointer;
+      text-decoration: none;    /* rimuove la sottolineatura */
+      display: inline-block;
+  }
+  .toggle-btn:hover {
+      background: #f5f5f5;
+  }
+</style>
+
+<h1>Prodotto creato con successo!</h1>
+<p>Ora puoi vedere il tuo nuovo prodotto in magazzino.</p>
+<a href="{{ path('app_magazzino') }}" class="toggle-btn">Torna al Magazzino</a>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'formBase.html.twig' %}
+
+{% block title %}Login{% endblock %}
+
+{% block body %}
+    <h1 class="login-heading">Yooo,</h1>
+    <div class="login-subheading">welcome back!</div>
+
+    <form action="{{ path('app_login') }}" method="post">
+        <div class="form-group">
+            <input type="text" id="email" name="email" value="{{ last_username }}" class="form-control" placeholder="Username" required />
+        </div>
+
+        <div class="form-group position-relative">
+            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required />
+            <span class="eye-icon" onclick="togglePassword()">👁️</span>
+        </div>
+
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+        <button type="submit" class="btn-login">Entra →</button>
+
+        {% if error %}
+            <div class="alert alert-danger">Credenziali non valide.</div>
+        {% endif %}
+    </form>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+            } else {
+                passwordInput.type = "password";
+            }
+        }
+    </script>
+{% endblock %}

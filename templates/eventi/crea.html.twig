@@ -1,0 +1,156 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Crea evento{% endblock %}
+
+{% block body %}
+<link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+
+<style>
+    body {
+        font-size: 1.1rem;
+        font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #121212;
+        color: white;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+
+    .header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+    }
+
+    .user-greeting {
+        font-size: 1.2rem;
+        font-weight: 300;
+        color: #b0b0b0;
+    }
+    .user-greeting strong {
+        color: #ffffff;
+    }
+
+    .profile-picture {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    /* Allineo il titolo della pagina a sinistra */
+    .page-title {
+        font-size: 2rem;
+        font-weight: 450;
+        padding: 0 1rem 1rem;
+        letter-spacing: -0.04em;
+        color: #fff;
+        text-align: left;
+    }
+
+
+    .form-section {
+        padding: 0 1rem;
+        margin-bottom: 2rem;
+        /* testo interno allineato a sinistra */
+        text-align: left;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #cccccc;
+        /* assicura l’allineamento a sinistra */
+        text-align: left;
+    }
+
+    .form-control-dark {
+        width: 100%;
+        background-color: #1e1e1e;
+        color: white;
+        border: 1px solid #444;
+        border-radius: 14px;
+        padding: 0.8rem 1.1rem;
+        font-size: 0.95rem;
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form-control-dark:focus {
+        border-color: #a020f0;
+        box-shadow: 0 0 8px rgba(160, 32, 240, 0.3);
+        outline: none;
+    }
+
+    /* Bottone Salva evento proporzionato per smartphone */
+    .toggle-btn {
+        background-color: #ffffff;
+        color: #424244;
+        border: none;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.6rem 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+    }
+    .toggle-btn:hover {
+        background-color: #f5f5f5;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+    }
+
+    .text-end {
+        text-align: right;
+    }
+
+    @media (max-width: 576px) {
+        .page-title {
+            font-size: 1.6rem;
+        }
+        .form-control-dark {
+            font-size: 0.9rem;
+        }
+        .toggle-btn {
+            width: 100%;
+            justify-content: center;
+            font-size: 0.75rem;
+            padding: 0.5rem 0.8rem;
+        }
+    }
+</style>
+
+<div class="header-row">
+    <div class="user-greeting">Ciao, <strong>Cris.</strong></div>
+    <img src="https://i.pravatar.cc/46" alt="Profilo" class="profile-picture">
+</div>
+
+<h1 class="page-title">Crea evento</h1>
+
+<div class="form-section">
+    {{ form_start(form) }}
+        <div class="form-group">
+            {{ form_label(form.nome) }}
+            {{ form_widget(form.nome, {'attr': {'class': 'form-control-dark'}}) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.citta) }}
+            {{ form_widget(form.citta, {'attr': {'class': 'form-control-dark'}}) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.data) }}
+            {{ form_widget(form.data, {'attr': {'class': 'form-control-dark'}}) }}
+        </div>
+        <div class="text-end mt-4">
+            <button type="submit" class="toggle-btn">Salva evento</button>
+        </div>
+    {{ form_end(form) }}
+</div>
+{% endblock %}
