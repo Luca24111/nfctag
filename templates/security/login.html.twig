@@ -1,38 +1,139 @@
-{% extends 'formBase.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block title %}Login{% endblock %}
 
 {% block body %}
-    <h1 class="login-heading">Yooo,</h1>
-    <div class="login-subheading">welcome back!</div>
+<link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
 
-    <form action="{{ path('app_login') }}" method="post">
+<style>
+    body {
+        font-size: 1.1rem;
+        font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #121212;
+        color: white;
+        margin: 0;
+        padding: 0;
+    }
+
+    .login-container {
+        max-width: 400px;
+        margin: 3rem auto;
+        background-color: #1e1e1e;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-title {
+        font-size: 1.8rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        color: #ffffff;
+        letter-spacing: -0.03em;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #cccccc;
+    }
+
+    .form-control-dark {
+        width: 100%;
+        background-color: #2a2a2a;
+        color: white;
+        border: 1px solid #444;
+        border-radius: 14px;
+        padding: 0.8rem 1rem;
+        font-size: 0.95rem;
+        transition: border 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .form-control-dark:focus {
+        border-color: #a020f0;
+        box-shadow: 0 0 8px rgba(160, 32, 240, 0.3);
+        outline: none;
+    }
+
+    .error-message {
+        color: #ff4d4d;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    .action-buttons {
+        margin-top: 1rem;
+    }
+
+    .submit-btn {
+        width: 100%;
+        background-color: #ffffff;
+        color: #424244;
+        border: none;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        padding: 0.75rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: background-color 0.2s, box-shadow 0.2s;
+    }
+
+    .submit-btn:hover {
+        background-color: #f5f5f5;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+    }
+
+    .register-link {
+        margin-top: 1rem;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #aaaaaa;
+    }
+
+    .register-link a {
+        color: #ffffff;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-container">
+    <h1 class="login-title">Accedi</h1>
+
+    {% if error %}
+        <div class="error-message">
+            {{ error.messageKey|trans(error.messageData, 'security') }}
+        </div>
+    {% endif %}
+
+    <form method="post">
         <div class="form-group">
-            <input type="text" id="email" name="email" value="{{ last_username }}" class="form-control" placeholder="Username" required />
+            <label for="inputEmail">Email</label>
+            <input type="email" id="inputEmail" name="email" value="{{ last_username }}" required autofocus class="form-control-dark">
         </div>
 
-        <div class="form-group position-relative">
-            <input type="password" id="password" name="password" class="form-control" placeholder="Password" required />
-            <span class="eye-icon" onclick="togglePassword()">👁️</span>
+        <div class="form-group">
+            <label for="inputPassword">Password</label>
+            <input type="password" id="inputPassword" name="password" required class="form-control-dark">
         </div>
 
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
-        <button type="submit" class="btn-login">Entra →</button>
-
-        {% if error %}
-            <div class="alert alert-danger">Credenziali non valide.</div>
-        {% endif %}
+        <div class="action-buttons">
+            <button type="submit" class="submit-btn">Login</button>
+        </div>
     </form>
 
-    <script>
-        function togglePassword() {
-            const passwordInput = document.getElementById("password");
-            if (passwordInput.type === "password") {
-                passwordInput.type = "text";
-            } else {
-                passwordInput.type = "password";
-            }
-        }
-    </script>
+    <div class="register-link">
+        Non hai un account? <a href="{{ path('app_register') }}">Registrati</a>
+    </div>
+</div>
 {% endblock %}

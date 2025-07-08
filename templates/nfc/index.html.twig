@@ -157,40 +157,54 @@
                 const ndef = new NDEFReader();
                 await ndef.scan();
 
-                ndef.onreading = event => {
+                ndef.onreading = async event => {
                     for (const record of event.message.records) {
-                        if (record.recordType === "text") {
-                            const text = new TextDecoder().decode(record.data);
+                        if (record.recordType !== 'text') continue;
+                        const text = new TextDecoder().decode(record.data);
 
-                            fetch('{{ path('nfc_read') }}', {
+                        try {
+                            const response = await fetch('{{ path('nfc_read') }}', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                                 body: 'nfcId=' + encodeURIComponent(text)
-                            })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.error) {
-                                    console.error(data.error);
-                                    productInfo.style.display = 'none';
-                                } else {
-                                    const p = data.product;
-                                    productName.textContent = p.name;
-                                    const stateText = p.out ? 'Fuori dal magazzino' : 'In magazzino';
-                                    productState.textContent = stateText;
-                                    productState.className = 'status-pill ' + (p.out ? 'out-warehouse' : 'in-warehouse');
-                                    productInfo.style.display = 'block';
-                                }
-                            })
-                            .catch(err => console.error(err));
+                            });
+                            const body = await response.json();
+
+                            if (response.status === 404 && body.redirectTo) {
+                                // tag non trovato: redirect a pagina di creazione
+                                window.location.href = body.redirectTo;
+                                return;
+                            }
+                            if (body.error) {
+                                console.error(body.error);
+                                productInfo.style.display = 'none';
+                                return;
+                            }
+
+                            // prodotto trovato: mostro i dettagli
+                            const p = body.product;
+                            productName.textContent = p.name;
+                            const stateText = p.out
+                                ? 'Fuori dal magazzino'
+                                : 'In magazzino';
+                            productState.textContent = stateText;
+                            productState.className =
+                                'status-pill ' +
+                                (p.out ? 'out-warehouse' : 'in-warehouse');
+                            productInfo.style.display = 'block';
+
+                        } catch (err) {
+                            console.error('Fetch error:', err);
                         }
                     }
                 };
             } catch (err) {
-                console.error(err);
+                console.error('NFC scan error:', err);
             }
         } else {
             console.error("Web NFC non supportato.");
         }
     }
 </script>
+
 {% endblock %}

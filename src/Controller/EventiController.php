@@ -10,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class EventiController extends AbstractController
 {
@@ -92,6 +94,80 @@ class EventiController extends AbstractController
         }
         return $this->redirectToRoute('app_evento_detail', [
             'id' => $evento->getId(),
+        ]);
+    }
+
+
+    
+    #[Route(
+        '/eventi/{id}/remove-prodotto/{productId}',
+        name: 'app_evento_remove_prodotto',
+        methods: ['POST']
+    )]
+    public function removeProdotto(
+        Request $request,
+        Eventi $evento,
+        ProdottoRepository $prodRepo,
+        EntityManagerInterface $em,
+        CsrfTokenManagerInterface $csrfManager,
+        int $productId
+    ): Response {
+        // controlla CSRF
+        $submittedToken = $request->request->get('_token');
+        if (!$csrfManager->isTokenValid(new \Symfony\Component\Security\Csrf\CsrfToken('remove-prodotto'.$evento->getId().'-'.$productId, $submittedToken))) {
+            throw new InvalidCsrfTokenException('Token non valido.');
+        }
+
+        if ($prodotto = $prodRepo->find($productId)) {
+            // owning side
+            $evento->removeProdotto($prodotto);
+            // (optional) inverse side
+            $prodotto->removeEvento($evento);
+
+            $em->flush();
+            $this->addFlash('success', 'Prodotto rimosso dall’evento.');
+        } else {
+            $this->addFlash('error', 'Prodotto non trovato.');
+        }
+
+        return $this->redirectToRoute('app_evento_detail', [
+            'id' => $evento->getId(),
+        ]);
+    }
+
+
+    #[Route('/eventi/{id}/delete', name: 'app_evento_delete', methods: ['POST'])]
+    public function delete(Eventi $evento, Request $request, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete-evento'.$evento->getId(), $request->request->get('_token'))) {
+            $em->remove($evento);
+            $em->flush();
+            $this->addFlash('success', 'Evento eliminato con successo.');
+        }
+        return $this->redirectToRoute('app_eventi');
+    }
+
+    
+    #[Route('/eventi/{id}/modifica', name: 'app_evento_modifica', methods: ['GET','POST'])]
+    public function edit(
+        Eventi $evento,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $form = $this->createForm(EventiType::class, $evento);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'Evento aggiornato con successo.');
+            return $this->redirectToRoute('app_evento_detail', [
+                'id' => $evento->getId(),
+            ]);
+        }
+
+        return $this->render('eventi/edit.html.twig', [
+            'evento' => $evento,
+            'form'   => $form->createView(),
         ]);
     }
 

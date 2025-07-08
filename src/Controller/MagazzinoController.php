@@ -23,14 +23,20 @@ final class MagazzinoController extends AbstractController
         ]);
     }
 
+    // src/Controller/MagazzinoController.php
+
     #[Route('/magazzino/nuovo', name: 'app_prodotto_nuovo')]
     public function nuovo(Request $request, EntityManagerInterface $em): Response
     {
-        // creo il prodotto e imposto i valori di default
         $prodotto = new Prodotto();
         $prodotto
-            ->setAvaiable(true)   // disponibile di default
-            ->setOut(false);      // in magazzino di default
+            ->setAvaiable(true)
+            ->setOut(false);
+
+        // se passo ?nfcId=30, lo salvo
+        if ($request->query->get('nfcId')) {
+            $prodotto->setNfcId((int)$request->query->get('nfcId'));
+        }
 
         $form = $this->createForm(ProdottoType::class, $prodotto);
         $form->handleRequest($request);
@@ -51,6 +57,8 @@ final class MagazzinoController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+
 
     #[Route('/magazzino/successo', name: 'app_prodotto_successo')]
     public function successo(): Response
@@ -77,6 +85,43 @@ final class MagazzinoController extends AbstractController
 
         return $this->render('magazzino/out.html.twig', [
             'prodotti' => $prodotti,
+        ]);
+    }
+
+    #[Route('/magazzino/{id}/delete', name: 'app_prodotto_delete', methods: ['POST'])]
+    public function delete(Prodotto $prodotto, Request $request, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete-prodotto'.$prodotto->getId(), $request->request->get('_token'))) {
+            $em->remove($prodotto);
+            $em->flush();
+            $this->addFlash('success', 'Prodotto eliminato con successo.');
+        }
+        return $this->redirectToRoute('app_magazzino');
+    }
+
+    #[Route('/magazzino/{id}/modifica', name: 'app_prodotto_modifica', methods: ['GET','POST'])]
+    public function edit(
+        Prodotto $prodotto,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        $form = $this->createForm(ProdottoType::class, $prodotto);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // aggiorna la data di modifica
+            $prodotto->setUpdateDate(new \DateTime());
+            $em->flush();
+
+            $this->addFlash('success', 'Prodotto aggiornato con successo.');
+            return $this->redirectToRoute('app_prodotto_detail', [
+                'id' => $prodotto->getId(),
+            ]);
+        }
+
+        return $this->render('magazzino/edit.html.twig', [
+            'prodotto' => $prodotto,
+            'form'     => $form->createView(),
         ]);
     }
 }

@@ -12,9 +12,13 @@ use Doctrine\ORM\Mapping as ORM;
 class Prodotto
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
+    // mantieni GeneratedValue con strategia IDENTITY (MySQL ti permette di fornire manualmente l'id, altrimenti lo genera)
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
     private ?int $id = null;
+
+     #[ORM\Column(type: 'integer', nullable: true, unique: true)]
+    private ?int $nfcId = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -43,6 +47,7 @@ class Prodotto
     #[ORM\JoinTable(name: 'prodotti_eventi')]
     private Collection $eventi;
 
+
     public function __construct()
     {
         $this->eventi = new ArrayCollection();
@@ -51,6 +56,24 @@ class Prodotto
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    // NUOVO setter per ID
+    public function setId(int $id): static
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function getNfcId(): ?int
+    {
+        return $this->nfcId;
+    }
+
+    public function setNfcId(?int $nfcId): static
+    {
+        $this->nfcId = $nfcId;
+        return $this;
     }
 
     public function getName(): ?string

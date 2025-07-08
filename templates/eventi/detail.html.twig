@@ -1,3 +1,4 @@
+{# templates/eventi/detail.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Dettaglio Evento{% endblock %}
@@ -7,214 +8,273 @@
 
 <style>
   body {
-      font-size: 1.1rem;
-      font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background-color: #121212;
-      color: white;
-      margin: 0;
-      padding: 0;
+    font-size: 1.1rem;
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #121212;
+    color: white;
+    margin: 0;
+    padding: 0;
   }
 
   .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
   }
   .user-greeting {
-      font-size: 1.2rem;
-      font-weight: 300;
-      color: #b0b0b0;
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: #b0b0b0;
   }
   .user-greeting strong { color: #ffffff; }
   .profile-picture {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      object-fit: cover;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
   }
 
-  /* Dettaglio evento card */
+  /* Pulsanti affiancati */
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem;
+  }
+  .action-buttons .btn {
+    flex: 1;
+    text-decoration: none;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.6rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .btn-modify {
+    background-color: #fff;
+    color: #424244;
+    border: none;
+  }
+  .btn-modify:hover {
+    background-color: #f5f5f5;
+  }
+  .btn-delete {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+  }
+  .btn-delete:hover {
+    background-color: #b02a37;
+  }
+
+  /* Evento detail card */
   .detail-card {
-      background-color: #1e1e1e;
-      border-radius: 20px;
-      margin: 1rem;
-      padding: 1rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background-color: #1e1e1e;
+    border-radius: 20px;
+    margin: 0 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
   .detail-card h2 {
-      margin: 0 0 0.75rem;
-      font-size: 1.8rem;
-      font-weight: 500;
+    margin: 0 0 0.75rem;
+    font-size: 1.8rem;
+    font-weight: 500;
   }
   .detail-row {
-      margin: 0.75rem 0;
+    margin: 0.75rem 0;
   }
   .detail-label {
-      font-weight: 600;
-      color: #b0b0b0;
-      margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #b0b0b0;
+    margin-bottom: 0.25rem;
   }
-  .detail-value { color: #ffffff; }
+  .detail-value {
+    color: #ffffff;
+  }
 
-  /* Accordion-style associate form */
+  /* Accordion “Associa prodotto” */
   .associate-form {
-      margin: 1rem;
-      border-radius: 12px;
-      overflow: hidden;
-      background-color: #1e1e1e;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    margin: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    background-color: #1e1e1e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
   }
   .associate-form summary {
-      list-style: none;
-      cursor: pointer;
-      padding: 1rem;
-      font-weight: 600;
-      color: #ffffff;
-      font-size: 0.95rem;
-      user-select: none;
+    list-style: none;
+    cursor: pointer;
+    padding: 1rem;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 0.95rem;
+    user-select: none;
   }
-  .associate-form summary::-webkit-details-marker {
-      display: none;
-  }
+  .associate-form summary::-webkit-details-marker { display: none; }
   .associate-form summary:after {
-      content: "▼";
-      float: right;
-      transition: transform 0.2s ease;
+    content: "▼";
+    float: right;
+    transition: transform 0.2s ease;
   }
   .associate-form[open] summary:after {
-      transform: rotate(-180deg);
+    transform: rotate(-180deg);
   }
   .associate-form .form-content {
-      padding: 0 1rem 1rem;
-      text-align: left;
+    padding: 0 1rem 1rem;
+    text-align: left;
   }
   .form-control-dark {
-      width: 100%;
-      background-color: #1e1e1e;
-      color: white;
-      border: 1px solid #444;
-      border-radius: 14px;
-      padding: 0.8rem 1.1rem;
-      font-size: 0.95rem;
-      appearance: none;
-      background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><polyline points='2,6 8,12 14,6' fill='none' stroke='%23aaa' stroke-width='2'/></svg>");
-      background-repeat: no-repeat;
-      background-position: right 0.8rem center;
-      transition: border 0.3s ease, box-shadow 0.3s ease;
+    width: 100%;
+    background-color: #1e1e1e;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 14px;
+    padding: 0.8rem 1.1rem;
+    font-size: 0.95rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><polyline points='2,6 8,12 14,6' fill='none' stroke='%23aaa' stroke-width='2'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
   }
   .form-control-dark:focus {
-      border-color: #a020f0;
-      box-shadow: 0 0 8px rgba(160,32,240,0.3);
-      outline: none;
+    border-color: #a020f0;
+    box-shadow: 0 0 8px rgba(160,32,240,0.3);
+    outline: none;
   }
   .toggle-btn {
-      background-color: #ffffff;
-      color: #424244;
-      border: none;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      padding: 0.6rem 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      cursor: pointer;
-      margin-top: 0.75rem;
+    background-color: #ffffff;
+    color: #424244;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+    display: inline-block;
   }
   .toggle-btn:hover {
-      background-color: #f5f5f5;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+    background-color: #f5f5f5;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
   }
 
+  /* Prodotti associati */
   .associated-section {
-      margin: 1.5rem 1rem;
+    margin: 1.5rem 1rem;
   }
   .associated-section h3 {
-      font-size: 1.4rem;
-      font-weight: 500;
-      margin-bottom: 0.75rem;
-  }
-  .assoc-link {
-      display: block;
-      text-decoration: none;
-      color: inherit;
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
   }
   .assoc-item {
-      background-color: #2a2a2a;
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      margin-bottom: 0.75rem;
-      display: flex;
-      align-items: center;
-      transition: transform 0.2s ease;
+    position: relative;
+    background-color: #2a2a2a;
+    border-radius: 12px;
+    padding: 0.75rem 3rem 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    transition: transform 0.2s ease;
   }
   .assoc-item:hover {
-      transform: scale(1.02);
+    transform: scale(1.02);
   }
   .assoc-thumb {
-      flex: 0 0 60px;
-      height: 60px;
-      object-fit: cover;
-      border-radius: 12px;
-      margin-right: 1rem;
+    flex: 0 0 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-right: 1rem;
   }
   .assoc-details {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   .assoc-name {
-      font-weight: 600;
-      color: #ffffff;
-      margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 0.25rem;
   }
   .assoc-status {
-      font-size: 0.85rem;
-      color: #b0b0b0;
+    font-size: 0.85rem;
+    color: #b0b0b0;
+  }
+  .assoc-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  .remove-form {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    margin: 0;
+  }
+  .remove-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .remove-btn:hover {
+    color: #f66;
   }
 
   .back-link {
-      display: block;
-      text-align: center;
-      margin: 2rem 1rem;
-      color: #ffffff;
-      text-decoration: none;
-      font-weight: 500;
-      padding: 0.75rem;
-      border: 1px solid #ffffff;
-      border-radius: 12px;
+    display: block;
+    text-align: center;
+    margin: 2rem 1rem;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.75rem;
+    border: 1px solid #ffffff;
+    border-radius: 12px;
   }
   .back-link:hover {
-      background-color: rgba(255,255,255,0.1);
+    background-color: rgba(255,255,255,0.1);
   }
 
   @media (min-width: 576px) {
-      .associate-form,
-      .detail-card,
-      .associated-section {
-          max-width: 600px;
-          margin-left: auto;
-          margin-right: auto;
-      }
+    .associate-form,
+    .detail-card,
+    .associated-section {
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
   }
 </style>
 
 <div class="header-row">
-    <div class="user-greeting">Ciao, <strong>Cris.</strong></div>
-    <img src="https://i.pravatar.cc/46" alt="Profilo" class="profile-picture">
+  <div class="user-greeting">Ciao, <strong>Cris.</strong></div>
+  <img src="https://i.pravatar.cc/46" alt="Profilo" class="profile-picture">
 </div>
 
-{# Accordion-like "Aggiungi prodotto" #}
+{# Accordion “Associa prodotto” #}
 <details class="associate-form">
   <summary>Associa prodotto</summary>
   <div class="form-content">
     <form action="{{ path('app_evento_add_prodotto', { id: evento.id }) }}" method="post">
-      <select id="productSelect" name="productId" class="form-control-dark">
-          <option value="" disabled selected>Seleziona un prodotto…</option>
-          {% for p in allProducts %}
-              {% if not prodotti.contains(p) %}
-                  <option value="{{ p.id }}">{{ p.getName() }}</option>
-              {% endif %}
-          {% endfor %}
+      <select name="productId" class="form-control-dark">
+        <option value="" disabled selected>Seleziona un prodotto…</option>
+        {% for p in allProducts %}
+          {% if not prodotti.contains(p) %}
+            <option value="{{ p.id }}">{{ p.getName() }}</option>
+          {% endif %}
+        {% endfor %}
       </select>
       <button type="submit" class="toggle-btn">Associa prodotto</button>
     </form>
@@ -222,38 +282,61 @@
 </details>
 
 <div class="detail-card">
-    <h2>{{ evento.getNome() }}</h2>
-    <div class="detail-row">
-        <div class="detail-label">Data:</div>
-        <div class="detail-value">{{ evento.getData()|date('d/m/Y') }}</div>
-    </div>
-    <div class="detail-row">
-        <div class="detail-label">Città:</div>
-        <div class="detail-value">{{ evento.getCitta() }}</div>
-    </div>
+  <h2>{{ evento.getNome() }}</h2>
+  <div class="detail-row">
+    <div class="detail-label">Data:</div>
+    <div class="detail-value">{{ evento.getData()|date('d/m/Y') }}</div>
+  </div>
+  <div class="detail-row">
+    <div class="detail-label">Città:</div>
+    <div class="detail-value">{{ evento.getCitta() }}</div>
+  </div>
+
+  <div class="action-buttons">
+    <a href="{{ path('app_evento_modifica', { id: evento.id }) }}" class="btn btn-modify">
+      Modifica
+    </a>
+    <form method="post"
+          action="{{ path('app_evento_delete', { id: evento.id }) }}"
+          onsubmit="return confirm('Eliminare questo evento?')"
+          style="flex:1;">
+      <input type="hidden"
+             name="_token"
+             value="{{ csrf_token('delete-evento' ~ evento.id) }}">
+      <button type="submit" class="btn btn-delete">Elimina</button>
+    </form>
+  </div>
 </div>
 
 <div class="associated-section">
-    <h3>Prodotti associati</h3>
-    {% if prodotti|length > 0 %}
-        {% for prodotto in prodotti %}
-            <a href="{{ path('app_prodotto_detail', { id: prodotto.id }) }}" class="assoc-link">
-                <div class="assoc-item">
-                    <img src="https://picsum.photos/400/400?random={{ loop.index }}"
-                         alt="{{ prodotto.getName() }}"
-                         class="assoc-thumb">
-                    <div class="assoc-details">
-                        <div class="assoc-name">{{ prodotto.getName() }}</div>
-                        <div class="assoc-status">
-                            {{ prodotto.isOut() ? 'Fuori magazzino' : 'In magazzino' }}
-                        </div>
-                    </div>
-                </div>
-            </a>
-        {% endfor %}
-    {% else %}
-        <p style="color:#b0b0b0;">Nessun prodotto associato a questo evento.</p>
-    {% endif %}
+  <h3>Prodotti associati</h3>
+  {% if prodotti|length > 0 %}
+    {% for prodotto in prodotti %}
+      <div class="assoc-item">
+        <a href="{{ path('app_prodotto_detail', { id: prodotto.id }) }}" class="assoc-link">
+          <img src="https://picsum.photos/400/400?random={{ loop.index }}"
+               alt="{{ prodotto.getName() }}"
+               class="assoc-thumb">
+          <div class="assoc-details">
+            <div class="assoc-name">{{ prodotto.getName() }}</div>
+            <div class="assoc-status">
+              {{ prodotto.isOut() ? 'Fuori magazzino' : 'In magazzino' }}
+            </div>
+          </div>
+        </a>
+        <form method="post"
+              action="{{ path('app_evento_remove_prodotto', { id: evento.id, productId: prodotto.id }) }}"
+              class="remove-form"
+              onsubmit="return confirm('Rimuovere questo prodotto dall\'evento?')">
+          <input type="hidden"
+                 name="_token"
+                 value="{{ csrf_token('remove-prodotto' ~ evento.id ~ '-' ~ prodotto.id) }}">
+          <button type="submit" class="remove-btn" aria-label="Rimuovi">&times;</button>
+        </form>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p style="color:#b0b0b0;">Nessun prodotto associato a questo evento.</p>
+  {% endif %}
 </div>
-
 {% endblock %}
