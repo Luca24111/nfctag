@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tagly</string>
+    <string name="title_activity_main">Tagly</string>
+    <string name="package_name">com.tagly.app</string>
+    <string name="custom_url_scheme">com.tagly.app</string>
+</resources>

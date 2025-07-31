@@ -14,31 +14,6 @@
         color: white;
     }
 
-    .header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 1rem;
-        margin-top: 1rem;
-    }
-
-    .user-greeting {
-        font-size: 1.2rem;
-        font-weight: 300;
-        color: #b0b0b0;
-    }
-
-    .user-greeting strong {
-        color: #ffffff;
-    }
-
-    .profile-picture {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
     .section-header {
         display: flex;
         justify-content: space-between;
@@ -161,11 +136,6 @@
     }
 </style>
 
-<div class="header-row">
-    <div class="user-greeting">Ciao, <strong>Cris.</strong></div>
-    <img src="https://i.pravatar.cc/46" alt="Profilo" class="profile-picture">
-</div>
-
 {# IN MAGAZZINO #}
 <div class="section-header">
     <h2 class="page-title">In magazzino</h2>
@@ -189,8 +159,11 @@
                                  alt="{{ prodotto.getName() }}">
                         {% endif %}
                         <div class="product-card-content"></div>
-                        <div class="product-footer">
+                        <div class="product-footer" style="flex-direction: column; align-items: flex-start;">
                             <span class="product-badge">{{ prodotto.getName() }}</span>
+                            {% if prodotto.getScaffale() %}
+                                <span class="product-badge" style="opacity: 0.7; font-size: 0.7rem;">Scaffale: {{ prodotto.getScaffale() }}</span>
+                            {% endif %}
                         </div>
                     </div>
                 </a>

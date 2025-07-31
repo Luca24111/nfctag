@@ -15,26 +15,6 @@
         margin: 0;
         padding: 0;
     }
-    .header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem;
-    }
-    .user-greeting {
-        font-size: 1.2rem;
-        font-weight: 300;
-        color: #b0b0b0;
-    }
-    .user-greeting strong {
-        color: #ffffff;
-    }
-    .profile-picture {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
     .page-title {
         font-size: 2rem;
         font-weight: 450;
@@ -100,38 +80,56 @@
         background-color: #f5f5f5;
         box-shadow: 0 3px 8px rgba(0,0,0,0.25);
     }
-    @media (min-width: 576px) {
-        .form-section {
-            max-width: 600px;
-            margin: 1.5rem auto 2rem;
-        }
-    }
 </style>
-
-<div class="header-row">
-    <div class="user-greeting">Ciao, <strong>Cris.</strong></div>
-    <img src="https://i.pravatar.cc/46" alt="Profilo" class="profile-picture">
-</div>
 
 <h1 class="page-title">Modifica Prodotto</h1>
 
 <div class="form-section">
     {{ form_start(form) }}
         <div class="form-group">
+            {{ form_label(form.immagine) }}
+            {{ form_widget(form.immagine, {'attr': {'class': 'form-control-dark', 'onchange': 'previewImage(event)'}}) }}
+            {{ form_errors(form.immagine) }}
+            <img id="image-preview" src="#" alt="Anteprima immagine" style="display:none; max-width: 100%; margin-top: 1rem; border-radius: 12px;" />
+        </div>
+        <div class="form-group">
             {{ form_label(form.name) }}
             {{ form_widget(form.name, {'attr': {'class': 'form-control-dark'}}) }}
             {{ form_errors(form.name) }}
+        </div>
+        <div class="form-group">
+            {{ form_label(form.scaffale) }}
+            {{ form_widget(form.scaffale, {'attr': {'class': 'form-control-dark'}}) }}
+            {{ form_errors(form.scaffale) }}
         </div>
         <div class="form-group">
             {{ form_label(form.description) }}
             {{ form_widget(form.description, {'attr': {'class': 'form-control-dark'}}) }}
             {{ form_errors(form.description) }}
         </div>
-        {# aggiungi altri campi se presenti nel ProdottoType #}
         <div class="action-buttons">
             <button type="submit" class="toggle-btn">Salva</button>
             <a href="{{ path('app_magazzino') }}" class="toggle-btn">Annulla</a>
         </div>
     {{ form_end(form) }}
 </div>
+
+<script>
+  function previewImage(event) {
+    const input = event.target;
+    const preview = document.getElementById('image-preview');
+    const file = input.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else {
+      preview.src = '#';
+      preview.style.display = 'none';
+    }
+  }
+</script>
 {% endblock %}

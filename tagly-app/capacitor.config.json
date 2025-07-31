@@ -1,0 +1,10 @@
+{
+  "appId": "com.tagly.app",
+  "appName": "Tagly",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false
+    }
+  }
+}

@@ -60,4 +60,23 @@ class NfcController extends AbstractController
     }
 
 
+
+    #[Route('/nfc/next-id', name: 'nfc_next_id')]
+    public function getNextId(ManagerRegistry $doctrine): JsonResponse
+    {
+        $em = $doctrine->getManager();
+        $repo = $em->getRepository(Prodotto::class);
+        
+        $lastProduct = $repo->createQueryBuilder('p')
+            ->orderBy('p.nfcId', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        $nextId = $lastProduct ? $lastProduct->getNfcId() + 1 : 1;
+
+        return new JsonResponse(['nextId' => $nextId]);
+    }
 }
+
+

@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 final class MagazzinoController extends AbstractController
@@ -26,7 +27,7 @@ final class MagazzinoController extends AbstractController
     // src/Controller/MagazzinoController.php
 
     #[Route('/magazzino/nuovo', name: 'app_prodotto_nuovo')]
-    public function nuovo(Request $request, EntityManagerInterface $em): Response
+    public function nuovo(Request $request, EntityManagerInterface $em, SessionInterface $session): Response
     {
         $prodotto = new Prodotto();
         $prodotto
@@ -42,6 +43,25 @@ final class MagazzinoController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Gestione upload immagine
+            $immagineFile = $form->get('immagine')->getData();
+            if ($immagineFile) {
+                $originalFilename = pathinfo($immagineFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII', $originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$immagineFile->guessExtension();
+                
+                try {
+                    $immagineFile->move(
+                        $this->getParameter('uploads_directory'),
+                        $newFilename
+                    );
+                    $prodotto->setImage('uploads/images/' . $newFilename);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Errore durante il salvataggio dell\'immagine: ' . $e->getMessage());
+                    return $this->redirectToRoute('app_prodotto_nuovo');
+                }
+            }
+
             $now = new \DateTime();
             $prodotto
                 ->setCreatedAt($now)
@@ -49,6 +69,14 @@ final class MagazzinoController extends AbstractController
 
             $em->persist($prodotto);
             $em->flush();
+
+            // Salva i dati del prodotto nella session per la pagina di successo
+            $session->set('prodotto_creato', [
+                'nome' => $prodotto->getName(),
+                'descrizione' => $prodotto->getDescription(),
+                'posizione' => $prodotto->getScaffale(),
+                'immagine' => $prodotto->getImage(),
+            ]);
 
             return $this->redirectToRoute('app_prodotto_successo');
         }
@@ -61,9 +89,19 @@ final class MagazzinoController extends AbstractController
 
 
     #[Route('/magazzino/successo', name: 'app_prodotto_successo')]
-    public function successo(): Response
+    public function successo(SessionInterface $session): Response
     {
-        return $this->render('magazzino/prodotto_successo.html.twig');
+        $prodottoData = $session->get('prodotto_creato', []);
+        
+        // Rimuovi i dati dalla session dopo averli recuperati
+        $session->remove('prodotto_creato');
+        
+        return $this->render('magazzino/prodotto_successo.html.twig', [
+            'nome' => $prodottoData['nome'] ?? null,
+            'descrizione' => $prodottoData['descrizione'] ?? null,
+            'posizione' => $prodottoData['posizione'] ?? null,
+            'immagine' => $prodottoData['immagine'] ?? null,
+        ]);
     }
 
     #[Route(

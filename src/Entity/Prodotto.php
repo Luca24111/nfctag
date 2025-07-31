@@ -17,7 +17,7 @@ class Prodotto
     #[ORM\Column(type: 'integer')]
     private ?int $id = null;
 
-     #[ORM\Column(type: 'integer', nullable: true, unique: true)]
+     #[ORM\Column(name: "nfc_id", type: 'integer', nullable: true, unique: true)]
     private ?int $nfcId = null;
 
     #[ORM\Column(length: 255)]
@@ -41,7 +41,11 @@ class Prodotto
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $update_date = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $image = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $scaffale = null;
 
     #[ORM\ManyToMany(targetEntity: Eventi::class, inversedBy: 'prodotti')]
     #[ORM\JoinTable(name: 'prodotti_eventi')]
@@ -168,7 +172,18 @@ class Prodotto
     public function setImage(?string $image): static
     {
         $this->image = $image;
-         return $this;
+        return $this;
+    }
+
+    public function getScaffale(): ?string
+    {
+        return $this->scaffale;
+    }
+
+    public function setScaffale(?string $scaffale): static
+    {
+        $this->scaffale = $scaffale;
+        return $this;
     }
     
             public function getEventi(): Collection

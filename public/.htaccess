@@ -68,3 +68,13 @@ DirectoryIndex index.php
         # RedirectTemp cannot be used instead
     </IfModule>
 </IfModule>
+
+# Configure MIME types for 3D models
+AddType model/gltf-binary .glb
+AddType model/gltf+json .gltf
+
+# Enable CORS for 3D models
+<FilesMatch "\.(glb|gltf)$">
+    Header set Access-Control-Allow-Origin "*"
+    Header set Content-Type "model/gltf-binary"
+</FilesMatch>

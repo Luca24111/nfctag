@@ -14,9 +14,157 @@
         html, body {
             font-size: 1.1rem;
             font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            text-align: center;
             background-color: #121212;
             color: white;
+        }
+
+        .ai-bubble {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 1031;
+        }
+
+        .ai-chat {
+            position: fixed;
+            bottom: 170px;
+            right: 20px;
+            width: 350px;
+            background: rgba(28, 28, 30, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            z-index: 1031;
+        }
+
+        .ai-chat input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #424244;
+            color: white;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .ai-chat input:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+            background: #4a4a4c;
+        }
+
+        .ai-chat button {
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #007aff 0%, #0056cc 100%);
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.8rem;
+        }
+
+        .ai-chat button:hover {
+            background: linear-gradient(135deg, #0056cc 0%, #004499 100%);
+            transform: translateY(-1px);
+        }
+
+        .ai-chat button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-output {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(44, 44, 46, 0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        /* Toggle switch styles */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #424244;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #34c759;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+        }
+
+        .toggle-label {
+            color: #ffffff;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .main-layout {
@@ -33,6 +181,7 @@
             display: flex;
             flex-direction: column;
         }
+
         .sidebar h5 { color: #bb86fc; }
         .sidebar a { margin: 1rem 0; color: #aaaaaa; text-decoration: none; transition: 0.2s; }
         .sidebar a:hover { color: #bb86fc; }
@@ -54,7 +203,7 @@
             padding: 1rem;
             flex-grow: 1;
             overflow-y: auto;
-            padding-bottom: 100px; /* spazio per bottom nav */
+            padding-bottom: 100px;
         }
 
         .bottom-nav {
@@ -63,7 +212,7 @@
             left: 50%;
             transform: translateX(-50%);
             width: calc(100% - 2rem);
-            max-width: 480px;
+            max-width: 340px;
             background-color: #424244;
             border-radius: 24px;
             border: 1px solid #2e2e2e;
@@ -85,16 +234,17 @@
             opacity: 0.6;
             transition: color 0.2s ease, opacity 0.2s ease;
         }
+
         .nav-icon:hover,
         .nav-icon.active {
             color: #ffffff;
             opacity: 1;
         }
-        /* cerchietto solo per i pulsanti laterali attivi */
+
         .nav-icon:not(.center-button).active::after {
             content: "";
             position: absolute;
-            bottom: -9px;      /* sposta il pallino appena sotto l'icona */
+            bottom: -9px;
             left: 50%;
             transform: translateX(-50%);
             width: 5px;
@@ -113,45 +263,343 @@
             opacity: 0.8;
             transition: all 0.3s ease;
         }
+
         .nav-icon.center-button:hover {
             opacity: 1;
         }
+
+        body.fade-in {
+            opacity: 1;
+            transform: translateX(0);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        body.fade-out-forward {
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        body.fade-out-backward {
+            opacity: 0;
+            transform: translateX(30px);
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+
+        @keyframes ai-sparkle {
+            0%, 100% {
+                box-shadow: 0 0 10px #bb86fc, 0 0 20px #bb86fc, 0 0 30px #bb86fc;
+            }
+            50% {
+                box-shadow: 0 0 20px #ffffff, 0 0 40px #bb86fc, 0 0 60px #ffffff;
+            }
+        }
+
+        .ai-bubble.sparkle {
+            animation: ai-sparkle 0.6s ease-out;
+        }
+
+        /* Header logout button hover */
+        .header-row a:hover {
+            color: #ffffff !important;
+            background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+
+        /* Menu dropdown styles */
+        .header-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .header-menu-btn {
+            width: 48px;
+            height: 48px;
+            border: none;
+            border-radius: 12px;
+            background: #2e2e2e;
+            color: #ffffff;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .header-menu-btn:hover {
+            background: #424244;
+        }
+
+        .header-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #1e1e1e;
+            border: 1px solid #2e2e2e;
+            border-radius: 12px;
+            padding: 0.5rem 0;
+            min-width: 200px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            z-index: 1000;
+            display: none;
+            margin-top: 0.5rem;
+        }
+
+        .header-dropdown.show {
+            display: block;
+        }
+
+        .header-dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .header-dropdown-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .header-dropdown-item i {
+            margin-right: 0.75rem;
+            width: 16px;
+            text-align: center;
+        }
+
+        .header-dropdown-divider {
+            height: 1px;
+            background-color: #2e2e2e;
+            margin: 0.5rem 0;
+        }
     </style>
 </head>
+
 <body>
 <div class="main-layout">
-
     <div class="main-content">
+        <!-- Dynamic Header -->
+        {% if app.user %}
+        <div class="header-row" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; background-color: #121212;">
+            <div class="user-greeting" style="font-size: 1.2rem; font-weight: 400; letter-spacing: -0.04em; color: #ffffff;">
+                <span style="color: #424244; font-size: 1.2rem; font-weight: 400; letter-spacing: -0.04em;">Ciao,</span>
+                <span style="font-size: 1.2rem; font-weight: 400; letter-spacing: -0.04em; color: white;">{{ app.user.name }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="header-menu">
+                    <button class="header-menu-btn" onclick="toggleHeaderMenu()" title="Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="header-dropdown" id="headerDropdown">
+                        <a href="#" class="header-dropdown-item" onclick="showSettings()">
+                            <i class="fas fa-code"></i>
+                            Impostazioni
+                        </a>
+                        <a href="#" class="header-dropdown-item" onclick="showDebugMenu()">
+                            <i class="fas fa-bug"></i>
+                            Debug
+                        </a>
+                        <a href="#" class="header-dropdown-item" onclick="testTransitions()">
+                            <i class="fas fa-magic"></i>
+                            Test Transizioni
+                        </a>
+                        <div class="header-dropdown-divider"></div>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Assistente AI</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="ai-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="header-dropdown-divider"></div>
+                        <a href="{{ path('app_logout') }}" class="header-dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <main class="dashboard-content">
             {% block body %}{% endblock %}
         </main>
 
         <div class="bottom-nav">
-            <a href="{{ path('app_home') }}"
-               class="nav-icon{% if app.request.attributes.get('_route') == 'app_home' %} active{% endif %}">
+            <a href="{{ path('app_home') }}" class="nav-icon{% if app.request.attributes.get('_route') == 'app_home' %} active{% endif %}">
                 <i class="fas fa-network-wired"></i>
             </a>
 
-            <a href="{{ path('app_nfc') }}"
-               class="nav-icon center-button{% if app.request.attributes.get('_route') == 'app_nfc' %} active{% endif %}">
+            <a href="{{ path('app_nfc') }}" class="nav-icon center-button{% if app.request.attributes.get('_route') == 'app_nfc' %} active{% endif %}">
                 <img style="width: 60%;" src="{{ asset('img/nfc-symbol-brands.svg') }}">
             </a>
 
-            <a href="{{ path('app_eventi') }}"
-               class="nav-icon{% if app.request.attributes.get('_route') == 'app_eventi' %} active{% endif %}">
+            <a href="{{ path('app_eventi') }}" class="nav-icon{% if app.request.attributes.get('_route') == 'app_eventi' %} active{% endif %}">
                 <i class="fas fa-calendar-alt"></i>
             </a>
         </div>
-
     </div>
 </div>
 
-<script>
-    function toggleSidebar() {
-        document.getElementById('sidebarMenu').classList.toggle('show');
-    }
-</script>
+<div id="ai-helper" class="ai-bubble">
+    <img src="{{ asset('img/ai-icon.png') }}" alt="AI" style="width: 40px; height: 40px;" />
+</div>
+
+<div id="ai-chatbox" class="ai-chat hidden">
+    <h6 style="color: white; font-size: 1.1rem; margin-bottom: 1rem; font-weight: 600;">Cerca un prodotto</h6>
+    <input type="text" id="ai-input" placeholder="Es. vestito rosso, scarpe nike..." />
+    <button id="ai-send" class="btn btn-primary btn-sm">Cerca</button>
+    <div id="ai-output" class="ai-output" style="display: none;"></div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      const helper = document.getElementById('ai-helper');
+      const chatbox = document.getElementById('ai-chatbox');
+      const input = document.getElementById('ai-input');
+      const output = document.getElementById('ai-output');
+      const send = document.getElementById('ai-send');
+      const aiToggle = document.getElementById('ai-toggle');
+
+      // Carica lo stato del toggle dal localStorage
+      const aiEnabled = localStorage.getItem('ai-enabled') !== 'false';
+      aiToggle.checked = aiEnabled;
+      updateAIVisibility(aiEnabled);
+
+      // Gestione toggle assistente
+      aiToggle.addEventListener('change', function() {
+          const enabled = this.checked;
+          localStorage.setItem('ai-enabled', enabled);
+          updateAIVisibility(enabled);
+      });
+
+      function updateAIVisibility(enabled) {
+          if (enabled) {
+              helper.style.display = 'flex';
+              if (chatbox.classList.contains('hidden')) {
+                  // Se il chat è aperto, mantienilo aperto
+              } else {
+                  chatbox.classList.add('hidden');
+              }
+          } else {
+              helper.style.display = 'none';
+              chatbox.classList.add('hidden');
+          }
+      }
+
+      if (helper && chatbox) {
+          helper.addEventListener('click', () => {
+              if (aiToggle.checked) {
+                  chatbox.classList.toggle('hidden');
+                  helper.classList.add('sparkle');
+                  setTimeout(() => helper.classList.remove('sparkle'), 600);
+              }
+          });
+      }
+
+      if (send && input && output) {
+          send.addEventListener('click', async () => {
+              await performSearch();
+          });
+          
+          // Ricerca con Enter
+          input.addEventListener('keypress', async (e) => {
+              if (e.key === 'Enter') {
+                  await performSearch();
+              }
+          });
+      }
+      
+      async function performSearch() {
+          const input = document.getElementById('ai-input');
+          const output = document.getElementById('ai-output');
+          const send = document.getElementById('ai-send');
+          
+          if (!input.value.trim()) {
+              output.innerHTML = '<div style="text-align: center; color: #999;">Inserisci il nome di un prodotto da cercare.</div>';
+              output.style.display = 'block';
+              return;
+          }
+          
+          // Disabilita il pulsante e mostra loading
+          send.disabled = true;
+          send.textContent = 'Cercando...';
+          output.innerHTML = '<div style="text-align: center; color: #999;">Sto cercando...</div>';
+          output.style.display = 'block';
+          
+          try {
+              const response = await fetch('/ai/where-product', {
+                  method: 'POST',
+                  headers: { 
+                      'Content-Type': 'application/json',
+                      'X-Requested-With': 'XMLHttpRequest'
+                  },
+                  body: JSON.stringify({ question: input.value.trim() })
+              });
+              
+              if (!response.ok) {
+                  throw new Error(`HTTP error! status: ${response.status}`);
+              }
+              
+              const result = await response.json();
+              output.innerHTML = result.answer || '<div style="text-align: center; color: #999;">Errore nella ricerca.</div>';
+          } catch (error) {
+              console.error('Errore nella ricerca:', error);
+              output.innerHTML = '<div style="text-align: center; color: #999;">Errore di connessione. Verifica la connessione e riprova.</div>';
+          } finally {
+              // Riabilita il pulsante
+              send.disabled = false;
+              send.textContent = 'Cerca';
+          }
+      }
+
+      // Header menu functions
+      window.toggleHeaderMenu = function() {
+          const dropdown = document.getElementById('headerDropdown');
+          dropdown.classList.toggle('show');
+      }
+
+      window.showSettings = function() {
+          alert('Impostazioni - Funzionalità in sviluppo');
+          document.getElementById('headerDropdown').classList.remove('show');
+      }
+
+      window.showDebugMenu = function() {
+          // Trova il menu debug esistente nella pagina NFC e lo mostra
+          const debugMenu = document.getElementById('debug-menu');
+          if (debugMenu) {
+              debugMenu.style.display = debugMenu.style.display === 'none' ? 'block' : 'none';
+          } else {
+              alert('Menu debug disponibile solo nella pagina NFC');
+          }
+          document.getElementById('headerDropdown').classList.remove('show');
+      }
+
+      window.testTransitions = function() {
+          // Trova il pulsante test transizioni nella pagina NFC e lo attiva
+          const testTransitionBtn = document.querySelector('[onclick*="startPageTransition"]');
+          if (testTransitionBtn) {
+              testTransitionBtn.click();
+          } else {
+              alert('Test transizioni disponibile solo nella pagina NFC');
+          }
+          document.getElementById('headerDropdown').classList.remove('show');
+      }
+
+      // Chiudi il menu quando si clicca fuori
+      document.addEventListener('click', function(event) {
+          const headerMenu = document.querySelector('.header-menu');
+          const dropdown = document.getElementById('headerDropdown');
+          
+          if (headerMenu && !headerMenu.contains(event.target) && dropdown.classList.contains('show')) {
+              dropdown.classList.remove('show');
+          }
+      });
+  });
+</script>
 </body>
 </html>

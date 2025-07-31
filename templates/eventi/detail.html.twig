@@ -4,6 +4,14 @@
 {% block title %}Dettaglio Evento{% endblock %}
 
 {% block body %}
+{% for label, messages in app.flashes %}
+  <div class="alert alert-{{ label }}">
+    {% for message in messages %}
+      <div>{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endfor %}
+
 <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
 
 <style>
@@ -16,31 +24,11 @@
     padding: 0;
   }
 
-  .header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-  }
-  .user-greeting {
-    font-size: 1.2rem;
-    font-weight: 300;
-    color: #b0b0b0;
-  }
-  .user-greeting strong { color: #ffffff; }
-  .profile-picture {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  /* Pulsanti affiancati */
   .action-buttons {
     display: flex;
     justify-content: center;
     gap: 1rem;
-    margin: 1rem;
+    margin-top: 2rem;
   }
   .action-buttons .btn {
     flex: 1;
@@ -69,8 +57,6 @@
   .btn-delete:hover {
     background-color: #b02a37;
   }
-
-  /* Evento detail card */
   .detail-card {
     background-color: #1e1e1e;
     border-radius: 20px;
@@ -94,8 +80,6 @@
   .detail-value {
     color: #ffffff;
   }
-
-  /* Accordion “Associa prodotto” */
   .associate-form {
     margin: 1rem;
     border-radius: 12px;
@@ -125,25 +109,6 @@
     padding: 0 1rem 1rem;
     text-align: left;
   }
-  .form-control-dark {
-    width: 100%;
-    background-color: #1e1e1e;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 14px;
-    padding: 0.8rem 1.1rem;
-    font-size: 0.95rem;
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16'><polyline points='2,6 8,12 14,6' fill='none' stroke='%23aaa' stroke-width='2'/></svg>");
-    background-repeat: no-repeat;
-    background-position: right 0.8rem center;
-    transition: border 0.3s ease, box-shadow 0.3s ease;
-  }
-  .form-control-dark:focus {
-    border-color: #a020f0;
-    box-shadow: 0 0 8px rgba(160,32,240,0.3);
-    outline: none;
-  }
   .toggle-btn {
     background-color: #ffffff;
     color: #424244;
@@ -160,8 +125,6 @@
     background-color: #f5f5f5;
     box-shadow: 0 3px 8px rgba(0,0,0,0.25);
   }
-
-  /* Prodotti associati */
   .associated-section {
     margin: 1.5rem 1rem;
   }
@@ -216,29 +179,24 @@
     top: 50%;
     right: 12px;
     transform: translateY(-50%);
-    margin: 0;
   }
   .remove-btn {
     background: none;
     border: none;
     color: #ccc;
     font-size: 1.4rem;
-    line-height: 1;
-    padding: 0;
     cursor: pointer;
     transition: color 0.2s ease;
   }
   .remove-btn:hover {
     color: #f66;
   }
-
   .back-link {
     display: block;
     text-align: center;
     margin: 2rem 1rem;
     color: #ffffff;
     text-decoration: none;
-    font-weight: 500;
     padding: 0.75rem;
     border: 1px solid #ffffff;
     border-radius: 12px;
@@ -246,37 +204,28 @@
   .back-link:hover {
     background-color: rgba(255,255,255,0.1);
   }
-
   @media (min-width: 576px) {
-    .associate-form,
     .detail-card,
+    .associate-form,
     .associated-section {
       max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 auto;
     }
   }
 </style>
 
-<div class="header-row">
-  <div class="user-greeting">Ciao, <strong>Cris.</strong></div>
-  <img src="https://i.pravatar.cc/46" alt="Profilo" class="profile-picture">
-</div>
 
-{# Accordion “Associa prodotto” #}
+
 <details class="associate-form">
-  <summary>Associa prodotto</summary>
+  <summary>Associa prodotto via NFC</summary>
   <div class="form-content">
-    <form action="{{ path('app_evento_add_prodotto', { id: evento.id }) }}" method="post">
-      <select name="productId" class="form-control-dark">
-        <option value="" disabled selected>Seleziona un prodotto…</option>
-        {% for p in allProducts %}
-          {% if not prodotti.contains(p) %}
-            <option value="{{ p.id }}">{{ p.getName() }}</option>
-          {% endif %}
-        {% endfor %}
-      </select>
-      <button type="submit" class="toggle-btn">Associa prodotto</button>
+    <form id="scan-nfc-form"
+          action="{{ path('app_evento_add_nfc', { id: evento.id }) }}"
+          method="post">
+      <input type="hidden" name="nfc_Id" id="nfc-tag-id">
+      <button type="button" class="toggle-btn" id="scan-btn">
+        Scansiona prodotto
+      </button>
     </form>
   </div>
 </details>
@@ -291,18 +240,13 @@
     <div class="detail-label">Città:</div>
     <div class="detail-value">{{ evento.getCitta() }}</div>
   </div>
-
   <div class="action-buttons">
-    <a href="{{ path('app_evento_modifica', { id: evento.id }) }}" class="btn btn-modify">
-      Modifica
-    </a>
+    <a href="{{ path('app_evento_modifica', { id: evento.id }) }}" class="btn btn-modify">Modifica</a>
     <form method="post"
           action="{{ path('app_evento_delete', { id: evento.id }) }}"
           onsubmit="return confirm('Eliminare questo evento?')"
           style="flex:1;">
-      <input type="hidden"
-             name="_token"
-             value="{{ csrf_token('delete-evento' ~ evento.id) }}">
+      <input type="hidden" name="_token" value="{{ csrf_token('delete-evento' ~ evento.id) }}">
       <button type="submit" class="btn btn-delete">Elimina</button>
     </form>
   </div>
@@ -328,9 +272,7 @@
               action="{{ path('app_evento_remove_prodotto', { id: evento.id, productId: prodotto.id }) }}"
               class="remove-form"
               onsubmit="return confirm('Rimuovere questo prodotto dall\'evento?')">
-          <input type="hidden"
-                 name="_token"
-                 value="{{ csrf_token('remove-prodotto' ~ evento.id ~ '-' ~ prodotto.id) }}">
+          <input type="hidden" name="_token" value="{{ csrf_token('remove-prodotto' ~ evento.id ~ '-' ~ prodotto.id) }}">
           <button type="submit" class="remove-btn" aria-label="Rimuovi">&times;</button>
         </form>
       </div>
@@ -339,4 +281,62 @@
     <p style="color:#b0b0b0;">Nessun prodotto associato a questo evento.</p>
   {% endif %}
 </div>
+
+<script>
+  console.log('Initializing NFC scan handler');
+  const scanBtn = document.getElementById('scan-btn');
+  if (scanBtn) {
+    scanBtn.addEventListener('click', async () => {
+      if (!('NDEFReader' in window)) {
+        alert("Il tuo dispositivo non supporta NFC.");
+        return;
+      }
+      try {
+        const ndef = new NDEFReader();
+        await ndef.scan();
+        ndef.addEventListener('readingerror', error => {
+          alert("Errore durante la lettura NFC: " + (error.message || error));
+        });
+        ndef.addEventListener('reading', async ({ message }) => {
+          let nfc_Id = null;
+          for (const record of message.records) {
+            if (record.recordType === "text") {
+              nfc_Id = new TextDecoder().decode(record.data);
+              break;
+            }
+          }
+          if (nfc_Id && !isNaN(Number(nfc_Id))) {
+            console.log('Tag ID letto:', nfc_Id);
+            document.getElementById('nfc-tag-id').value = nfc_Id;
+            const feedback = document.createElement('div');
+            feedback.textContent = "✓ Tag riconosciuto";
+            feedback.style.position = 'fixed';
+            feedback.style.top = '20px';
+            feedback.style.left = '50%';
+            feedback.style.transform = 'translateX(-50%)';
+            feedback.style.padding = '1rem 2rem';
+            feedback.style.backgroundColor = '#4CAF50';
+            feedback.style.color = 'white';
+            feedback.style.borderRadius = '12px';
+            feedback.style.fontSize = '1rem';
+            feedback.style.zIndex = '1000';
+            feedback.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+            document.body.appendChild(feedback);
+            setTimeout(() => {
+              feedback.remove();
+              document.getElementById('scan-nfc-form').submit();
+            }, 1200);
+          } else {
+            alert("Tag NFC non valido o non compatibile.");
+          }
+        });
+      } catch (error) {
+        alert("Errore NFC: " + error.message);
+      }
+    });
+  } else {
+    console.error('Bottone scan-btn non trovato');
+  }
+</script>
+
 {% endblock %}

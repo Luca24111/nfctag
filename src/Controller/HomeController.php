@@ -20,4 +20,14 @@ final class HomeController extends AbstractController
             'prodotti' => $prodotti,
         ]);
     }
+
+    #[Route('/tutti-prodotti', name: 'app_tutti_prodotti')]
+    public function tuttiProdotti(ProdottoRepository $prodottoRepository): Response
+    {
+        $prodotti = $prodottoRepository->findAll();
+
+        return $this->render('home/tutti_prodotti.html.twig', [
+            'prodotti' => $prodotti,
+        ]);
+    }
 }

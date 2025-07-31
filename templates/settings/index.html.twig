@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Impostazioni{% endblock %}
+
+{% block body %}
+<div class="settings-page" style="padding:1rem;max-width:600px;margin:2rem auto;color:white;">
+  <h1>Impostazioni</h1>
+
+  {# Messaggi flash #}
+  {% for label, msgs in app.flashes %}
+    {% for msg in msgs %}
+      <div class="flash-{{ label }}" style="background:#28a745;padding:0.75rem;margin-bottom:1rem;">
+        {{ msg }}
+      </div>
+    {% endfor %}
+  {% endfor %}
+
+  <form method="post">
+    <div style="margin-bottom:1rem;">
+      <label for="settings_multi" style="display:block;margin-bottom:0.5rem;">Abilita scansione multipla</label>
+      <input type="checkbox" id="settings_multi" name="settings[multiScan]" {{ settings.multiScan ? 'checked' : '' }}>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label for="settings_notifications" style="display:block;margin-bottom:0.5rem;">Notifiche push</label>
+      <input type="checkbox" id="settings_notifications" name="settings[notifications]" {{ settings.notifications ? 'checked' : '' }}>
+    </div>
+    <div style="margin-bottom:1rem;">
+      <label for="settings_language" style="display:block;margin-bottom:0.5rem;">Lingua interfaccia</label>
+      <select id="settings_language" name="settings[language]">
+        <option value="it" {{ settings.language == 'it' ? 'selected' : '' }}>Italiano</option>
+        <option value="en" {{ settings.language == 'en' ? 'selected' : '' }}>English</option>
+      </select>
+    </div>
+    <button type="submit"
+            style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:var(--color-info);color:white;cursor:pointer;">
+      Salva impostazioni
+    </button>
+  </form>
+</div>
+{% endblock %}

@@ -3,14 +3,28 @@
 {% block title %}NFC Tag{% endblock %}
 
 {% block body %}
+<script>
+  if (!/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      document.body.innerHTML = '<div style="text-align:center; margin-top: 5rem; color:white; font-size:1.4rem;">🖥️ Questa funzione è disponibile solo da smartphone con supporto NFC.</div>';
+      document.title = 'Non disponibile su Desktop';
+  }
+</script>
 <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
+    :root {
+        --color-success: #28a745;
+        --color-error: #dc3545;
+        --color-info: #007bff;
+        --color-bg-dark: #121212;
+    }
+
     body {
         font-size: 1.1rem;
         font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         text-align: center;
-        background-color: #121212;
+        background-color: var(--color-bg-dark);
         color: white;
     }
 
@@ -19,7 +33,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        margin-top: 60px;
+        margin-top: 90px;
         padding: 0 1rem;
     }
 
@@ -31,26 +45,54 @@
     }
 
     .nfc-icon {
-        width: 70%;
+        width: 90%;
         opacity: 0.9;
         margin-bottom: 10px;
         transition: transform 0.3s ease;
     }
+
     .nfc-icon-button:hover .nfc-icon {
-        transform: scale(1.05);
+        transform: scale(1.20);
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 0.6;
+        }
+        50% {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0.6;
+        }
+    }
+
+    @keyframes blink-blue {
+      0%,100% { background-color: var(--color-info); }
+      50%    { background-color: #2e2e2e; }
+    }
+    .active-blink {
+      animation: blink-blue 1s infinite;
+    }
+    .is-pulsing {
+      animation: pulse 2s ease-in-out infinite;
     }
 
     .nfc-subtext {
-        font-size: 1.2rem;
-        font-weight: 600;
+        font-size: 1.4rem;
+        font-weight: 500;
+        opacity: 0.6;
         color: #ffffff;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: -0.04em;
         margin-bottom: 1.5rem;
         transition: opacity 0.4s ease;
     }
     .nfc-subtext.clicked {
-        opacity: 0.8;
+        opacity: 1;
     }
 
     .product-info {
@@ -64,6 +106,13 @@
         margin: 0 auto;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .product-info.visible {
+        opacity: 1;
+        transform: translateY(0);
     }
     .product-info:hover {
         transform: translateY(-4px);
@@ -72,9 +121,20 @@
 
     .product-name {
         font-size: 1.5rem;
+        letter-spacing: -0.04em;
         font-weight: 500;
         color: #ffffff;
         margin-bottom: 0.75rem;
+    }
+
+    #product-image.visible {
+        display: block;
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
     }
 
     .status-pill {
@@ -86,8 +146,8 @@
         border-radius: 12px;
         text-transform: uppercase;
     }
-    .status-pill.in-warehouse { background-color: #28a745; }
-    .status-pill.out-warehouse { background-color: #dc3545; }
+    .status-pill.in-warehouse { background-color: var(--color-success); }
+    .status-pill.out-warehouse { background-color: var(--color-error); }
 
     .header-row {
         display: flex;
@@ -99,8 +159,9 @@
     .user-greeting {
         font-size: 1.5rem;
         font-weight: 300;
+        letter-spacing: -0.04em;
         color: #b0b0b0;
-        padding: 1rem;
+        padding-top: 1rem;
     }
 
     .profile-picture {
@@ -117,94 +178,943 @@
         letter-spacing: -0.04em;
         color: white;
     }
+
+    #nfc-loader {
+        transition: opacity 0.3s ease;
+    }
+
+    #cancel-scan-inline:hover {
+        background-color: #bb2d3b;
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        color: white;
+        font-size: 1.2rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .status-glow-success {
+        animation: glow-success 1.2s ease-out;
+    }
+    .status-glow-error {
+        animation: glow-error 1.2s ease-out;
+    }
+    @keyframes glow-success {
+        0%,100% { box-shadow: 0 0 0 rgba(40, 167, 69, 0.5); }
+        50% { box-shadow: 0 0 40px 10px rgba(40, 167, 69, 0.8); }
+    }
+    @keyframes glow-error {
+        0%,100% { box-shadow: 0 0 0 rgba(220, 53, 69, 0.5); }
+        50% { box-shadow: 0 0 40px 10px rgba(220, 53, 69, 0.8); }
+    }
+    #scan-history h3 {
+        font-weight:500;
+        letter-spacing:-0.02em;
+    }
+    #scan-history-list li {
+        padding:0.25rem 0;
+        border-bottom:1px solid rgba(255,255,255,0.1);
+    }
+    #scan-history-list li:last-child {
+        border-bottom:none;
+    }
+</style>
+
+<style>
+  .btn-history-active {
+      background: white !important;
+  }
+  .btn-history-active i {
+      color: #2e2e2e !important;
+  }
+</style>
+
+<style>
+    .spinner {
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid #ffffff;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        margin: 1rem auto 0;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    @keyframes slideOutLeftFade {
+      to { opacity: 0; transform: translateX(-100%); }
+    }
+    @keyframes slideInRightFade {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .slide-out-left {
+      animation: slideOutLeftFade 0.5s forwards;
+    }
+    .slide-in-right {
+      animation: slideInRightFade 0.5s forwards;
+    }
+    .nfc-feedback-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 123, 255, 0.5);
+      pointer-events: none;
+      animation: fadeOverlay 1s ease-out forwards;
+      z-index: 9999;
+    }
+    @keyframes fadeOverlay {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    /* Apple-style 3D Animation Effects */
+    .apple-3d-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 40%, transparent 70%);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 9998;
+        animation: appleOverlayFade 3s ease-out forwards;
+    }
+
+    @keyframes appleOverlayFade {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    .apple-3d-text {
+        position: fixed;
+        bottom: 25%;
+        left: 50%;
+        transform: translateX(-50%);
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 600;
+        text-align: center;
+        opacity: 0;
+        z-index: 9999;
+        animation: appleTextFade 3s ease-out forwards;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        letter-spacing: 0.5px;
+    }
+
+    @keyframes appleTextFade {
+        0% { opacity: 0; transform: translateX(-50%) translateY(30px); }
+        30% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        70% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        100% { opacity: 0; transform: translateX(-50%) translateY(-30px); }
+    }
+
+    .apple-3d-particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0;
+        animation: particlesFade 3s ease-out forwards;
+    }
+
+    @keyframes particlesFade {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        animation: particleFloat 3s ease-out forwards;
+        z-index: 10000;
+    }
+
+    @keyframes particleFloat {
+        0% {
+            transform: translateY(100vh) scale(0);
+            opacity: 0;
+        }
+        20% {
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(-100px) scale(1);
+            opacity: 0;
+        }
+    }
 </style>
 
 <div class="header-row">
     <div class="user-greeting">
-        <span style="color: #424244; font-size: 1.5rem; font-weight: 450;">Ciao,</span>
+        <span style="color: #424244; font-size: 1.5rem; font-weight: 450; letter-spacing: -0.04em;">Ciao,</span>
         <span class="crisText">Cris.</span>
     </div>
     <img src="https://i.pravatar.cc/36" alt="Profilo" class="profile-picture">
 </div>
+<div class="button-row" style="display: flex; justify-content: space-between; width: 90%; max-width: 380px; margin: 1rem auto;">
+  <button id="btn-multiscan" aria-label="Scansione Multipla"
+          style="width: 48px; height: 48px; border: none; border-radius: 12px; background: #2e2e2e; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+    <i class="fas fa-stream" style="color: white; font-size: 1.2rem;"></i>
+  </button>
+  <button id="btn-history" aria-label="Mostra Storico"
+          style="width: 48px; height: 48px; border: none; border-radius: 12px; background: #2e2e2e; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+    <i class="fas fa-clock" style="color: white; font-size: 1.2rem;"></i>
+  </button>
+</div>
 
 <div class="nfc-wrapper">
     <!-- NFC icon as button -->
-    <button id="nfc-button" class="nfc-icon-button" onclick="startNfc()">
+    <button id="nfc-button" class="nfc-icon-button" tabindex="0" aria-label="Attiva scansione NFC">
         <img src="{{ asset('img/Risorsa_2.svg') }}" alt="NFC Icona" class="nfc-icon">
     </button>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
-    <div id="nfc-subtext" class="nfc-subtext">Clicca per la lettura</div>
+    <model-viewer id="tagly-3d"
+                  src="{{ asset('models/tagly.glb') }}"
+                  auto-rotate
+                  camera-controls
+                  exposure="1.8"
+                  interaction-prompt="none"
+                  camera-orbit="0deg 75deg 7.5m"
+                  min-camera-orbit="auto auto 3m"
+                  max-camera-orbit="auto auto 9m"
+                  field-of-view="45deg"
+                  loading="eager"
+                  reveal="auto"
+                  camera-target="0m 0m 0m"
+                  rotation-per-second="120deg"
+                  auto-rotate-delay="0"
+                  style="position: fixed;
+                         top: 50%;
+                         left: 50%;
+                         width: 300px;
+                         height: 300px;
+                         transform: translate(-50%, -50%) scale(0.7);
+                         background: transparent;
+                         opacity: 0;
+                         pointer-events: none;
+                         z-index: 10000;
+                         transition: opacity 1.2s cubic-bezier(.4,1.4,.6,1), transform 1.2s cubic-bezier(.4,1.4,.6,1);
+                         box-shadow: none;
+                         border-radius: 0;">
+        <div slot="poster" style="background: rgba(0,0,0,0.5); color: white; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+            Caricamento modello 3D...
+        </div>
+        
+        <!-- Luci personalizzate per effetto illuminazione -->
+        <div slot="light" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+            <div style="position: absolute; top: 20%; left: 20%; width: 60%; height: 60%; background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%); border-radius: 50%;"></div>
+            <div style="position: absolute; top: 60%; left: 80%; width: 40%; height: 40%; background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%); border-radius: 50%;"></div>
+        </div>
+    </model-viewer>
+    <div id="nfc-subtext" class="nfc-subtext" aria-live="polite">Clicca per la lettura</div>
+    <button id="test-3d-button" style="font-size:1rem; padding:0.7rem 1.5rem; border-radius:12px; background:#28a745; border:none; color:white; cursor:pointer; margin-top:1rem;">
+        Test Animazione 3D
+    </button>
+    <button id="debug-3d-button" style="font-size:1rem; padding:0.7rem 1.5rem; border-radius:12px; background:#007bff; border:none; color:white; cursor:pointer; margin-top:0.5rem;">
+        Debug Modello 3D
+    </button>
 
-    <div id="product-info" class="product-info" style="display: none;">
+    <div id="product-info" class="product-info hidden" style="position: relative;">
+        <button id="close-product-info" class="close-button" tabindex="0">×</button>
+        <img id="product-image" src="" alt="Immagine prodotto" style="width: 100%; border-radius: 12px; margin-bottom: 1rem;" class="hidden">
         <div id="product-name" class="product-name"></div>
         <div id="product-state" class="status-pill"></div>
     </div>
 </div>
 
+<div id="scan-history" style="margin-top: 2rem; background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 380px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6); display: none; text-align: left;">
+    <h3 style="font-size:1.2rem; margin-bottom:0.5rem; color:#ffffff;">Storico scansioni</h3>
+    <input type="text" id="scan-filter" placeholder="Filtra per nome o stato..." style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: none; font-size: 0.9rem;">
+    <div style="font-size: 0.75rem; color: #999; margin-bottom: 0.5rem;">
+        <span style="background: rgba(40, 167, 69, 0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">In</span>
+        <span style="background: rgba(220, 53, 69, 0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">Fuori</span>
+    </div>
+    <ul id="scan-history-list" style="list-style:none; padding:0; margin:0; font-size:0.9rem; color:#bbbbbb;"></ul>
+    <button id="export-history" style="margin-top: 1rem; padding: 0.6rem 1.2rem; font-size: 0.9rem; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;">
+        Esporta storico (CSV)
+    </button>
+</div>
+
 <script>
+    let ndefAbortController;
     const productInfo = document.getElementById('product-info');
     const productName = document.getElementById('product-name');
     const productState = document.getElementById('product-state');
     const subtext = document.getElementById('nfc-subtext');
+    const nfcButton = document.getElementById('nfc-button');
+    
+    function updateProductInfo(p) {
+        productName.textContent = p.name;
+        const productImage = document.getElementById('product-image');
+        if (p.imageUrl) {
+            productImage.src = p.imageUrl;
+            productImage.classList.add('visible');
+            productImage.classList.remove('hidden');
+        } else {
+            productImage.src = '';
+            productImage.classList.remove('visible');
+            productImage.classList.add('hidden');
+        }
+        const stateText = p.out ? 'Fuori dal magazzino' : 'In magazzino';
+        productState.textContent = stateText;
+        productState.className = 'status-pill ' + (p.out ? 'out-warehouse' : 'in-warehouse');
+        productInfo.classList.remove('hidden');
+        productInfo.classList.add('visible');
 
+        productInfo.classList.remove('status-glow-success', 'status-glow-error');
+        void productInfo.offsetWidth;
+        productInfo.classList.add(p.out ? 'status-glow-error' : 'status-glow-success');
+
+        addScanToHistory(p);
+    }
+
+    function resetProductInfo() {
+        productName.textContent = '';
+        productState.textContent = '';
+        productState.className = 'status-pill';
+        const productImage = document.getElementById('product-image');
+        productImage.src = '';
+        productImage.classList.remove('visible');
+        productImage.classList.add('hidden');
+        productInfo.classList.remove('visible');
+        productInfo.classList.add('hidden');
+    }
+
+    function stopLoopAudio() {
+        loopAudio.pause();
+        loopAudio.currentTime = 0;
+    }
+
+    function enableNfcButton() {
+        if (nfcButton) nfcButton.disabled = false;
+    }
+    function disableNfcButton() {
+        if (nfcButton) nfcButton.disabled = true;
+    }
+
+    function stopNfc() {
+        if (ndefAbortController) {
+            ndefAbortController.abort();
+            ndefAbortController = null;
+        }
+        isNfcActive = false;
+
+        multiScanMode = false;
+        document.getElementById('btn-multiscan')?.classList.remove('active-blink');
+
+        stopPulseAnimation();
+
+        resetSubtext();
+
+        resetProductInfo();
+        showLoader(false);
+
+        stopLoopAudio();
+
+        reversedAudio.currentTime = 0;
+        reversedAudio.play().catch(e => console.warn("Reversed audio error:", e));
+        enableNfcButton();
+    }
+
+    let multiScanMode = false;
     async function startNfc() {
+        isNfcActive = true;
+        disableNfcButton();
+
         // Cambia testo subtext al click e aggiunge effetto opacità
-        subtext.textContent = 'Pronto per la lettura';
+        subtext.textContent = 'Pronto per la lettura...';
         subtext.classList.add('clicked');
+        showLoader(true);
 
         if ('NDEFReader' in window) {
             try {
                 const ndef = new NDEFReader();
-                await ndef.scan();
+                ndefAbortController = new AbortController();
+                await ndef.scan({ signal: ndefAbortController.signal });
+                loopAudio.play().catch(e => console.warn("Loop audio play error:", e));
 
                 ndef.onreading = async event => {
+                    // Prevent double reads and handle abort
+                    if (ndefAbortController?.signal.aborted) return;
+                    if (!multiScanMode) {
+                        if (ndef.readingHandled) return;
+                        ndef.readingHandled = true;
+                        setTimeout(() => {
+                            ndef.readingHandled = false;
+                        }, 2000);
+                    }
+
+                    // --- Gestione tag vergine: scrivi immediatamente ---
+                    if (!event.message.records.length) {
+                        subtext.innerHTML = "Tag vergine rilevato. Registrazione in corso...";
+                        const loader = document.createElement('div');
+                        loader.className = 'spinner';
+                        subtext.appendChild(loader);
+                        
+                        try {
+                            const response = await fetch('{{ path("nfc_next_id") }}');
+                            const result = await response.json();
+                            const nextId = result.nextId;
+
+                            // Scrivi immediatamente il tag vergine
+                            await ndef.write({
+                                records: [
+                                    {
+                                        recordType: "text",
+                                        data: nextId.toString()
+                                    }
+                                ]
+                            });
+
+                            // Avvia l'animazione 3D per il nuovo tag registrato
+                            showTagly3D();
+
+                            // Feedback di successo
+                            subtext.innerHTML = `
+                                <span style="color: #28a745;">✅ Tag registrato con successo!</span><br>
+                                <span style="color: #bbbbbb; font-size: 0.8em;">ID: ${nextId}</span>
+                            `;
+
+                            stopLoopAudio();
+                            notificationAudio.currentTime = 0;
+                            notificationAudio.play().catch(() => {});
+
+                            // Continua la lettura per scansioni successive
+                            return;
+
+                        } catch (error) {
+                            console.error("Errore nella registrazione del tag:", error);
+                            subtext.textContent = "❌ Errore durante la registrazione del tag.";
+                            showLoader(false);
+                            enableNfcButton();
+                            return;
+                        }
+                    }
+                    // --- Fine gestione tag vergine ---
+
                     for (const record of event.message.records) {
                         if (record.recordType !== 'text') continue;
-                        const text = new TextDecoder().decode(record.data);
+                        let text = '';
+                        try {
+                            text = new TextDecoder().decode(record.data);
+                        } catch (decodeErr) {
+                            console.error('Errore decodifica:', decodeErr);
+                            continue;
+                        }
+                        if (!text || isNaN(Number(text))) {
+                            try {
+                                const response = await fetch('{{ path("nfc_next_id") }}');
+                                const result = await response.json();
+                                const nextId = result.nextId;
+
+                                await ndef.write(nextId.toString());
+
+                                subtext.textContent = "Tag programmato con ID: " + nextId;
+                                showLoader(false);
+                                if (nfcButton) nfcButton.disabled = false;
+
+                                stopLoopAudio();
+
+                                notificationAudio.currentTime = 0;
+                                notificationAudio.play().catch(e => console.warn("Notification audio error:", e));
+
+                                return;
+                            } catch (err) {
+                                console.error("Errore nella scrittura del tag:", err);
+                                subtext.textContent = "Errore durante la programmazione.";
+                                showLoader(false);
+                                enableNfcButton();
+                                return;
+                            }
+                        }
 
                         try {
+                            const csrfToken = '{{ csrf_token("nfc") }}';
+                            const controller = new AbortController();
+                            const timeout = setTimeout(() => controller.abort(), 5000);
                             const response = await fetch('{{ path('nfc_read') }}', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                                body: 'nfcId=' + encodeURIComponent(text)
+                                body: 'nfcId=' + encodeURIComponent(text) + '&_token=' + encodeURIComponent(csrfToken),
+                                signal: controller.signal
                             });
+                            clearTimeout(timeout);
                             const body = await response.json();
 
                             if (response.status === 404 && body.redirectTo) {
-                                // tag non trovato: redirect a pagina di creazione
                                 window.location.href = body.redirectTo;
+                                return;
+                            } else if (response.status === 404) {
+                                subtext.textContent = "Tag non riconosciuto.";
+                                showLoader(false);
+                                setTimeout(() => {
+                                    ndef.readingHandled = false;
+                                }, 1000);
                                 return;
                             }
                             if (body.error) {
                                 console.error(body.error);
-                                productInfo.style.display = 'none';
+                                resetProductInfo();
+                                showLoader(false);
+                                subtext.textContent = "Errore di lettura. Riprova.";
+                                const errorDiv = document.getElementById('nfc-error');
+                                if (errorDiv) {
+                                    errorDiv.textContent = "Errore di lettura. Riprova.";
+                                    errorDiv.style.display = 'block';
+                                }
+                                subtext.classList.remove("clicked");
+                                setTimeout(() => {
+                                    ndef.readingHandled = false;
+                                }, 1000);
                                 return;
                             }
 
-                            // prodotto trovato: mostro i dettagli
-                            const p = body.product;
-                            productName.textContent = p.name;
-                            const stateText = p.out
-                                ? 'Fuori dal magazzino'
-                                : 'In magazzino';
-                            productState.textContent = stateText;
-                            productState.className =
-                                'status-pill ' +
-                                (p.out ? 'out-warehouse' : 'in-warehouse');
-                            productInfo.style.display = 'block';
+                            updateProductInfo(body.product);
+                            showTagly3D();
+
+                            if (!multiScanMode && ndefAbortController) {
+                                ndefAbortController.abort();
+                                ndefAbortController = null;
+                                isNfcActive = false;
+
+                                stopPulseAnimation();
+
+                                resetSubtext();
+
+                                stopLoopAudio();
+                            } else {
+                                // In modalità multiscan, lascia attiva l'interfaccia
+                                renderCancelButton();
+                                subtext.classList.add("clicked");
+                                startPulseAnimation();
+                            }
+
+                            notificationAudio.currentTime = 0;
+                            notificationAudio.play().catch(e => console.warn("Notification audio error:", e));
 
                         } catch (err) {
                             console.error('Fetch error:', err);
+                            subtext.textContent = "Errore di lettura. Riprova.";
+                            const errorDiv = document.getElementById('nfc-error');
+                            if (errorDiv) {
+                                errorDiv.textContent = "Errore di lettura. Riprova.";
+                                errorDiv.style.display = 'block';
+                            }
+                            subtext.classList.remove("clicked");
+                            setTimeout(() => {
+                                ndef.readingHandled = false;
+                            }, 1000);
+                        } finally {
+                            showLoader(false);
+                            enableNfcButton();
                         }
                     }
+                    // Reset the readingHandled flag after a short delay to allow for new reads
+                    setTimeout(() => {
+                        ndef.readingHandled = false;
+                    }, 1000);
                 };
             } catch (err) {
                 console.error('NFC scan error:', err);
+                showLoader(false);
+                isNfcActive = false;
+                enableNfcButton();
             }
         } else {
             console.error("Web NFC non supportato.");
+            showLoader(false);
+            isNfcActive = false;
+            enableNfcButton();
         }
     }
+
+    function showLoader(show) {
+        const subtext = document.getElementById('nfc-subtext');
+        if (show) {
+            resetProductInfo();
+        }
+        if (show) {
+            renderCancelButton();
+        } else {
+            if (!multiScanMode) {
+                resetSubtext();
+            } else {
+                renderCancelButton();
+            }
+        }
+    }
+</script>
+
+<script>
+  const scanHistory = [];
+  function addScanToHistory(product) {
+      const historyContainer = document.getElementById('scan-history');
+      const historyList = document.getElementById('scan-history-list');
+      if (!historyContainer || !historyList) return;
+
+      // Mostra il contenitore
+      // historyContainer.style.display = 'block';
+
+      // Nessun limite di scansioni salvate in memoria
+      scanHistory.unshift({
+          name: product.name || 'Prodotto sconosciuto',
+          state: product.out ? 'Fuori' : 'In',
+          time: new Date().toLocaleTimeString(),
+          category: 'Eventi' // Placeholder statico per ora
+      });
+
+      // Aggiorna lista: mostra solo le ultime 50
+      historyList.innerHTML = '';
+      const latest = scanHistory.slice(0, 50);
+      latest.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `[${item.time}] ${item.name} - ${item.state}` + (item.category ? ` (${item.category})` : '');
+          li.dataset.name = item.name.toLowerCase();
+          li.dataset.state = item.state.toLowerCase();
+          li.style.background = item.state === 'In' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)';
+          li.style.padding = '0.4rem';
+          li.style.borderRadius = '6px';
+          li.style.marginBottom = '0.4rem';
+          historyList.appendChild(li);
+      });
+  }
+
+  document.getElementById('scan-filter')?.addEventListener('input', e => {
+      const term = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('#scan-history-list li');
+      items.forEach(li => {
+          const name = li.dataset.name || '';
+          const state = li.dataset.state || '';
+          li.style.display = (name.includes(term) || state.includes(term)) ? 'block' : 'none';
+      });
+  });
+
+  document.getElementById('export-history')?.addEventListener('click', () => {
+      if (scanHistory.length === 0) return;
+      const csvContent = "data:text/csv;charset=utf-8,"
+          + "Ora,Prodotto,Stato\n"
+          + scanHistory.map(row => `${row.time},${row.name},${row.state}`).join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "storico_scansioni.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  });
+</script>
+
+
+<script>
+
+
+
+    // Funzione per resettare il subtext (messaggio NFC)
+    function resetSubtext() {
+        subtext.textContent = "Clicca per la lettura";
+        subtext.classList.remove("clicked");
+    }
+
+    // Funzione per mostrare il pulsante "Annulla" (per multiscan)
+    function renderCancelButton() {
+        subtext.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5rem;">
+                <span id="scan-mode-text" style="font-size: 1.4rem; font-weight: 500; opacity: 0.6; letter-spacing: -0.04em; color: #ffffff;"></span>
+                <button id="cancel-scan-inline" style="font-size: 1.2rem; font-weight: 500; padding: 0.7rem 1.6rem; border-radius: 12px; background-color: var(--color-error); border: none; color: white; cursor: pointer; transition: background 0.3s ease;" tabindex="0">
+                    Annulla
+                </button>
+            </div>`;
+        const scanText = document.getElementById('scan-mode-text');
+        if (scanText) {
+            scanText.textContent = multiScanMode ? "🌀 Lettura multipla in corso..." : "🌀 Lettura in corso...";
+        }
+        const cancelBtn = document.getElementById('cancel-scan-inline');
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                stopNfc();
+            });
+        }
+    }
+
+    // Funzioni per animazione pulsazione NFC
+    function startPulseAnimation() {
+        document.querySelector('.nfc-icon')?.classList.add('is-pulsing');
+    }
+
+    function stopPulseAnimation() {
+        const icon = document.querySelector('.nfc-icon');
+        if (icon) {
+            icon.classList.remove('is-pulsing');
+            icon.style.transform = 'scale(1)';
+            void icon.offsetWidth;
+        }
+    }
+
+    // Funzione per mostrare l'animazione 3D del tag in stile Apple con spin spettacolare
+    function showTagly3D() {
+        const taglyModel = document.getElementById('tagly-3d');
+        const nfcBtn = document.getElementById('nfc-button');
+        const testBtn = document.getElementById('test-3d-button');
+        const debugBtn = document.getElementById('debug-3d-button');
+        const subtext = document.getElementById('nfc-subtext');
+        
+        // Nascondi tutti i pulsanti e il testo
+        if (nfcBtn) nfcBtn.style.display = 'none';
+        if (testBtn) testBtn.style.display = 'none';
+        if (debugBtn) debugBtn.style.display = 'none';
+        if (subtext) subtext.style.display = 'none';
+        
+        // Crea overlay che nasconde completamente lo sfondo
+        const overlay = document.createElement('div');
+        overlay.className = 'apple-3d-overlay';
+        overlay.style.background = 'rgba(0, 0, 0, 0.95)';
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.zIndex = '9998';
+        overlay.style.pointerEvents = 'none';
+        overlay.style.animation = 'appleOverlayFade 5.5s ease-out forwards';
+        document.body.appendChild(overlay);
+        
+
+        
+        // Crea particelle migliorate
+        const particlesContainer = document.createElement('div');
+        particlesContainer.className = 'apple-3d-particles';
+        document.body.appendChild(particlesContainer);
+        
+        // Genera più particelle con effetti migliorati
+        for (let i = 0; i < 30; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 3 + 's';
+            particle.style.animationDuration = (2.5 + Math.random() * 3) + 's';
+            particle.style.background = `rgba(${255}, ${255}, ${255}, ${0.6 + Math.random() * 0.4})`;
+            particle.style.boxShadow = `0 0 ${10 + Math.random() * 20}px rgba(255, 255, 255, 0.8)`;
+            particle.style.zIndex = '10000';
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Animazione di entrata spettacolare con spin del modello 3D
+        setTimeout(() => {
+            taglyModel.style.opacity = '1';
+            taglyModel.style.pointerEvents = 'auto';
+            taglyModel.style.transform = 'translate(-50%, -50%) scale(1.2)';
+            taglyModel.style.transition = 'opacity 1.5s ease, transform 0.5s ease';
+            
+            // Controlla l'auto-rotate per creare lo spin
+            function startSpin() {
+                if (taglyModel.ready) {
+                    // Spin veloce iniziale (1 giro al secondo)
+                    taglyModel.autoRotate = true;
+                    taglyModel.rotationPerSecond = '360deg';
+                    
+                    // Dopo 0.8 secondi, rallenta
+                    setTimeout(() => {
+                        taglyModel.rotationPerSecond = '120deg';
+                    }, 800);
+                    
+                    // Dopo 2.3 secondi, ferma la rotazione
+                    setTimeout(() => {
+                        taglyModel.autoRotate = false;
+                    }, 2300);
+                } else {
+                    // Se non è pronto, riprova dopo 100ms
+                    setTimeout(startSpin, 100);
+                }
+            }
+            
+            startSpin();
+        }, 300);
+        
+        // Nascondi tutto dopo che il tag è completamente scomparso
+        setTimeout(() => {
+            hideTagly3D();
+        }, 5500);
+    }
+
+    // Funzione per nascondere l'animazione 3D del tag
+    function hideTagly3D() {
+        const taglyModel = document.getElementById('tagly-3d');
+        const nfcBtn = document.getElementById('nfc-button');
+        const testBtn = document.getElementById('test-3d-button');
+        const debugBtn = document.getElementById('debug-3d-button');
+        const subtext = document.getElementById('nfc-subtext');
+        
+        // Nascondi il modello 3D
+        if (taglyModel) {
+            taglyModel.style.opacity = '0';
+            taglyModel.style.pointerEvents = 'none';
+            taglyModel.style.transform = 'translate(-50%, -50%) scale(0.7)';
+        }
+        
+        // Mostra tutti i pulsanti e il testo
+        if (nfcBtn) nfcBtn.style.display = '';
+        if (testBtn) testBtn.style.display = '';
+        if (debugBtn) debugBtn.style.display = '';
+        if (subtext) subtext.style.display = '';
+        
+        // Rimuovi tutti gli elementi Apple-style
+        const overlay = document.querySelector('.apple-3d-overlay');
+        const particles = document.querySelector('.apple-3d-particles');
+        
+        if (overlay) overlay.remove();
+        if (particles) particles.remove();
+    }
+
+    // Funzione per debuggare il modello 3D
+    function debug3DModel() {
+        const taglyModel = document.getElementById('tagly-3d');
+        console.log('=== DEBUG MODELLO 3D ===');
+        console.log('Elemento model-viewer:', taglyModel);
+        
+        if (taglyModel) {
+            console.log('Src:', taglyModel.src);
+            console.log('Model loaded:', taglyModel.modelIsVisible);
+            console.log('Ready:', taglyModel.ready);
+            
+            // Verifica se il file esiste
+            fetch('{{ asset("models/tagly.glb") }}', { method: 'HEAD' })
+                .then(response => {
+                    console.log('File status:', response.status);
+                    console.log('File headers:', response.headers);
+                    if (response.ok) {
+                        console.log('✅ File tagly.glb trovato e accessibile');
+                    } else {
+                        console.log('❌ File tagly.glb non trovato');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Errore nel caricamento del file:', error);
+                });
+            
+            // Mostra il modello per debug
+            taglyModel.style.opacity = '1';
+            taglyModel.style.pointerEvents = 'auto';
+            taglyModel.style.transform = 'translate(-50%, -50%) scale(1)';
+            
+            // Nascondi dopo 5 secondi
+            setTimeout(() => {
+                taglyModel.style.opacity = '0';
+                taglyModel.style.pointerEvents = 'none';
+                taglyModel.style.transform = 'translate(-50%, -50%) scale(0.7)';
+            }, 5000);
+        } else {
+            console.log('❌ Elemento model-viewer non trovato');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const audio = new Audio('{{ asset("sounds/notification.wav") }}');
+        const button = document.getElementById('nfc-button');
+        if (button) {
+            button.addEventListener('click', () => {
+                if (!isNfcActive) {
+                    isNfcActive = true;
+                    startNfc();
+                    startPulseAnimation();
+                } else {
+                    stopNfc();
+                }
+            });
+        }
+
+        const closeBtn = document.getElementById('close-product-info');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                resetProductInfo();
+            });
+        }
+        
+        const test3dBtn = document.getElementById('test-3d-button');
+        if (test3dBtn) {
+            test3dBtn.addEventListener('click', () => {
+                showTagly3D();
+            });
+        }
+        
+        const debug3dBtn = document.getElementById('debug-3d-button');
+        if (debug3dBtn) {
+            debug3dBtn.addEventListener('click', () => {
+                debug3DModel();
+            });
+        }
+    });
+
+</script>
+
+<script>
+// Nuovi bottoni flottanti: multiscan & history
+const btnMulti = document.getElementById('btn-multiscan');
+const btnHistory = document.getElementById('btn-history');
+btnMulti.addEventListener('click', () => {
+    multiScanMode = !multiScanMode;
+    if (multiScanMode) {
+        startPulseAnimation();
+        btnMulti.classList.add('active-blink');
+        if (!isNfcActive) startNfc();
+    } else {
+        stopPulseAnimation();
+        btnMulti.classList.remove('active-blink');
+        stopNfc();
+    }
+});
+btnHistory.addEventListener('click', () => {
+    const historyBox = document.getElementById('scan-history');
+    const isHidden = historyBox.style.display === 'none' || !historyBox.style.display;
+    historyBox.style.display = isHidden ? 'block' : 'none';
+
+    // Toggle button style
+    btnHistory.classList.toggle('btn-history-active', isHidden);
+});
+</script>
+
+
+<script>
+
+    const loopAudio = new Audio('{{ asset("sounds/progress_loop.wav") }}');
+    loopAudio.loop = true;
+
+    const notificationAudio = new Audio('{{ asset("sounds/notification.wav") }}');
+    const reversedAudio = new Audio('{{ asset("sounds/notification_reversed.wav") }}');
+
+    let isNfcActive = false;
+
 </script>
 
 {% endblock %}

@@ -97,6 +97,29 @@ class EventiController extends AbstractController
         ]);
     }
 
+    #[Route('/eventi/{id}/add-nfc', name: 'app_evento_add_nfc', methods: ['POST'])]
+    public function addNfc(Request $request, EntityManagerInterface $em, ProdottoRepository $prodRepo, Eventi $evento): Response
+    {
+        $nfcId = $request->request->get('nfc_Id');
+        $prodotto = $prodRepo->findOneBy(['nfcId' => $nfcId]);
+
+        if (!$prodotto) {
+            $this->addFlash('error', sprintf('Prodotto non trovato per il tag NFC: %s', $nfcId));
+        } else {
+            // Assegna l'evento al prodotto e sincronizza entrambi i lati
+            $prodotto->addEvento($evento);
+            $evento->addProdotto($prodotto);
+
+            $em->persist($prodotto);
+            $em->persist($evento);
+            $em->flush();
+
+            $this->addFlash('success', 'Prodotto associato con successo.');
+        }
+
+        return $this->redirectToRoute('app_evento_detail', ['id' => $evento->getId()]);
+    }
+
 
     
     #[Route(

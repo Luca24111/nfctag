@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
+
 {% block title %}Prodotto Creato{% endblock %}
+
 {% block body %}
 <link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
 <style>
@@ -7,7 +9,8 @@
       background: #121212;
       color: white;
       text-align: center;
-      padding: 2rem;
+      padding-top: 12rem;
+      letter-spacing: -0.04em;
       font-family: 'SF Pro Text', sans-serif;
   }
   h1 {
@@ -16,7 +19,14 @@
   }
   p {
       color: #aaa;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
+  }
+  .product-img {
+      max-width: 220px;
+      margin: 1rem auto 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: block;
   }
   .toggle-btn {
       background: #fff;
@@ -28,7 +38,7 @@
       padding: 0.6rem 1rem;
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       cursor: pointer;
-      text-decoration: none;    /* rimuove la sottolineatura */
+      text-decoration: none;
       display: inline-block;
   }
   .toggle-btn:hover {
@@ -38,5 +48,20 @@
 
 <h1>Prodotto creato con successo!</h1>
 <p>Ora puoi vedere il tuo nuovo prodotto in magazzino.</p>
+
+{% if immagine %}
+  <img src="{{ asset(immagine) }}" alt="Immagine prodotto" class="product-img">
+{% endif %}
+
+{% if nome %}
+  <p><strong>Nome:</strong> {{ nome }}</p>
+{% endif %}
+{% if descrizione %}
+  <p><strong>Descrizione:</strong> {{ descrizione }}</p>
+{% endif %}
+{% if posizione %}
+  <p><strong>Scaffale:</strong> {{ posizione }}</p>
+{% endif %}
+
 <a href="{{ path('app_magazzino') }}" class="toggle-btn">Torna al Magazzino</a>
 {% endblock %}

@@ -13,21 +13,7 @@
     background-color: #121212;
     color: white;
     margin: 0; padding: 0;
-  }
-
-  .header-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-  }
-  .user-greeting {
-    font-size: 1.2rem; font-weight: 300; color: #b0b0b0;
-  }
-  .user-greeting strong { color: #fff; }
-  .profile-picture {
-    width: 40px; height: 40px;
-    border-radius: 50%; object-fit: cover;
+    letter-spacing: -0.04em;
   }
 
   .detail-card {
@@ -50,7 +36,6 @@
   }
   .detail-value { color: #fff; }
 
-  /* Immagine in alto */
   .product-image-container {
     width: 100%; height: 200px;
     border-radius: 16px; overflow: hidden;
@@ -62,7 +47,6 @@
     display: block;
   }
 
-  /* Pulsanti affiancati */
   .action-buttons {
     display: flex;
     gap: 1rem;
@@ -127,17 +111,12 @@
   }
 </style>
 
-<div class="header-row">
-  <div class="user-greeting">Ciao, <strong>Cris.</strong></div>
-  <img src="https://i.pravatar.cc/46" alt="Profilo" class="profile-picture">
-</div>
-
 <div class="detail-card">
-  {# Immagine random #}
-  <div class="product-image-container">
-    <img src="https://picsum.photos/400/400?random={{ prodotto.id }}"
-         alt="Anteprima di {{ prodotto.getName() }}">
-  </div>
+  {% if prodotto.getImage() %}
+    <div class="product-image-container">
+      <img src="{{ asset(prodotto.getImage()) }}" alt="Immagine di {{ prodotto.getName() }}">
+    </div>
+  {% endif %}
 
   <h2>{{ prodotto.getName() }}</h2>
 
@@ -154,28 +133,22 @@
   </div>
 
   <div class="detail-row">
+    <div class="detail-label">Scaffale:</div>
+    <div class="detail-value">{{ prodotto.getScaffale() ?: '-' }}</div>
+  </div>
+
+  <div class="detail-row">
     <div class="detail-label">Ult. aggiornamento:</div>
     <div class="detail-value">
-      {{ prodotto.getUpdateDate() 
-         ? prodotto.getUpdateDate().format('d/m/Y H:i') 
-         : '-' }}
+      {{ prodotto.getUpdateDate() ? prodotto.getUpdateDate().format('d/m/Y H:i') : '-' }}
     </div>
   </div>
 
   <div class="action-buttons">
-    <a href="{{ path('app_prodotto_modifica', { id: prodotto.id }) }}"
-       class="btn btn-modify">
-      Modifica
-    </a>
-    <form method="post"
-          action="{{ path('app_prodotto_delete', { id: prodotto.id }) }}"
-          onsubmit="return confirm('Eliminare questo prodotto?')"
-          style="flex:1; margin:0;">
-      <input type="hidden" name="_token"
-             value="{{ csrf_token('delete-prodotto' ~ prodotto.id) }}">
-      <button type="submit" class="btn btn-delete">
-        Elimina
-      </button>
+    <a href="{{ path('app_prodotto_modifica', { id: prodotto.id }) }}" class="btn btn-modify">Modifica</a>
+    <form method="post" action="{{ path('app_prodotto_delete', { id: prodotto.id }) }}" onsubmit="return confirm('Eliminare questo prodotto?')" style="flex:1; margin:0;">
+      <input type="hidden" name="_token" value="{{ csrf_token('delete-prodotto' ~ prodotto.id) }}">
+      <button type="submit" class="btn btn-delete">Elimina</button>
     </form>
   </div>
 </div>
