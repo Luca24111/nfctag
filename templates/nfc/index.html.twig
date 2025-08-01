@@ -75,9 +75,7 @@
       0%,100% { background-color: var(--color-info); }
       50%    { background-color: #2e2e2e; }
     }
-    .active-blink {
-      animation: blink-blue 1s infinite;
-    }
+
     .is-pulsing {
       animation: pulse 2s ease-in-out infinite;
     }
@@ -149,35 +147,7 @@
     .status-pill.in-warehouse { background-color: var(--color-success); }
     .status-pill.out-warehouse { background-color: var(--color-error); }
 
-    .header-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0 1rem;
-    }
 
-    .user-greeting {
-        font-size: 1.5rem;
-        font-weight: 300;
-        letter-spacing: -0.04em;
-        color: #b0b0b0;
-        padding-top: 1rem;
-    }
-
-    .profile-picture {
-        width: 46px;
-        height: 46px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-left: auto;
-    }
-
-    .crisText {
-        font-size: 1.5rem;
-        font-weight: 450;
-        letter-spacing: -0.04em;
-        color: white;
-    }
 
     #nfc-loader {
         transition: opacity 0.3s ease;
@@ -195,8 +165,10 @@
         position: absolute;
         top: 10px;
         right: 10px;
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
+        background: rgba(44, 44, 46, 0.8);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 50%;
         width: 32px;
         height: 32px;
@@ -206,6 +178,14 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    
+    .close-button:hover {
+        background: rgba(44, 44, 46, 0.9) !important;
+        transform: scale(1.1);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
     }
 
     .status-glow-success {
@@ -237,11 +217,77 @@
 
 <style>
   .btn-history-active {
-      background: white !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px) !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      transform: scale(1.05) !important;
   }
   .btn-history-active i {
-      color: #2e2e2e !important;
+      color: #666666 !important;
   }
+  
+  .btn-dev-active {
+      background: rgba(187, 134, 252, 0.9) !important;
+      backdrop-filter: blur(20px) !important;
+      border-color: rgba(187, 134, 252, 0.3) !important;
+      transform: scale(1.05) !important;
+  }
+  .btn-dev-active i {
+      color: white !important;
+  }
+  
+  /* Multiscan button pulsing blue effect */
+  .btn-multiscan-active {
+      background: rgba(0, 122, 255, 0.9) !important;
+      backdrop-filter: blur(20px) !important;
+      border-color: rgba(0, 122, 255, 0.3) !important;
+      transform: scale(1.05) !important;
+      animation: pulseBlue 2s infinite;
+      box-shadow: 0 0 20px rgba(0, 122, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  }
+  .btn-multiscan-active i {
+      color: white !important;
+  }
+  
+  @keyframes pulseBlue {
+      0% {
+          box-shadow: 0 0 20px rgba(0, 122, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      50% {
+          box-shadow: 0 0 30px rgba(0, 122, 255, 0.8), 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+      100% {
+          box-shadow: 0 0 20px rgba(0, 122, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.2);
+      }
+  }
+  
+
+  
+      /* Dev Mode Box button hover effects */
+    #test-animations-btn:hover,
+    #debug-model-btn:hover,
+    #test-transitions-btn:hover {
+        background: rgba(44, 44, 46, 0.9) !important;
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    #close-dev-mode:hover {
+        background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%) !important;
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+    }
+    
+    /* History buttons hover effects */
+    #export-history:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
+    }
+    
+    #clear-history:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 16px rgba(255, 59, 48, 0.4);
+    }
 </style>
 
 <style>
@@ -372,23 +418,32 @@
             opacity: 0;
         }
     }
+    
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateY(-50%) translateX(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+    }
 </style>
 
-<div class="header-row">
-    <div class="user-greeting">
-        <span style="color: #424244; font-size: 1.5rem; font-weight: 450; letter-spacing: -0.04em;">Ciao,</span>
-        <span class="crisText">Cris.</span>
-    </div>
-    <img src="https://i.pravatar.cc/36" alt="Profilo" class="profile-picture">
-</div>
+
 <div class="button-row" style="display: flex; justify-content: space-between; width: 90%; max-width: 380px; margin: 1rem auto;">
   <button id="btn-multiscan" aria-label="Scansione Multipla"
-          style="width: 48px; height: 48px; border: none; border-radius: 12px; background: #2e2e2e; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          style="width: 48px; height: 48px; border: none; border-radius: 16px; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
     <i class="fas fa-stream" style="color: white; font-size: 1.2rem;"></i>
   </button>
   <button id="btn-history" aria-label="Mostra Storico"
-          style="width: 48px; height: 48px; border: none; border-radius: 12px; background: #2e2e2e; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+          style="width: 48px; height: 48px; border: none; border-radius: 16px; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
     <i class="fas fa-clock" style="color: white; font-size: 1.2rem;"></i>
+  </button>
+  <button id="btn-dev-mode" aria-label="Dev Mode"
+          style="width: 48px; height: 48px; border: none; border-radius: 16px; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+    <i class="fas fa-code" style="color: white; font-size: 1.2rem;"></i>
   </button>
 </div>
 
@@ -438,12 +493,6 @@
         </div>
     </model-viewer>
     <div id="nfc-subtext" class="nfc-subtext" aria-live="polite">Clicca per la lettura</div>
-    <button id="test-3d-button" style="font-size:1rem; padding:0.7rem 1.5rem; border-radius:12px; background:#28a745; border:none; color:white; cursor:pointer; margin-top:1rem;">
-        Test Animazione 3D
-    </button>
-    <button id="debug-3d-button" style="font-size:1rem; padding:0.7rem 1.5rem; border-radius:12px; background:#007bff; border:none; color:white; cursor:pointer; margin-top:0.5rem;">
-        Debug Modello 3D
-    </button>
 
     <div id="product-info" class="product-info hidden" style="position: relative;">
         <button id="close-product-info" class="close-button" tabindex="0">×</button>
@@ -453,17 +502,62 @@
     </div>
 </div>
 
-<div id="scan-history" style="margin-top: 2rem; background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 380px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6); display: none; text-align: left;">
-    <h3 style="font-size:1.2rem; margin-bottom:0.5rem; color:#ffffff;">Storico scansioni</h3>
-    <input type="text" id="scan-filter" placeholder="Filtra per nome o stato..." style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; border-radius: 6px; border: none; font-size: 0.9rem;">
-    <div style="font-size: 0.75rem; color: #999; margin-bottom: 0.5rem;">
-        <span style="background: rgba(40, 167, 69, 0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">In</span>
-        <span style="background: rgba(220, 53, 69, 0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">Fuori</span>
+<!-- Dev Mode Box -->
+<div id="dev-mode-box" style="margin-top: 2rem; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 2rem; width: 90%; max-width: 400px; margin: 0 auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: none; text-align: left;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.3rem; font-weight: 600; color: #ffffff; margin: 0; letter-spacing: -0.04em;">Dev Mode</h3>
+        <div style="display: flex; gap: 0.5rem;">
+            <span style="background: rgba(187, 134, 252, 0.2); color: #bb86fc; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.7rem; font-weight: 500;">Test</span>
+            <span style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.7rem; font-weight: 500;">Debug</span>
+        </div>
     </div>
-    <ul id="scan-history-list" style="list-style:none; padding:0; margin:0; font-size:0.9rem; color:#bbbbbb;"></ul>
-    <button id="export-history" style="margin-top: 1rem; padding: 0.6rem 1.2rem; font-size: 0.9rem; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer;">
-        Esporta storico (CSV)
+    
+    <div style="display: flex; flex-direction: column; gap: 0.8rem; margin-bottom: 1.5rem;">
+        <button id="test-animations-btn" style="display: flex; align-items: center; padding: 1rem; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; color: white; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+            <i class="fas fa-magic" style="margin-right: 0.75rem; width: 16px; text-align: center; color: #bb86fc;"></i>
+            Test Animazioni 3D
+        </button>
+        
+        <button id="debug-model-btn" style="display: flex; align-items: center; padding: 1rem; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; color: white; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+            <i class="fas fa-bug" style="margin-right: 0.75rem; width: 16px; text-align: center; color: #ff6b6b;"></i>
+            Debug Modello 3D
+        </button>
+        
+        <button id="test-transitions-btn" style="display: flex; align-items: center; padding: 1rem; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; color: white; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
+            <i class="fas fa-exchange-alt" style="margin-right: 0.75rem; width: 16px; text-align: center; color: #4ecdc4;"></i>
+            Test Transizioni
+        </button>
+    </div>
+    
+    <button id="close-dev-mode" style="width: 100%; padding: 1rem; font-size: 0.9rem; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%); color: white; border: none; border-radius: 16px; cursor: pointer; font-weight: 500; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);">
+        <i class="fas fa-times" style="margin-right: 0.5rem;"></i>Chiudi Dev Mode
     </button>
+</div>
+
+<div id="scan-history" style="margin-top: 2rem; background: rgba(28, 28, 30, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 2rem; width: 90%; max-width: 400px; margin: 0 auto; box-shadow: 0 8px 32px rgba(0,0,0,0.4); display: none; text-align: left;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.3rem; font-weight: 600; color: #ffffff; margin: 0; letter-spacing: -0.04em;">Storico scansioni</h3>
+        <div style="display: flex; gap: 0.5rem;">
+            <span style="background: rgba(52, 199, 89, 0.2); color: #34c759; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.7rem; font-weight: 500;">In</span>
+            <span style="background: rgba(255, 59, 48, 0.2); color: #ff3b30; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.7rem; font-weight: 500;">Fuori</span>
+        </div>
+    </div>
+    
+    <div style="position: relative; margin-bottom: 1.5rem;">
+        <input type="text" id="scan-filter" placeholder="Cerca nel storico..." style="width: 100%; padding: 1rem 1rem 1rem 3rem; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); background: rgba(44, 44, 46, 0.6); color: white; font-size: 0.9rem; box-sizing: border-box;">
+        <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #999; font-size: 0.9rem;"></i>
+    </div>
+    
+    <div id="scan-history-list" style="max-height: 300px; overflow-y: auto; margin-bottom: 1.5rem;"></div>
+    
+    <div style="display: flex; gap: 0.75rem;">
+        <button id="export-history" style="flex: 1; padding: 0.75rem; font-size: 0.85rem; background: linear-gradient(135deg, #007aff 0%, #0056cc 100%); color: white; border: none; border-radius: 16px; cursor: pointer; font-weight: 500; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);">
+            <i class="fas fa-download" style="margin-right: 0.5rem;"></i>Esporta
+        </button>
+        <button id="clear-history" style="flex: 1; padding: 0.75rem; font-size: 0.85rem; background: linear-gradient(135deg, #ff3b30 0%, #d70015 100%); color: white; border: none; border-radius: 16px; cursor: pointer; font-weight: 500; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);">
+            <i class="fas fa-trash" style="margin-right: 0.5rem;"></i>Svuota
+        </button>
+    </div>
 </div>
 
 <script>
@@ -497,6 +591,12 @@
         productInfo.classList.add(p.out ? 'status-glow-error' : 'status-glow-success');
 
         addScanToHistory(p);
+        
+        // Mostra notifica
+        if (typeof window.showNotification === 'function') {
+            const status = p.out ? 'uscito' : 'entrato';
+            window.showNotification(`${p.name} è ${status} dal magazzino`, p.out ? 'warning' : 'success', 4000);
+        }
     }
 
     function resetProductInfo() {
@@ -530,8 +630,12 @@
         }
         isNfcActive = false;
 
+        // Reset multiscan mode and button state
         multiScanMode = false;
-        document.getElementById('btn-multiscan')?.classList.remove('active-blink');
+        const btnMulti = document.getElementById('btn-multiscan');
+        if (btnMulti) {
+            btnMulti.classList.remove('btn-multiscan-active');
+        }
 
         stopPulseAnimation();
 
@@ -701,7 +805,8 @@
                             }
 
                             updateProductInfo(body.product);
-                            showTagly3D();
+                            // Non mostrare l'animazione 3D per tag esistenti nel database
+                            // showTagly3D();
 
                             if (!multiScanMode && ndefAbortController) {
                                 ndefAbortController.abort();
@@ -777,46 +882,364 @@
 </script>
 
 <script>
-  const scanHistory = [];
+  // Carica lo storico dal localStorage all'avvio
+  let scanHistory = JSON.parse(localStorage.getItem('scanHistory') || '[]');
+  
+  // Funzione per caricare lo storico all'avvio
+  function loadScanHistory() {
+      const historyList = document.getElementById('scan-history-list');
+      if (!historyList) return;
+      
+      historyList.innerHTML = '';
+      const latest = scanHistory.slice(0, 50);
+      latest.forEach(item => {
+          const li = document.createElement('div');
+          li.style.cssText = `
+              background: rgba(44, 44, 46, 0.6);
+              border: 1px solid rgba(255, 255, 255, 0.05);
+              border-radius: 12px;
+              padding: 1rem;
+              margin-bottom: 0.8rem;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              transition: all 0.2s ease;
+              cursor: pointer;
+              position: relative;
+              overflow: hidden;
+          `;
+          
+          const leftContent = document.createElement('div');
+          leftContent.style.cssText = `
+              display: flex;
+              flex-direction: column;
+              gap: 0.3rem;
+          `;
+          
+          const productName = document.createElement('div');
+          productName.textContent = item.name;
+          productName.style.cssText = `
+              font-weight: 600;
+              color: white;
+              font-size: 0.95rem;
+          `;
+          
+          const timeInfo = document.createElement('div');
+          timeInfo.textContent = item.time;
+          timeInfo.style.cssText = `
+              color: #999;
+              font-size: 0.8rem;
+          `;
+          
+          const statusBadge = document.createElement('div');
+          statusBadge.textContent = item.state;
+          statusBadge.style.cssText = `
+              background: ${item.state === 'In' ? 'rgba(52, 199, 89, 0.2)' : 'rgba(255, 59, 48, 0.2)'};
+              color: ${item.state === 'In' ? '#34c759' : '#ff3b30'};
+              padding: 0.4rem 0.8rem;
+              border-radius: 8px;
+              font-size: 0.75rem;
+              font-weight: 500;
+              white-space: nowrap;
+          `;
+          
+          leftContent.appendChild(productName);
+          leftContent.appendChild(timeInfo);
+          li.appendChild(leftContent);
+          li.appendChild(statusBadge);
+          
+          li.dataset.name = item.name.toLowerCase();
+          li.dataset.state = item.state.toLowerCase();
+          
+          // Hover effect
+          li.addEventListener('mouseenter', () => {
+              li.style.background = 'rgba(44, 44, 46, 0.8)';
+              li.style.transform = 'translateY(-1px)';
+          });
+          
+          li.addEventListener('mouseleave', () => {
+              li.style.background = 'rgba(44, 44, 46, 0.6)';
+              li.style.transform = 'translateY(0)';
+          });
+          
+          // Swipe to delete functionality
+          let startX = 0;
+          let currentX = 0;
+          let isSwiping = false;
+          let deleteMode = false;
+
+          li.addEventListener('touchstart', (e) => {
+              startX = e.touches[0].clientX;
+              isSwiping = true;
+              deleteMode = false;
+          });
+
+          li.addEventListener('touchmove', (e) => {
+              if (!isSwiping) return;
+              currentX = e.touches[0].clientX;
+              const diff = currentX - startX;
+              
+              if (diff < 0) { // Swipe left
+                  li.style.transform = `translateX(${diff}px)`;
+                  li.style.opacity = 1 + (diff / 200);
+                  
+                  // Show delete indicator in Apple style
+                  if (diff < -50 && !deleteMode) {
+                      deleteMode = true;
+                      const deleteIndicator = document.createElement('div');
+                      deleteIndicator.innerHTML = '<i class="fas fa-trash"></i> Elimina';
+                      deleteIndicator.style.cssText = `
+                          position: absolute;
+                          right: -100px;
+                          top: 50%;
+                          transform: translateY(-50%);
+                          background: rgba(255, 59, 48, 0.95);
+                          backdrop-filter: blur(10px);
+                          color: white;
+                          padding: 0.6rem 1.2rem;
+                          border-radius: 12px;
+                          font-size: 0.85rem;
+                          font-weight: 600;
+                          white-space: nowrap;
+                          display: flex;
+                          align-items: center;
+                          gap: 0.5rem;
+                          box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+                          animation: slideInRight 0.2s ease-out;
+                      `;
+                      li.appendChild(deleteIndicator);
+                  }
+              }
+          });
+
+          li.addEventListener('touchend', () => {
+              if (!isSwiping) return;
+              isSwiping = false;
+              
+              const diff = currentX - startX;
+              if (diff < -100) { // Swipe left enough to delete
+                  li.style.transform = 'translateX(-100%)';
+                  li.style.opacity = 0;
+                  setTimeout(() => {
+                      if (li.parentNode) {
+                          li.parentNode.removeChild(li);
+                      }
+                      // Remove from scanHistory array
+                      const index = scanHistory.findIndex(scanItem => 
+                          scanItem.name === item.name && scanItem.time === item.time
+                      );
+                      if (index > -1) {
+                          scanHistory.splice(index, 1);
+                          // Update localStorage
+                          localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+                      }
+                  }, 300);
+              } else {
+                  li.style.transform = 'translateX(0)';
+                  li.style.opacity = 1;
+                  // Remove delete indicator
+                  const deleteIndicator = li.querySelector('div[style*="background: rgba(255, 59, 48"]');
+                  if (deleteIndicator) {
+                      deleteIndicator.remove();
+                  }
+              }
+          });
+          
+          historyList.appendChild(li);
+      });
+  }
+  
+  // Carica lo storico all'avvio
+  document.addEventListener('DOMContentLoaded', loadScanHistory);
+  
   function addScanToHistory(product) {
       const historyContainer = document.getElementById('scan-history');
       const historyList = document.getElementById('scan-history-list');
       if (!historyContainer || !historyList) return;
 
-      // Mostra il contenitore
-      // historyContainer.style.display = 'block';
-
-      // Nessun limite di scansioni salvate in memoria
+      // Aggiungi nuovo scan all'inizio
       scanHistory.unshift({
           name: product.name || 'Prodotto sconosciuto',
           state: product.out ? 'Fuori' : 'In',
           time: new Date().toLocaleTimeString(),
-          category: 'Eventi' // Placeholder statico per ora
+          category: 'Eventi'
       });
+
+      // Mantieni solo gli ultimi 500 prodotti
+      if (scanHistory.length > 500) {
+          scanHistory = scanHistory.slice(0, 500);
+      }
+
+      // Salva nel localStorage
+      localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
 
       // Aggiorna lista: mostra solo le ultime 50
       historyList.innerHTML = '';
       const latest = scanHistory.slice(0, 50);
       latest.forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = `[${item.time}] ${item.name} - ${item.state}` + (item.category ? ` (${item.category})` : '');
+          const li = document.createElement('div');
+          li.style.cssText = `
+              background: rgba(44, 44, 46, 0.6);
+              border: 1px solid rgba(255, 255, 255, 0.05);
+              border-radius: 12px;
+              padding: 1rem;
+              margin-bottom: 0.8rem;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              transition: all 0.2s ease;
+              cursor: pointer;
+              position: relative;
+              overflow: hidden;
+          `;
+          
+          const leftContent = document.createElement('div');
+          leftContent.style.cssText = `
+              display: flex;
+              flex-direction: column;
+              gap: 0.3rem;
+          `;
+          
+          const productName = document.createElement('div');
+          productName.textContent = item.name;
+          productName.style.cssText = `
+              font-weight: 600;
+              color: white;
+              font-size: 0.95rem;
+          `;
+          
+          const timeInfo = document.createElement('div');
+          timeInfo.textContent = item.time;
+          timeInfo.style.cssText = `
+              color: #999;
+              font-size: 0.8rem;
+          `;
+          
+          const statusBadge = document.createElement('div');
+          statusBadge.textContent = item.state;
+          statusBadge.style.cssText = `
+              background: ${item.state === 'In' ? 'rgba(52, 199, 89, 0.2)' : 'rgba(255, 59, 48, 0.2)'};
+              color: ${item.state === 'In' ? '#34c759' : '#ff3b30'};
+              padding: 0.4rem 0.8rem;
+              border-radius: 8px;
+              font-size: 0.75rem;
+              font-weight: 500;
+              white-space: nowrap;
+          `;
+          
+          leftContent.appendChild(productName);
+          leftContent.appendChild(timeInfo);
+          li.appendChild(leftContent);
+          li.appendChild(statusBadge);
+          
           li.dataset.name = item.name.toLowerCase();
           li.dataset.state = item.state.toLowerCase();
-          li.style.background = item.state === 'In' ? 'rgba(40, 167, 69, 0.1)' : 'rgba(220, 53, 69, 0.1)';
-          li.style.padding = '0.4rem';
-          li.style.borderRadius = '6px';
-          li.style.marginBottom = '0.4rem';
+          
+          // Hover effect
+          li.addEventListener('mouseenter', () => {
+              li.style.background = 'rgba(44, 44, 46, 0.8)';
+              li.style.transform = 'translateY(-1px)';
+          });
+          
+          li.addEventListener('mouseleave', () => {
+              li.style.background = 'rgba(44, 44, 46, 0.6)';
+              li.style.transform = 'translateY(0)';
+          });
+          
+          // Swipe to delete functionality for history items
+          let startX = 0;
+          let currentX = 0;
+          let isSwiping = false;
+          let deleteMode = false;
+
+          li.addEventListener('touchstart', (e) => {
+              startX = e.touches[0].clientX;
+              isSwiping = true;
+              deleteMode = false;
+          });
+
+          li.addEventListener('touchmove', (e) => {
+              if (!isSwiping) return;
+              currentX = e.touches[0].clientX;
+              const diff = currentX - startX;
+              
+              if (diff < 0) { // Swipe left
+                  li.style.transform = `translateX(${diff}px)`;
+                  li.style.opacity = 1 + (diff / 200);
+                  
+                  // Show delete indicator in Apple style
+                  if (diff < -50 && !deleteMode) {
+                      deleteMode = true;
+                      const deleteIndicator = document.createElement('div');
+                      deleteIndicator.innerHTML = '<i class="fas fa-trash"></i> Elimina';
+                      deleteIndicator.style.cssText = `
+                          position: absolute;
+                          right: -100px;
+                          top: 50%;
+                          transform: translateY(-50%);
+                          background: rgba(255, 59, 48, 0.95);
+                          backdrop-filter: blur(10px);
+                          color: white;
+                          padding: 0.6rem 1.2rem;
+                          border-radius: 12px;
+                          font-size: 0.85rem;
+                          font-weight: 600;
+                          white-space: nowrap;
+                          display: flex;
+                          align-items: center;
+                          gap: 0.5rem;
+                          box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
+                          animation: slideInRight 0.2s ease-out;
+                      `;
+                      li.appendChild(deleteIndicator);
+                  }
+              }
+          });
+
+          li.addEventListener('touchend', () => {
+              if (!isSwiping) return;
+              isSwiping = false;
+              
+              const diff = currentX - startX;
+              if (diff < -100) { // Swipe left enough to delete
+                  li.style.transform = 'translateX(-100%)';
+                  li.style.opacity = 0;
+                  setTimeout(() => {
+                      if (li.parentNode) {
+                          li.parentNode.removeChild(li);
+                      }
+                      // Remove from scanHistory array
+                      const index = scanHistory.findIndex(scanItem => 
+                          scanItem.name === item.name && scanItem.time === item.time
+                      );
+                      if (index > -1) {
+                          scanHistory.splice(index, 1);
+                          // Update localStorage
+                          localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+                      }
+                  }, 300);
+              } else {
+                  li.style.transform = 'translateX(0)';
+                  li.style.opacity = 1;
+                  // Remove delete indicator
+                  const deleteIndicator = li.querySelector('div[style*="background: rgba(255, 59, 48"]');
+                  if (deleteIndicator) {
+                      deleteIndicator.remove();
+                  }
+              }
+          });
+          
           historyList.appendChild(li);
       });
   }
 
   document.getElementById('scan-filter')?.addEventListener('input', e => {
       const term = e.target.value.toLowerCase();
-      const items = document.querySelectorAll('#scan-history-list li');
+      const items = document.querySelectorAll('#scan-history-list div');
       items.forEach(li => {
           const name = li.dataset.name || '';
           const state = li.dataset.state || '';
-          li.style.display = (name.includes(term) || state.includes(term)) ? 'block' : 'none';
+          li.style.display = (name.includes(term) || state.includes(term)) ? 'flex' : 'none';
       });
   });
 
@@ -833,6 +1256,16 @@
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+  });
+
+  document.getElementById('clear-history')?.addEventListener('click', () => {
+      if (scanHistory.length === 0) return;
+      
+      if (confirm('Sei sicuro di voler svuotare tutto lo storico? Questa azione non può essere annullata.')) {
+          scanHistory = [];
+          localStorage.setItem('scanHistory', JSON.stringify(scanHistory));
+          document.getElementById('scan-history-list').innerHTML = '';
+      }
   });
 </script>
 
@@ -886,14 +1319,10 @@
     function showTagly3D() {
         const taglyModel = document.getElementById('tagly-3d');
         const nfcBtn = document.getElementById('nfc-button');
-        const testBtn = document.getElementById('test-3d-button');
-        const debugBtn = document.getElementById('debug-3d-button');
         const subtext = document.getElementById('nfc-subtext');
         
-        // Nascondi tutti i pulsanti e il testo
+        // Nascondi il pulsante NFC e il testo
         if (nfcBtn) nfcBtn.style.display = 'none';
-        if (testBtn) testBtn.style.display = 'none';
-        if (debugBtn) debugBtn.style.display = 'none';
         if (subtext) subtext.style.display = 'none';
         
         // Crea overlay che nasconde completamente lo sfondo
@@ -972,8 +1401,6 @@
     function hideTagly3D() {
         const taglyModel = document.getElementById('tagly-3d');
         const nfcBtn = document.getElementById('nfc-button');
-        const testBtn = document.getElementById('test-3d-button');
-        const debugBtn = document.getElementById('debug-3d-button');
         const subtext = document.getElementById('nfc-subtext');
         
         // Nascondi il modello 3D
@@ -983,10 +1410,8 @@
             taglyModel.style.transform = 'translate(-50%, -50%) scale(0.7)';
         }
         
-        // Mostra tutti i pulsanti e il testo
+        // Mostra il pulsante NFC e il testo
         if (nfcBtn) nfcBtn.style.display = '';
-        if (testBtn) testBtn.style.display = '';
-        if (debugBtn) debugBtn.style.display = '';
         if (subtext) subtext.style.display = '';
         
         // Rimuovi tutti gli elementi Apple-style
@@ -1061,19 +1486,51 @@
             });
         }
         
-        const test3dBtn = document.getElementById('test-3d-button');
-        if (test3dBtn) {
-            test3dBtn.addEventListener('click', () => {
+        // Dev Mode functionality
+        const btnDevMode = document.getElementById('btn-dev-mode');
+        const devModeBox = document.getElementById('dev-mode-box');
+        const closeDevMode = document.getElementById('close-dev-mode');
+        const testAnimationsBtn = document.getElementById('test-animations-btn');
+        const debugModelBtn = document.getElementById('debug-model-btn');
+        const testTransitionsBtn = document.getElementById('test-transitions-btn');
+        
+        if (btnDevMode && devModeBox) {
+            btnDevMode.addEventListener('click', () => {
+                const isHidden = devModeBox.style.display === 'none' || !devModeBox.style.display;
+                devModeBox.style.display = isHidden ? 'block' : 'none';
+                btnDevMode.classList.toggle('btn-dev-active', isHidden);
+            });
+        }
+        
+        if (closeDevMode) {
+            closeDevMode.addEventListener('click', () => {
+                devModeBox.style.display = 'none';
+                btnDevMode.classList.remove('btn-dev-active');
+            });
+        }
+        
+        if (testAnimationsBtn) {
+            testAnimationsBtn.addEventListener('click', () => {
                 showTagly3D();
             });
         }
         
-        const debug3dBtn = document.getElementById('debug-3d-button');
-        if (debug3dBtn) {
-            debug3dBtn.addEventListener('click', () => {
+        if (debugModelBtn) {
+            debugModelBtn.addEventListener('click', () => {
                 debug3DModel();
             });
         }
+        
+        if (testTransitionsBtn) {
+            testTransitionsBtn.addEventListener('click', () => {
+                if (typeof window.showNotification === 'function') {
+                    window.showNotification('Test Transizioni - Funzionalità in sviluppo', 'info', 3000);
+                } else {
+                    alert('Test Transizioni - Funzionalità in sviluppo');
+                }
+            });
+        }
+
     });
 
 </script>
@@ -1084,13 +1541,16 @@ const btnMulti = document.getElementById('btn-multiscan');
 const btnHistory = document.getElementById('btn-history');
 btnMulti.addEventListener('click', () => {
     multiScanMode = !multiScanMode;
+    
     if (multiScanMode) {
+        // Attiva multiscan
         startPulseAnimation();
-        btnMulti.classList.add('active-blink');
+        btnMulti.classList.add('btn-multiscan-active');
         if (!isNfcActive) startNfc();
     } else {
+        // Disattiva multiscan
         stopPulseAnimation();
-        btnMulti.classList.remove('active-blink');
+        btnMulti.classList.remove('btn-multiscan-active');
         stopNfc();
     }
 });
