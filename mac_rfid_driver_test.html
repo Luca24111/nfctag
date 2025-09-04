@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Driver RFID Mac</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p {
+            font-size: 1.1rem;
+            color: #999;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .test-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            border: 2px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.15);
+            color: #ff9500;
+            border: 2px solid #ff9500;
+        }
+        .status.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            border: 2px solid #ff3b30;
+        }
+        .status.warning {
+            background: rgba(255, 107, 53, 0.15);
+            color: #ff6b35;
+            border: 2px solid #ff6b35;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(255, 107, 53, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
+        }
+        .btn.success {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+        }
+        .btn.success:hover {
+            box-shadow: 0 8px 24px rgba(52, 199, 89, 0.4);
+        }
+        .btn.danger {
+            background: linear-gradient(135deg, #ff3b30, #d70015);
+            box-shadow: 0 4px 16px rgba(255, 59, 48, 0.3);
+        }
+        .btn.danger:hover {
+            box-shadow: 0 8px 24px rgba(255, 59, 48, 0.4);
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #ff6b35;
+            line-height: 1.4;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 2px solid #007aff;
+            color: #007aff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 2px solid #ff9500;
+            color: #ff9500;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .error {
+            background: rgba(255, 59, 48, 0.1);
+            border: 2px solid #ff3b30;
+            color: #ff3b30;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .success {
+            background: rgba(52, 199, 89, 0.1);
+            border: 2px solid #34c759;
+            color: #34c759;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .device-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .device-item {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .device-label {
+            color: #999;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .device-value {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .instructions {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .instructions ol {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        .driver-test {
+            background: rgba(255, 107, 53, 0.1);
+            border: 2px solid #ff6b35;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .driver-result {
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #ff6b35;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Test Driver RFID Mac</h1>
+            <p>Diagnostica driver e riconoscimento hardware</p>
+        </div>
+        
+        <div class="info">
+            <strong>🎯 Obiettivo:</strong> Verificare se il lettore RFID ha bisogno di driver specifici e diagnosticare problemi di riconoscimento hardware.
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Informazioni Sistema Mac</div>
+            <div class="device-info">
+                <div class="device-item">
+                    <div class="device-label">Sistema Operativo</div>
+                    <div class="device-value" id="osInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Architettura</div>
+                    <div class="device-value" id="archInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Browser</div>
+                    <div class="device-value" id="browserInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Supporto USB</div>
+                    <div class="device-value" id="usbSupport">Caricamento...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔍 Test Riconoscimento Hardware</div>
+            <div id="systemStatus" class="status waiting">
+                <span>⏳</span>
+                <span>In attesa di test hardware...</span>
+            </div>
+            
+            <div class="instructions">
+                <strong>📋 Test Hardware:</strong>
+                <ol>
+                    <li>Clicca "🔍 Test Hardware" per verificare il riconoscimento</li>
+                    <li>Collega il lettore RFID USB-C al Mac</li>
+                    <li>Osserva i risultati del test</li>
+                    <li>Se non viene riconosciuto, potrebbe servire un driver</li>
+                </ol>
+            </div>
+            
+            <button id="testHardware" class="btn">🔍 Test Hardware</button>
+            <button id="testUSB" class="btn">🔌 Test USB API</button>
+            <button id="clearLog" class="btn danger">🗑️ Pulisci Log</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log Diagnostica</div>
+            <div id="eventLog" class="log-area">
+                <div style="color: #999;">I log di diagnostica appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔧 Risultati Test Driver</div>
+            <div id="driverResults">
+                <div style="color: #999; text-align: center;">Esegui i test per vedere i risultati...</div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Problemi Comuni con Driver RFID:</strong><br>
+            • <strong>Lettore non riconosciuto:</strong> Potrebbe servire driver specifico<br>
+            • <strong>Errore di permessi:</strong> Il browser potrebbe non avere accesso USB<br>
+            • <strong>Modalità HID:</strong> Il lettore deve essere in modalità tastiera<br>
+            • <strong>Cavo USB:</strong> Prova cavi diversi o adattatori
+        </div>
+
+        <div class="error">
+            <strong>🚨 Se il Test Fallisce:</strong><br>
+            1. <strong>Verifica il lettore</strong> su un PC Windows/Linux<br>
+            2. <strong>Cerca driver</strong> sul sito del produttore<br>
+            3. <strong>Controlla modalità</strong> del lettore (HID vs Serial)<br>
+            4. <strong>Prova software</strong> di terze parti per testare
+        </div>
+    </div>
+
+    <script>
+        let isTestActive = false;
+        let eventCount = 0;
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const testHardwareBtn = document.getElementById('testHardware');
+        const testUSBBtn = document.getElementById('testUSB');
+        const clearLogBtn = document.getElementById('clearLog');
+        const eventLog = document.getElementById('eventLog');
+        const driverResults = document.getElementById('driverResults');
+
+        // Informazioni sistema
+        function updateSystemInfo() {
+            document.getElementById('osInfo').textContent = navigator.platform;
+            document.getElementById('archInfo').textContent = navigator.userAgent.includes('Intel') ? 'Intel' : 
+                                                            navigator.userAgent.includes('Apple') ? 'Apple Silicon' : 'Sconosciuta';
+            document.getElementById('browserInfo').textContent = navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+                                                                navigator.userAgent.includes('Safari') ? 'Safari' : 
+                                                                navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Altro';
+            document.getElementById('usbSupport').textContent = 'usb' in navigator ? 'Supportato' : 'Non supportato';
+        }
+
+        // Funzione per loggare eventi
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#ff6b35',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff',
+                success: '#34c759'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.5rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+            
+            eventCount++;
+        }
+
+        // Test hardware USB
+        async function testHardware() {
+            logEvent('🔍 Iniziando test hardware USB...', 'info');
+            systemStatus.className = 'status warning';
+            systemStatus.innerHTML = '<span>🔍</span><span>Test hardware in corso...</span>';
+            
+            if ('usb' in navigator) {
+                logEvent('✅ USB API disponibile nel browser', 'success');
+                
+                try {
+                    // Richiedi permessi USB
+                    logEvent('🔐 Richiedendo permessi USB...', 'info');
+                    const devices = await navigator.usb.getDevices();
+                    
+                    logEvent(`📱 Dispositivi USB trovati: ${devices.length}`, 'info');
+                    
+                    if (devices.length === 0) {
+                        logEvent('⚠️ Nessun dispositivo USB trovato', 'warning');
+                        logEvent('💡 Prova a collegare il lettore RFID e riprova', 'info');
+                        
+                        // Prova a richiedere permessi per un nuovo dispositivo
+                        try {
+                            logEvent('🔐 Richiedendo permessi per nuovo dispositivo...', 'info');
+                            await navigator.usb.requestDevice({
+                                filters: [] // Accetta qualsiasi dispositivo
+                            });
+                            logEvent('✅ Permessi USB concessi', 'success');
+                        } catch (error) {
+                            logEvent(`❌ Errore permessi USB: ${error.message}`, 'error');
+                        }
+                    } else {
+                        devices.forEach((device, index) => {
+                            logEvent(`📦 Dispositivo ${index + 1}:`, 'info');
+                            logEvent(`   Nome: ${device.productName || 'Sconosciuto'}`, 'debug');
+                            logEvent(`   Vendor ID: ${device.vendorId}`, 'debug');
+                            logEvent(`   Product ID: ${device.productId}`, 'debug');
+                            logEvent(`   Serial Number: ${device.serialNumber || 'N/A'}`, 'debug');
+                            
+                            // Verifica se potrebbe essere un lettore RFID
+                            if (device.productName && 
+                                (device.productName.toLowerCase().includes('rfid') || 
+                                 device.productName.toLowerCase().includes('reader') ||
+                                 device.productName.toLowerCase().includes('scanner'))) {
+                                logEvent(`🎯 POTENZIALE LETTORE RFID TROVATO!`, 'success');
+                            }
+                        });
+                    }
+                } catch (error) {
+                    logEvent(`❌ Errore test hardware: ${error.message}`, 'error');
+                }
+            } else {
+                logEvent('❌ USB API non disponibile in questo browser', 'error');
+                logEvent('💡 Prova con Chrome o Firefox', 'info');
+            }
+            
+            systemStatus.className = 'status ready';
+            systemStatus.innerHTML = '<span>✅</span><span>Test hardware completato</span>';
+            updateDriverResults();
+        }
+
+        // Test USB API avanzato
+        async function testUSBAPI() {
+            logEvent('🔌 Testando USB API avanzato...', 'info');
+            
+            if ('usb' in navigator) {
+                try {
+                    // Testa accesso ai dispositivi
+                    const devices = await navigator.usb.getDevices();
+                    logEvent(`📊 Dispositivi USB rilevati: ${devices.length}`, 'info');
+                    
+                    // Testa permessi
+                    try {
+                        await navigator.usb.requestDevice({
+                            filters: []
+                        });
+                        logEvent('✅ Permessi USB funzionanti', 'success');
+                    } catch (error) {
+                        logEvent(`⚠️ Permessi USB limitati: ${error.message}`, 'warning');
+                    }
+                    
+                    // Testa connessione
+                    if (devices.length > 0) {
+                        const device = devices[0];
+                        try {
+                            await device.open();
+                            logEvent('✅ Connessione USB funzionante', 'success');
+                            await device.close();
+                        } catch (error) {
+                            logEvent(`❌ Errore connessione USB: ${error.message}`, 'error');
+                        }
+                    }
+                } catch (error) {
+                    logEvent(`❌ Errore test USB API: ${error.message}`, 'error');
+                }
+            } else {
+                logEvent('❌ USB API non supportata', 'error');
+            }
+        }
+
+        // Aggiorna risultati driver
+        function updateDriverResults() {
+            const results = [];
+            results.push('<div class="driver-test">');
+            results.push('<strong>🔧 Risultati Diagnostica:</strong>');
+            results.push('<div class="driver-result">');
+            
+            // Analisi sistema
+            results.push(`Sistema: ${navigator.platform}`);
+            results.push(`Architettura: ${navigator.userAgent.includes('Intel') ? 'Intel' : navigator.userAgent.includes('Apple') ? 'Apple Silicon' : 'Sconosciuta'}`);
+            results.push(`Browser: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Altro'}`);
+            results.push(`USB API: ${'usb' in navigator ? 'Supportata' : 'Non supportata'}`);
+            results.push(`Eventi registrati: ${eventCount}`);
+            
+            // Raccomandazioni
+            results.push('</div>');
+            results.push('<strong>💡 Raccomandazioni:</strong>');
+            
+            if (!('usb' in navigator)) {
+                results.push('• Cambia browser (Chrome/Firefox)');
+                results.push('• Verifica permessi del browser');
+            } else if (eventCount === 0) {
+                results.push('• Collega il lettore RFID');
+                results.push('• Verifica che sia alimentato');
+                results.push('• Prova cavo USB diverso');
+            } else {
+                results.push('• Il sistema sembra funzionare');
+                results.push('• Verifica modalità del lettore (HID)');
+            }
+            
+            results.push('</div>');
+            
+            driverResults.innerHTML = results.join('<br>');
+        }
+
+        // Event listeners
+        testHardwareBtn.addEventListener('click', testHardware);
+        testUSBBtn.addEventListener('click', testUSBAPI);
+        clearLogBtn.addEventListener('click', function() {
+            eventLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            driverResults.innerHTML = '<div style="color: #999; text-align: center;">Esegui i test per vedere i risultati...</div>';
+            eventCount = 0;
+        });
+
+        // Inizializzazione
+        updateSystemInfo();
+        logEvent('🔧 Test Driver RFID per Mac caricato', 'success');
+        logEvent(`🖥️ Sistema: ${navigator.platform}`, 'debug');
+        logEvent(`🌐 Browser: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Altro'}`, 'debug');
+        logEvent(`🔌 USB: ${'usb' in navigator ? 'Supportato' : 'Non supportato'}`, 'debug');
+    </script>
+</body>
+</html> 

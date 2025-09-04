@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Lettore RFID</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .test-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #34c759;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #34c759;
+        }
+        .status {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34c759;
+            border: 1px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.2);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+        }
+        .clear-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .clear-btn:hover {
+            background: #d70015;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007aff;
+            color: #007aff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test Diagnostico Lettore RFID</h1>
+        
+        <div class="info">
+            <strong>Istruzioni:</strong><br>
+            1. Collega il lettore RFID USB-C al PC<br>
+            2. Clicca su "Inizia Test" per attivare il monitoraggio<br>
+            3. Scansiona un tag RFID e osserva i log<br>
+            4. Usa "Pulisci Log" per cancellare i risultati
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Status Sistema</div>
+            <div id="systemStatus" class="status waiting">
+                ⏳ In attesa di attivazione...
+            </div>
+            <button id="startTest" class="clear-btn">🚀 Inizia Test</button>
+            <button id="clearLog" class="clear-btn" style="background: #666; margin-left: 0.5rem;">🗑️ Pulisci Log</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Input Test (Digita qui per simulare)</div>
+            <input type="text" id="testInput" class="input-field" placeholder="Digita qui per testare o scansiona un tag RFID...">
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log Eventi (Tempo Reale)</div>
+            <div id="eventLog" class="log-area">
+                <div style="color: #999;">I log appariranno qui quando attivi il test...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📋 Risultati Analisi</div>
+            <div id="analysisResults">
+                <div style="color: #999;">I risultati dell'analisi appariranno qui...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isTestActive = false;
+        let rfidBuffer = '';
+        let rfidTimeout = null;
+        let eventCount = 0;
+        let lastEventTime = null;
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const startTestBtn = document.getElementById('startTest');
+        const clearLogBtn = document.getElementById('clearLog');
+        const testInput = document.getElementById('testInput');
+        const eventLog = document.getElementById('eventLog');
+        const analysisResults = document.getElementById('analysisResults');
+
+        // Funzione per loggare eventi
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#34c759',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.5rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+            
+            eventCount++;
+            lastEventTime = new Date();
+        }
+
+        // Funzione per analizzare i risultati
+        function analyzeResults() {
+            const results = [];
+            results.push(`<strong>📊 Statistiche Test:</strong>`);
+            results.push(`• Eventi totali: ${eventCount}`);
+            results.push(`• Ultimo evento: ${lastEventTime ? lastEventTime.toLocaleTimeString() : 'Nessuno'}`);
+            results.push(`• Buffer RFID: "${rfidBuffer}"`);
+            results.push(`• Test attivo: ${isTestActive ? 'Sì' : 'No'}`);
+            
+            analysisResults.innerHTML = results.join('<br>');
+        }
+
+        // Gestione input di test
+        testInput.addEventListener('input', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`Input event: "${e.target.value}"`, 'debug');
+            
+            if (e.target.value.length > 0) {
+                rfidBuffer += e.target.value;
+                logEvent(`Buffer aggiornato: "${rfidBuffer}"`, 'info');
+                
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 TAG RFID RILEVATO: "${rfidBuffer.trim()}"`, 'info');
+                        logEvent(`📏 Lunghezza: ${rfidBuffer.trim().length} caratteri`, 'debug');
+                        logEvent(`🔤 Tipo: ${/^[0-9]+$/.test(rfidBuffer.trim()) ? 'Numerico' : 'Alfanumerico'}`, 'debug');
+                        
+                        // Reset buffer
+                        rfidBuffer = '';
+                        analyzeResults();
+                    }
+                }, 200);
+            }
+        });
+
+        // Gestione tasto Enter
+        testInput.addEventListener('keydown', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`Keydown event: "${e.key}" (keyCode: ${e.keyCode})`, 'debug');
+            
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (rfidBuffer.length > 0) {
+                    logEvent(`🎯 TAG RFID (Enter): "${rfidBuffer.trim()}"`, 'info');
+                    rfidBuffer = '';
+                    testInput.value = '';
+                    analyzeResults();
+                }
+            }
+        });
+
+        // Gestione universale keydown (per lettore RFID reale)
+        document.addEventListener('keydown', function(e) {
+            if (!isTestActive) return;
+            
+            // Ignora se l'utente sta digitando nel campo di test
+            if (e.target === testInput) return;
+            
+            logEvent(`Global keydown: "${e.key}" (keyCode: ${e.keyCode}) - Target: ${e.target.tagName}`, 'debug');
+            
+            // Cattura caratteri alfanumerici
+            if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                logEvent(`RFID character detected: "${e.key}"`, 'warning');
+                rfidBuffer += e.key;
+                
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 TAG RFID (Global): "${rfidBuffer.trim()}"`, 'info');
+                        rfidBuffer = '';
+                        analyzeResults();
+                    }
+                }, 300);
+            }
+            
+            // Gestione Enter
+            if (e.key === 'Enter' && rfidBuffer.length > 0) {
+                e.preventDefault();
+                logEvent(`🎯 TAG RFID (Global Enter): "${rfidBuffer.trim()}"`, 'info');
+                rfidBuffer = '';
+                analyzeResults();
+            }
+        });
+
+        // Gestione focus
+        document.addEventListener('focusin', function(e) {
+            if (!isTestActive) return;
+            logEvent(`Focus in: ${e.target.tagName}`, 'debug');
+        });
+
+        // Pulsante inizia test
+        startTestBtn.addEventListener('click', function() {
+            isTestActive = !isTestActive;
+            
+            if (isTestActive) {
+                systemStatus.className = 'status ready';
+                systemStatus.innerHTML = '✅ Test Attivo - Scansiona un tag RFID o digita nel campo sopra';
+                startTestBtn.textContent = '⏹️ Ferma Test';
+                logEvent('🚀 Test RFID avviato', 'info');
+                logEvent('📱 Sistema pronto per ricevere input RFID', 'info');
+                logEvent('💡 Suggerimento: prova a scansionare un tag o digitare nel campo di test', 'debug');
+                
+                // Focus sul campo di test
+                testInput.focus();
+            } else {
+                systemStatus.className = 'status waiting';
+                systemStatus.innerHTML = '⏳ Test Fermato';
+                startTestBtn.textContent = '🚀 Inizia Test';
+                logEvent('⏹️ Test RFID fermato', 'warning');
+            }
+            
+            analyzeResults();
+        });
+
+        // Pulsante pulisci log
+        clearLogBtn.addEventListener('click', function() {
+            eventLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            eventCount = 0;
+            rfidBuffer = '';
+            analyzeResults();
+        });
+
+        // Analisi iniziale
+        analyzeResults();
+    </script>
+</body>
+</html> 

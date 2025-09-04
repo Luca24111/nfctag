@@ -1,0 +1,55 @@
+{
+  "name": "Tagly - NFC Management System",
+  "short_name": "Tagly",
+  "description": "Sistema di gestione prodotti e eventi tramite NFC",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#007aff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "it",
+  "dir": "ltr",
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "Scansiona NFC",
+      "short_name": "NFC",
+      "description": "Scansiona un tag NFC",
+      "url": "/nfc",
+      "icons": [
+        {
+          "src": "/assets/nfc-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Nuovo Evento",
+      "short_name": "Evento",
+      "description": "Crea un nuovo evento",
+      "url": "/evento/nuovo",
+      "icons": [
+        {
+          "src": "/assets/event-icon.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+} 

@@ -5,24 +5,146 @@
     <meta charset="UTF-8">
     <title>{% block title %}Dashboard{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#007aff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tagly">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/assets/icon-192.png">
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
     <style>
+        :root {
+            /* Dark Mode Colors (Default) */
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2c2c2e;
+            --text-primary: #ffffff;
+            --text-secondary: #999999;
+            --accent-color: #007aff;
+            --accent-hover: #0056cc;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --success-color: #34c759;
+            --error-color: #ff3b30;
+            --warning-color: #ff9500;
+        }
+
+        [data-theme="light"] {
+            /* Light Mode Colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f2f2f7;
+            --bg-tertiary: #e5e5ea;
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --accent-color: #007aff;
+            --accent-hover: #0056cc;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --success-color: #34c759;
+            --error-color: #ff3b30;
+            --warning-color: #ff9500;
+        }
+
         html, body {
             font-size: 1.1rem;
             font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #121212;
-            color: white;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+
+
+        /* Micro-interactions */
+        .micro-interaction {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .micro-interaction:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .micro-interaction:active {
+            transform: translateY(0);
+            transition: all 0.1s ease;
+        }
+
+        /* Gesture Controls */
+        .swipeable {
+            touch-action: pan-y;
+            user-select: none;
+        }
+
+        .swipe-left {
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .swipe-right {
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        /* Loading States */
+        .loading-skeleton {
+            background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Focus States */
+        *:focus {
+            outline: none;
+        }
+        
+        /* Remove button focus outline */
+        button:focus,
+        .btn:focus,
+        .nav-icon:focus,
+        .action-btn:focus,
+        .primary-action:focus,
+        .secondary-action:focus,
+        .toggle-btn:focus,
+        #toggle-animation-btn:focus,
+        #toggle-format-btn:focus,
+        #header-theme-toggle:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         .ai-bubble {
             position: fixed;
             bottom: 100px;
             right: 20px;
-            color: white;
+            color: var(--text-primary);
             width: 56px;
             height: 56px;
             border-radius: 50%;
@@ -31,60 +153,77 @@
             align-items: center;
             font-size: 1.4rem;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px var(--shadow-color);
             z-index: 1031;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .ai-bubble.active {
+            box-shadow: 
+                0 4px 10px var(--shadow-color),
+                0 0 20px rgba(147, 51, 234, 0.3),
+                0 0 40px rgba(147, 51, 234, 0.2),
+                0 0 60px rgba(147, 51, 234, 0.1);
+            animation: aiGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes aiGlow {
+            0% {
+                box-shadow: 
+                    0 4px 10px var(--shadow-color),
+                    0 0 20px rgba(147, 51, 234, 0.3),
+                    0 0 40px rgba(147, 51, 234, 0.2),
+                    0 0 60px rgba(147, 51, 234, 0.1);
+            }
+            100% {
+                box-shadow: 
+                    0 4px 10px var(--shadow-color),
+                    0 0 25px rgba(147, 51, 234, 0.4),
+                    0 0 50px rgba(147, 51, 234, 0.3),
+                    0 0 75px rgba(147, 51, 234, 0.2);
+            }
         }
 
         .ai-chat {
             position: fixed;
             bottom: 170px;
             right: 20px;
-            width: 350px;
-            background: rgba(28, 28, 30, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            width: 380px;
+            height: 480px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
-            padding: 1.5rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            padding: 0;
+            box-shadow: 0 20px 60px var(--shadow-color);
             z-index: 1031;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(20px);
         }
 
         .ai-chat input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: #424244;
-            color: white;
+            flex: 1;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            background: transparent;
+            color: var(--text-primary);
             font-size: 0.9rem;
-            transition: all 0.2s ease;
+            outline: none;
+            resize: none;
+            font-weight: 400;
+            min-width: 0;
         }
 
+        .ai-chat input::placeholder {
+            color: var(--text-secondary);
+        }
+        
         .ai-chat input:focus {
             outline: none;
-            border-color: #007aff;
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-            background: #4a4a4c;
         }
 
-        .ai-chat button {
-            width: 100%;
-            padding: 0.8rem;
-            border-radius: 12px;
-            border: none;
-            background: linear-gradient(135deg, #007aff 0%, #0056cc 100%);
-            color: white;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            margin-top: 0.8rem;
-        }
 
-        .ai-chat button:hover {
-            background: linear-gradient(135deg, #0056cc 0%, #004499 100%);
-            transform: translateY(-1px);
-        }
 
         .ai-chat button:disabled {
             opacity: 0.6;
@@ -95,13 +234,165 @@
         .ai-output {
             margin-top: 1rem;
             padding: 1rem;
-            background: rgba(44, 44, 46, 0.6);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #f7f7f8;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
             max-height: 300px;
             overflow-y: auto;
+            font-size: 0.875rem;
+            line-height: 1.5;
+            color: #374151;
+        }
+        
+        [data-theme="dark"] .ai-output {
+            background: #444654;
+            border: 1px solid #565869;
+            color: #ececf1;
+        }
+        
+        /* Input Container */
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 0.5rem;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+        
+        .voice-btn, .send-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
             font-size: 0.9rem;
-            line-height: 1.4;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        
+        .voice-btn:hover, .send-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            transform: scale(1.05);
+        }
+        
+        .voice-btn.listening {
+            background: var(--error-color);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .voice-btn.error {
+            background: var(--error-color);
+            color: white;
+        }
+        
+        .voice-btn.success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .voice-status {
+            flex: 1;
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 400;
+        }
+        
+        [data-theme="dark"] .voice-status {
+            color: #9ca3af;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Chat Message Styles */
+        .chat-message {
+            margin-bottom: 1rem;
+            padding: 1.25rem;
+            border-radius: 16px;
+        }
+        
+        .assistant-message {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            margin-right: 1rem;
+        }
+        
+        .user-message {
+            background: var(--accent-color);
+            color: white;
+            margin-left: 2rem;
+            border: 1px solid var(--accent-color);
+        }
+        
+        .message-text {
+            font-size: 0.8rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            font-weight: 400;
+            text-align: left;
+        }
+        
+        .user-message .message-text {
+            color: white;
+        }
+        
+        .chat-input-section {
+            padding: 1.25rem;
+            border-top: 1px solid var(--border-color);
+            background: var(--bg-primary);
+        }
+        
+        .voice-status {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        /* Scan Button Styles */
+        .scan-button:hover {
+            background: linear-gradient(135deg, #0056CC 0%, #004499 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.4);
+        }
+        
+        .scan-button:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
+        
+        /* Header Dropdown Hover Effects */
+        .dropdown-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        [data-theme="dark"] .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Header Button Hover */
+        #header-dropdown-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+            transform: scale(1.05);
+        }
+        
+        [data-theme="dark"] #header-dropdown-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
 
         /* Toggle switch styles */
@@ -110,12 +401,14 @@
             display: inline-block;
             width: 44px;
             height: 24px;
+            margin-left: 0.5rem;
         }
 
         .toggle-switch input {
             opacity: 0;
             width: 0;
             height: 0;
+            position: absolute;
         }
 
         .toggle-slider {
@@ -125,9 +418,10 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: #424244;
-            transition: 0.3s;
+            background-color: #e5e5ea;
+            transition: 0.3s ease;
             border-radius: 24px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .toggle-slider:before {
@@ -138,8 +432,9 @@
             left: 2px;
             bottom: 2px;
             background-color: white;
-            transition: 0.3s;
+            transition: 0.3s ease;
             border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         input:checked + .toggle-slider {
@@ -150,6 +445,15 @@
             transform: translateX(20px);
         }
 
+        /* Dark theme support */
+        [data-theme="dark"] .toggle-slider {
+            background-color: #3a3a3c;
+        }
+
+        [data-theme="dark"] .toggle-slider:before {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
         .toggle-container {
             display: flex;
             align-items: center;
@@ -158,7 +462,7 @@
         }
 
         .toggle-label {
-            color: #ffffff;
+            color: var(--text-primary);
             font-size: 0.9rem;
             margin-right: 0.5rem;
         }
@@ -167,33 +471,7 @@
             display: none;
         }
         
-        /* Header Menu Button Apple Style */
-        #header-dropdown-btn:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            transform: scale(1.1);
-        }
-        
-        /* Header Dropdown Items Hover */
-        .dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.08) !important;
-            transform: translateX(2px);
-        }
-        
-        /* Header Dropdown Animation */
-        .header-dropdown {
-            animation: dropdownSlideIn 0.2s ease-out;
-        }
-        
-        @keyframes dropdownSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
+
         
 
 
@@ -329,6 +607,231 @@
             animation: ai-sparkle 0.6s ease-out;
         }
 
+        /* Apple Style Header e Menu */
+        .custom-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            background: #121212;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        [data-theme="light"] .custom-header {
+            background: #ffffff;
+        }
+
+        .user-greeting {
+            font-size: 1.2rem;
+            font-weight: 400;
+            color: #666666;
+            letter-spacing: -0.02em;
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .user-greeting strong {
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .user-greeting {
+            color: #cccccc;
+        }
+
+        [data-theme="dark"] .user-greeting strong {
+            color: #ffffff;
+        }
+
+        .apple-menu {
+            position: relative;
+        }
+
+        #apple-menu-btn {
+            background: transparent;
+            border: none;
+            color: #666666;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        [data-theme="dark"] #apple-menu-btn {
+            color: #cccccc;
+        }
+
+        #apple-menu-btn:hover {
+            background: rgba(0, 0, 0, 0.1) !important;
+            transform: scale(1.05);
+        }
+
+        [data-theme="dark"] #apple-menu-btn:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .apple-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.75rem;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 0.5rem;
+            min-width: 220px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            display: none;
+            z-index: 1001;
+            animation: appleDropdownSlideIn 0.2s ease-out;
+        }
+
+        [data-theme="dark"] .apple-dropdown {
+            background: rgba(28, 28, 30, 0.98);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes appleDropdownSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .apple-menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            color: #1d1d1f;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-radius: 8px;
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .apple-menu-item span {
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .apple-menu-item i {
+            font-size: 0.9rem;
+            color: inherit;
+            width: 16px;
+            text-align: center;
+            margin-right: 0.5rem;
+        }
+
+        [data-theme="dark"] .apple-menu-item {
+            color: #ffffff;
+        }
+
+        .apple-menu-item:hover {
+            background: rgba(0, 0, 0, 0.05) !important;
+            transform: translateX(2px);
+        }
+
+        [data-theme="dark"] .apple-menu-item:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+
+
+
+        .menu-separator {
+            height: 1px;
+            background: rgba(0, 0, 0, 0.1);
+            margin: 0.5rem 0;
+        }
+
+        [data-theme="dark"] .menu-separator {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .logout-item {
+            color: #ff3b30 !important;
+        }
+        
+        .logout-item i {
+            color: #ff3b30 !important;
+        }
+
+        .logout-item i {
+            color: #ff3b30 !important;
+        }
+
+        /* Apple Toggle Switch */
+        .apple-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            margin-left: 0.5rem;
+        }
+
+        .apple-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+
+        .apple-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e5ea;
+            transition: 0.3s ease;
+            border-radius: 24px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .apple-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.3s ease;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked + .apple-toggle-slider {
+            background-color: #34c759;
+        }
+
+        input:checked + .apple-toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Dark theme support for Apple toggle */
+        [data-theme="dark"] .apple-toggle-slider {
+            background-color: #3a3a3c;
+        }
+
+        [data-theme="dark"] .apple-toggle-slider:before {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+        }
+
 
     </style>
 </head>
@@ -338,36 +841,60 @@
     <div class="main-content">
 
 
-        <!-- Header Row -->
+
+
+        <!-- Header Personalizzato in Stile Apple -->
         {% if app.user %}
-        <div class="header-row" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; background: #121212;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <div style="font-size: 1.2rem; font-weight: 600; color: #ffffff; letter-spacing: -0.04em;">
-                    Ciao, {{ app.user ? app.user.name|default(app.user.email|split('@')[0]) : 'Utente' }}
-                </div>
+        <div class="custom-header">
+            <!-- Saluto Utente a Sinistra -->
+            <div class="user-greeting">
+                Ciao, <strong>{{ app.user ? app.user.name|default(app.user.email|split('@')[0]) : 'Utente' }}</strong>
             </div>
             
-            <div class="header-menu" style="position: relative;">
-                <button id="header-dropdown-btn" style="background: transparent; border: none; color: white; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; transition: all 0.2s ease;">
+            <!-- Menu a Tendina a Destra -->
+            <div class="apple-menu">
+                <button id="apple-menu-btn">
                     <i class="fas fa-bars"></i>
                 </button>
                 
-                <div id="header-dropdown" class="header-dropdown" style="position: absolute; top: 100%; right: 0; margin-top: 0.5rem; background: rgba(28, 28, 30, 0.98); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 20px; padding: 0.75rem 0; min-width: 220px; box-shadow: 0 12px 40px rgba(0,0,0,0.6); display: none; z-index: 1001;">
-                    <div class="dropdown-item" data-action="toggle-ai" style="display: flex; align-items: center; padding: 1rem 1.25rem; color: #ffffff; font-size: 0.95rem; font-weight: 500; transition: all 0.2s ease; cursor: pointer; border-radius: 0;">
-                        <i class="fas fa-robot" style="margin-right: 1rem; width: 18px; text-align: center; color: #bb86fc; font-size: 1rem;"></i>
-                        <span style="flex: 1;">Tagly Assistant</span>
-                        <div style="margin-left: 1rem;">
-                            <div class="toggle-switch" style="margin: 0; transform: scale(0.9);">
-                                <input type="checkbox" id="header-ai-toggle" style="display: none;">
-                                <label class="toggle-slider" for="header-ai-toggle" style="cursor: pointer;"></label>
-                            </div>
+                <div id="apple-dropdown" class="apple-dropdown">
+                    <!-- AI Assistant Toggle -->
+                    <div class="apple-menu-item" data-action="toggle-ai">
+                        <i class="fas fa-sparkles"></i>
+                        <span>AI Assistant</span>
+                        <div class="apple-toggle">
+                            <input type="checkbox" id="apple-ai-toggle">
+                            <label class="apple-toggle-slider" for="apple-ai-toggle"></label>
                         </div>
                     </div>
-                    <div style="height: 1px; background: rgba(255, 255, 255, 0.1); margin: 0.25rem 0;"></div>
-                    <div class="dropdown-item" data-action="logout" style="display: flex; align-items: center; padding: 1rem 1.25rem; color: #ffffff; font-size: 0.95rem; font-weight: 500; transition: all 0.2s ease; cursor: pointer; border-radius: 0;">
-                        <i class="fas fa-sign-out-alt" style="margin-right: 1rem; width: 18px; text-align: center; color: #999999; font-size: 1rem;"></i>
-                        <span>Logout</span>
+                    
+                    <!-- Theme Toggle -->
+                    <div class="apple-menu-item" data-action="toggle-theme">
+                        <i id="apple-theme-icon" class="fas fa-circle-half-stroke"></i>
+                        <span id="apple-theme-text">Tema</span>
+                        <div class="apple-toggle">
+                            <input type="checkbox" id="apple-theme-toggle">
+                            <label class="apple-toggle-slider" for="apple-theme-toggle"></label>
+                        </div>
                     </div>
+                    
+                    <!-- Separator -->
+                    <div class="menu-separator"></div>
+                    
+                    <!-- Impostazioni -->
+                    <a href="{{ path('app_settings') }}" class="apple-menu-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Impostazioni</span>
+                    </a>
+                    
+                    <!-- Separator -->
+                    <div class="menu-separator"></div>
+                    
+                    <!-- Logout -->
+                    <a href="{{ path('app_logout') }}" class="apple-menu-item logout-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -377,6 +904,7 @@
             {% block body %}{% endblock %}
         </main>
 
+        {% if app.request.attributes.get('_route') not in ['app_login'] %}
         <div class="bottom-nav">
             <a href="{{ path('app_home') }}" class="nav-icon{% if app.request.attributes.get('_route') == 'app_home' %} active{% endif %}">
                 <i class="fas fa-network-wired"></i>
@@ -390,20 +918,42 @@
                 <i class="fas fa-calendar-alt"></i>
             </a>
         </div>
+        {% endif %}
     </div>
 </div>
 
 
 
-<div id="ai-helper" class="ai-bubble">
+{# <div id="ai-helper" class="ai-bubble">
     <img src="{{ asset('img/ai-icon.png') }}" alt="AI" style="width: 40px; height: 40px;" />
-</div>
+</div> #}
 
 <div id="ai-chatbox" class="ai-chat hidden">
-    <h6 style="color: white; font-size: 1.1rem; margin-bottom: 1rem; font-weight: 600;">Tagly Assistant</h6>
-    <input type="text" id="ai-input" placeholder="Es. vestito rosso, scarpe nike..." />
-    <button id="ai-send" class="btn btn-primary btn-sm">Cerca</button>
-    <div id="ai-output" class="ai-output" style="display: none;"></div>
+    <!-- Chat Messages Area -->
+    <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 1rem;">
+        <!-- Welcome Message -->
+        <div class="chat-message assistant-message">
+            <div class="message-content">
+                <div class="message-text">
+                    Ciao! Come posso aiutarti oggi? Puoi chiedermi di cercare prodotti, associare tag NFC agli eventi, o usare i comandi vocali.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Input Section -->
+    <div class="chat-input-section">
+        <div class="input-container">
+            <input type="text" id="ai-input" placeholder="Scrivi il tuo messaggio..." />
+            <button id="voice-btn" class="voice-btn" title="Comando Vocale">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <button id="ai-send" class="send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+        <div id="voice-status" class="voice-status" style="display: none;">Clicca per parlare</div>
+    </div>
     
     <!-- Toggle AI (nascosto ma necessario per il funzionamento) -->
     <input type="checkbox" id="ai-toggle" style="display: none;" checked>
@@ -426,11 +976,32 @@
       aiToggle.checked = aiEnabled;
       updateAIVisibility(aiEnabled);
       
-      // Aggiorna il toggle del menu header
-      const headerAiToggle = document.getElementById('header-ai-toggle');
-      if (headerAiToggle) {
-          headerAiToggle.checked = aiEnabled;
+      // Carica lo stato dei toggle Apple
+      const appleAiToggle = document.getElementById('apple-ai-toggle');
+      if (appleAiToggle) {
+          appleAiToggle.checked = aiEnabled;
       }
+      
+
+      
+      const currentTheme = localStorage.getItem('theme') || 'dark';
+      const appleThemeToggle = document.getElementById('apple-theme-toggle');
+      if (appleThemeToggle) {
+          appleThemeToggle.checked = currentTheme === 'light';
+          
+          // Inizializza l'icona del tema
+          const themeIcon = document.getElementById('apple-theme-icon');
+          if (themeIcon) {
+              themeIcon.className = currentTheme === 'light' ? 'fas fa-sun' : 'fas fa-circle-half-stroke';
+          }
+      }
+      
+      // Check if chat is open on page load
+      if (chatbox && !chatbox.classList.contains('hidden')) {
+          helper.classList.add('active');
+      }
+      
+
 
       // Gestione toggle assistente
       aiToggle.addEventListener('change', function() {
@@ -457,6 +1028,14 @@
           helper.addEventListener('click', () => {
               if (aiToggle.checked) {
                   chatbox.classList.toggle('hidden');
+                  
+                  // Toggle active class for glow effect
+                  if (chatbox.classList.contains('hidden')) {
+                      helper.classList.remove('active');
+                  } else {
+                      helper.classList.add('active');
+                  }
+                  
                   helper.classList.add('sparkle');
                   setTimeout(() => helper.classList.remove('sparkle'), 600);
               }
@@ -519,93 +1098,9 @@
           }
       }
 
-      // Header dropdown functionality
-      const headerDropdownBtn = document.getElementById('header-dropdown-btn');
-      const headerDropdown = document.getElementById('header-dropdown');
-      
 
       
-      if (headerDropdownBtn && headerDropdown) {
-          // Toggle header dropdown menu
-          headerDropdownBtn.addEventListener('click', function(e) {
-              e.stopPropagation();
-              const isVisible = headerDropdown.style.display === 'block';
-              headerDropdown.style.display = isVisible ? 'none' : 'block';
-              
-              // Add hover effect to button
-              if (!isVisible) {
-                  headerDropdownBtn.style.background = 'rgba(255, 255, 255, 0.1)';
-                  headerDropdownBtn.style.transform = 'scale(0.95)';
-              } else {
-                  headerDropdownBtn.style.background = 'transparent';
-                  headerDropdownBtn.style.transform = 'scale(1)';
-              }
-          });
-          
-          // Handle header menu item clicks
-          const headerMenuItems = document.querySelectorAll('.dropdown-item');
-          headerMenuItems.forEach(item => {
-              item.addEventListener('click', function(e) {
-                  e.stopPropagation();
-                  const action = this.getAttribute('data-action');
-                  
-                  // Se è il toggle AI, non chiudere il menu
-                  if (action === 'toggle-ai') {
-                      handleHeaderAction(action);
-                  } else {
-                      handleHeaderAction(action);
-                      headerDropdown.style.display = 'none';
-                      headerDropdownBtn.style.background = 'transparent';
-                      headerDropdownBtn.style.transform = 'scale(1)';
-                  }
-              });
-              
-              // Hover effects for header menu items
-              item.addEventListener('mouseenter', function() {
-                  this.style.background = 'rgba(255, 255, 255, 0.1)';
-              });
-              
-              item.addEventListener('mouseleave', function() {
-                  this.style.background = 'transparent';
-              });
-          });
-          
-          // Handle header AI toggle
-          const headerAiToggle = document.getElementById('header-ai-toggle');
-          if (headerAiToggle) {
-              headerAiToggle.addEventListener('change', function() {
-                  const enabled = this.checked;
-                  localStorage.setItem('ai-enabled', enabled);
-                  updateAIVisibility(enabled);
-                  
-                  // Sincronizza con il toggle principale
-                  if (aiToggle) {
-                      aiToggle.checked = enabled;
-                  }
-                  
 
-              });
-          }
-          
-          // Close header dropdown when clicking outside
-          document.addEventListener('click', function(e) {
-              if (!headerDropdownBtn.contains(e.target) && !headerDropdown.contains(e.target)) {
-                  headerDropdown.style.display = 'none';
-                  headerDropdownBtn.style.background = 'transparent';
-                  headerDropdownBtn.style.transform = 'scale(1)';
-              }
-          });
-      }
-      
-      function handleHeaderAction(action) {
-          switch(action) {
-              case 'logout':
-                  if (confirm('Sei sicuro di voler uscire?')) {
-                      window.location.href = '/logout';
-                  }
-                  break;
-          }
-      }
 
 
 
@@ -616,16 +1111,16 @@
 
           const notification = document.createElement('div');
           notification.style.cssText = `
-              background: rgba(28, 28, 30, 0.95);
+              background: var(--bg-secondary);
               backdrop-filter: blur(20px);
-              border: 1px solid rgba(255, 255, 255, 0.08);
+              border: 1px solid var(--border-color);
               border-radius: 12px;
               padding: 1rem;
               margin-bottom: 0.8rem;
-              color: white;
+              color: var(--text-primary);
               font-size: 0.9rem;
               font-weight: 500;
-              box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+              box-shadow: 0 8px 32px var(--shadow-color);
               transform: translateX(-100%);
               transition: transform 0.3s ease;
               pointer-events: auto;
@@ -720,7 +1215,395 @@
 
           return notification;
       };
+
+      // PWA Service Worker Registration
+      if ('serviceWorker' in navigator) {
+          window.addEventListener('load', () => {
+              navigator.serviceWorker.register('/sw.js')
+                  .then(registration => {
+                      console.log('SW registered: ', registration);
+                  })
+                  .catch(registrationError => {
+                      console.log('SW registration failed: ', registrationError);
+                  });
+          });
+      }
+
+
+      
+      // Gesture Controls
+      function initGestureControls() {
+          const swipeableElements = document.querySelectorAll('.swipeable');
+          
+          swipeableElements.forEach(element => {
+              let startX = 0;
+              let startY = 0;
+              let isSwiping = false;
+              
+              element.addEventListener('touchstart', (e) => {
+                  startX = e.touches[0].clientX;
+                  startY = e.touches[0].clientY;
+                  isSwiping = true;
+              });
+              
+              element.addEventListener('touchmove', (e) => {
+                  if (!isSwiping) return;
+                  
+                  const currentX = e.touches[0].clientX;
+                  const currentY = e.touches[0].clientY;
+                  const diffX = currentX - startX;
+                  const diffY = currentY - startY;
+                  
+                  // Horizontal swipe
+                  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+                      element.style.transform = `translateX(${diffX}px)`;
+                      element.style.opacity = 1 - Math.abs(diffX) / 200;
+                  }
+              });
+              
+              element.addEventListener('touchend', (e) => {
+                  if (!isSwiping) return;
+                  isSwiping = false;
+                  
+                  const currentX = e.changedTouches[0].clientX;
+                  const diffX = currentX - startX;
+                  
+                  if (Math.abs(diffX) > 100) {
+                      if (diffX > 0) {
+                          element.classList.add('swipe-right');
+                          // Trigger right swipe action
+                          element.dispatchEvent(new CustomEvent('swipeRight'));
+                      } else {
+                          element.classList.add('swipe-left');
+                          // Trigger left swipe action
+                          element.dispatchEvent(new CustomEvent('swipeLeft'));
+                      }
+                  } else {
+                      element.style.transform = '';
+                      element.style.opacity = '';
+                  }
+              });
+          });
+      }
+      
+      // Initialize gesture controls
+      initGestureControls();
+      
+      // Add micro-interactions class to interactive elements
+      const interactiveElements = document.querySelectorAll('button, .btn, .card, .nav-link');
+      interactiveElements.forEach(el => {
+          el.classList.add('micro-interaction');
+      });
+
+      // Theme Management
+      const headerThemeToggle = document.getElementById('header-theme-toggle');
+      const headerThemeIcon = document.getElementById('header-theme-icon');
+      const headerThemeText = document.querySelector('[data-action="toggle-theme"] span');
+      
+      // Make setTheme global
+      window.setTheme = function(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          localStorage.setItem('theme', theme);
+          
+          if (theme === 'light') {
+              if (headerThemeIcon) headerThemeIcon.className = 'fas fa-sun';
+              if (headerThemeText) headerThemeText.textContent = 'Tema Chiaro';
+          } else {
+              if (headerThemeIcon) headerThemeIcon.className = 'fas fa-moon';
+              if (headerThemeText) headerThemeText.textContent = 'Tema Scuro';
+          }
+          
+          // Update toggle state - CORRETTO: checked = light mode
+          if (headerThemeToggle) {
+              headerThemeToggle.checked = theme === 'light';
+          }
+      };
+      
+      function initTheme() {
+          const savedTheme = localStorage.getItem('theme') || 'dark';
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const theme = savedTheme === 'auto' ? (prefersDark ? 'dark' : 'light') : savedTheme;
+          window.setTheme(theme);
+      }
+      
+      // Handle theme toggle in menu - CORRETTO: checked = light mode
+      if (headerThemeToggle) {
+          headerThemeToggle.addEventListener('change', () => {
+              const newTheme = headerThemeToggle.checked ? 'light' : 'dark';
+              window.setTheme(newTheme);
+          });
+      }
+      
+      // Initialize theme
+      initTheme();
+      
+      // Apple Menu Functionality - Ensure DOM is loaded
+      document.addEventListener('DOMContentLoaded', function() {
+      const appleMenuBtn = document.getElementById('apple-menu-btn');
+      const appleDropdown = document.getElementById('apple-dropdown');
+      
+      console.log('Apple menu elements:', { appleMenuBtn, appleDropdown });
+      
+      if (appleMenuBtn && appleDropdown) {
+          // Toggle apple dropdown menu
+          appleMenuBtn.addEventListener('click', function(e) {
+              console.log('Apple menu button clicked!');
+              e.stopPropagation();
+              const isVisible = appleDropdown.style.display === 'block';
+              appleDropdown.style.display = isVisible ? 'none' : 'block';
+              
+              // Add hover effect to button
+              if (!isVisible) {
+                  appleMenuBtn.style.background = 'rgba(0, 0, 0, 0.1)';
+                  appleMenuBtn.style.transform = 'scale(0.95)';
+              } else {
+                  appleMenuBtn.style.background = 'transparent';
+                  appleMenuBtn.style.transform = 'scale(1)';
+              }
+          });
+          
+          // Handle apple menu item clicks
+          const appleMenuItems = document.querySelectorAll('.apple-menu-item');
+          appleMenuItems.forEach(item => {
+              item.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  const action = this.getAttribute('data-action');
+                  
+                  // Se è il toggle AI o theme, non chiudere il menu
+                  if (action === 'toggle-ai' || action === 'toggle-theme') {
+                      handleAppleMenuAction(action);
+                  } else {
+                      handleAppleMenuAction(action);
+                      appleDropdown.style.display = 'none';
+                      appleMenuBtn.style.background = 'transparent';
+                      appleMenuBtn.style.transform = 'scale(1)';
+                  }
+              });
+          });
+          
+          // Handle apple AI toggle
+          const appleAiToggle = document.getElementById('apple-ai-toggle');
+          if (appleAiToggle) {
+              appleAiToggle.addEventListener('change', function() {
+                  const enabled = this.checked;
+                  localStorage.setItem('ai-enabled', enabled);
+                  updateAIVisibility(enabled);
+                  
+                  // Sincronizza con il toggle principale
+                  if (aiToggle) {
+                      aiToggle.checked = enabled;
+                  }
+              });
+          }
+          
+
+          
+          // Handle apple theme toggle
+          const appleThemeToggle = document.getElementById('apple-theme-toggle');
+          if (appleThemeToggle) {
+              appleThemeToggle.addEventListener('change', function() {
+                  const newTheme = this.checked ? 'light' : 'dark';
+                  
+                  // Cambia l'icona del tema
+                  const themeIcon = document.getElementById('apple-theme-icon');
+                  if (themeIcon) {
+                      themeIcon.className = this.checked ? 'fas fa-sun' : 'fas fa-circle-half-stroke';
+                  }
+                  
+                  if (window.setTheme) {
+                      window.setTheme(newTheme);
+                  }
+              });
+          }
+          
+          // Close apple dropdown when clicking outside
+          document.addEventListener('click', function(e) {
+              if (!appleMenuBtn.contains(e.target) && !appleDropdown.contains(e.target)) {
+                  appleDropdown.style.display = 'none';
+                  appleMenuBtn.style.background = 'transparent';
+                  appleMenuBtn.style.transform = 'scale(1)';
+              }
+          });
+      }
+      }); // Close DOMContentLoaded
+      
+      function handleAppleMenuAction(action) {
+          switch(action) {
+              case 'toggle-theme':
+                  const currentTheme = document.documentElement.getAttribute('data-theme');
+                  const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                  if (window.setTheme) {
+                      window.setTheme(newTheme);
+                  }
+                  break;
+              case 'logout':
+                  if (confirm('Sei sicuro di voler uscire?')) {
+                      window.location.href = '/logout';
+                  }
+                  break;
+          }
+      }
+      
+      // Voice Commands
+      const voiceBtn = document.getElementById('voice-btn');
+      const voiceStatus = document.getElementById('voice-status');
+      let recognition = null;
+      
+      // Check if browser supports speech recognition
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+          recognition.continuous = false;
+          recognition.interimResults = false;
+          recognition.lang = 'it-IT';
+          
+          recognition.onstart = function() {
+              voiceBtn.classList.add('listening');
+              voiceStatus.style.display = 'block';
+              voiceStatus.textContent = 'Ti sto ascoltando...';
+          };
+          
+          recognition.onresult = function(event) {
+              const transcript = event.results[0][0].transcript.toLowerCase();
+              voiceStatus.textContent = `Hai detto: "${transcript}"`;
+              
+              // Process voice commands
+              processVoiceCommand(transcript);
+          };
+          
+          recognition.onerror = function(event) {
+              voiceBtn.classList.remove('listening');
+              voiceBtn.classList.add('error');
+              voiceStatus.style.display = 'block';
+              voiceStatus.textContent = 'Errore nel riconoscimento vocale';
+              
+              setTimeout(() => {
+                  voiceBtn.classList.remove('error');
+                  voiceStatus.style.display = 'none';
+              }, 2000);
+          };
+          
+          recognition.onend = function() {
+              voiceBtn.classList.remove('listening');
+              voiceStatus.style.display = 'none';
+          };
+          
+          // Voice command processing
+          function processVoiceCommand(command) {
+              // Command: "Associa prodotto X all'evento Y"
+              const associaMatch = command.match(/associa\s+prodotto\s+(.+?)\s+all['']?evento\s+(.+)/i);
+              if (associaMatch) {
+                  const prodotto = associaMatch[1].trim();
+                  const evento = associaMatch[2].trim();
+                  
+                  voiceBtn.classList.add('success');
+                  voiceStatus.textContent = `Associazione richiesta: ${prodotto} → ${evento}`;
+                  
+                  // Simulate the association (you can replace this with actual API call)
+                  setTimeout(() => {
+                      showVoiceFeedback(`Prodotto "${prodotto}" associato all'evento "${evento}"`);
+                      voiceBtn.classList.remove('success');
+                  }, 1000);
+                  
+                  return;
+              }
+              
+              // Command: "Cerca prodotto X"
+              const cercaMatch = command.match(/cerca\s+(?:prodotto\s+)?(.+)/i);
+              if (cercaMatch) {
+                  const searchTerm = cercaMatch[1].trim();
+                  
+                  voiceBtn.classList.add('success');
+                  voiceStatus.textContent = `Ricerca: "${searchTerm}"`;
+                  
+                  // Fill the search input
+                  const aiInput = document.getElementById('ai-input');
+                  if (aiInput) {
+                      aiInput.value = searchTerm;
+                      // Trigger search
+                      setTimeout(() => {
+                          performSearch();
+                          voiceBtn.classList.remove('success');
+                      }, 500);
+                  }
+                  
+                  return;
+              }
+              
+              // Command: "Nuovo evento"
+              if (command.includes('nuovo evento') || command.includes('crea evento')) {
+                  voiceBtn.classList.add('success');
+                  voiceStatus.textContent = 'Creazione nuovo evento...';
+                  
+                  setTimeout(() => {
+                      window.location.href = '/eventi/crea';
+                      voiceBtn.classList.remove('success');
+                  }, 1000);
+                  
+                  return;
+              }
+              
+              // Command: "Scansione NFC"
+              if (command.includes('scansione') || command.includes('nfc') || command.includes('scannerizza')) {
+                  voiceBtn.classList.add('success');
+                  voiceStatus.textContent = 'Apertura scanner NFC...';
+                  
+                  setTimeout(() => {
+                      window.location.href = '/nfc';
+                      voiceBtn.classList.remove('success');
+                  }, 1000);
+                  
+                  return;
+              }
+              
+              // Default: treat as search
+              voiceBtn.classList.add('success');
+              voiceStatus.textContent = `Ricerca: "${command}"`;
+              
+              const aiInput = document.getElementById('ai-input');
+              if (aiInput) {
+                  aiInput.value = command;
+                  setTimeout(() => {
+                      performSearch();
+                      voiceBtn.classList.remove('success');
+                  }, 500);
+              }
+          }
+          
+          function showVoiceFeedback(message) {
+              const output = document.getElementById('ai-output');
+              if (output) {
+                  output.style.display = 'block';
+                  output.innerHTML = `
+                      <div style="color: var(--success-color); font-weight: 600; margin-bottom: 0.5rem;">
+                          <i class="fas fa-microphone"></i> Comando Vocale
+                      </div>
+                      <div>${message}</div>
+                  `;
+              }
+          }
+          
+          // Voice button click handler
+          if (voiceBtn) {
+              voiceBtn.addEventListener('click', () => {
+                  if (recognition) {
+                      recognition.start();
+                  } else {
+                      voiceStatus.textContent = 'Riconoscimento vocale non supportato';
+                  }
+              });
+          }
+      } else {
+          // Browser doesn't support speech recognition
+          if (voiceBtn) {
+              voiceBtn.style.display = 'none';
+          }
+          if (voiceStatus) {
+              voiceStatus.textContent = 'Riconoscimento vocale non supportato';
+          }
+      }
   });
 </script>
 </body>
+</html>
+</html>
 </html>

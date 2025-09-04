@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test RFID per Mac</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #34c759, #007aff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p {
+            font-size: 1.1rem;
+            color: #999;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .test-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #34c759;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            border: 2px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.15);
+            color: #ff9500;
+            border: 2px solid #ff9500;
+        }
+        .status.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            border: 2px solid #ff3b30;
+        }
+        .btn {
+            background: linear-gradient(135deg, #007aff, #0056cc);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            margin-right: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.4);
+        }
+        .btn.success {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            box-shadow: 0 4px 16px rgba(52, 199, 89, 0.3);
+        }
+        .btn.success:hover {
+            box-shadow: 0 8px 24px rgba(52, 199, 89, 0.4);
+        }
+        .btn.danger {
+            background: linear-gradient(135deg, #ff3b30, #d70015);
+            box-shadow: 0 4px 16px rgba(255, 59, 48, 0.3);
+        }
+        .btn.danger:hover {
+            box-shadow: 0 8px 24px rgba(255, 59, 48, 0.4);
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            color: #34c759;
+            line-height: 1.4;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 2px solid #007aff;
+            color: #007aff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 2px solid #ff9500;
+            color: #ff9500;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .success {
+            background: rgba(52, 199, 89, 0.1);
+            border: 2px solid #34c759;
+            color: #34c759;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+        }
+        .device-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .device-item {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .device-label {
+            color: #999;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .device-value {
+            color: #34c759;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .instructions {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .instructions ol {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        .instructions li {
+            margin-bottom: 0.5rem;
+        }
+        .tag-result {
+            background: rgba(52, 199, 89, 0.1);
+            border: 2px solid #34c759;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .tag-code {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #34c759;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Test RFID per Mac</h1>
+            <p>Diagnostica completa per lettori RFID USB-C</p>
+        </div>
+        
+        <div class="info">
+            <strong>🎯 Obiettivo:</strong> Testare se il lettore RFID USB-C funziona correttamente su Mac e capire come invia i dati.
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Informazioni Sistema</div>
+            <div class="device-info">
+                <div class="device-item">
+                    <div class="device-label">Sistema Operativo</div>
+                    <div class="device-value" id="osInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Browser</div>
+                    <div class="device-value" id="browserInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Versione</div>
+                    <div class="device-value" id="versionInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Supporto USB</div>
+                    <div class="device-value" id="usbSupport">Caricamento...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Test Lettore RFID</div>
+            <div id="systemStatus" class="status waiting">
+                <span>⏳</span>
+                <span>In attesa di attivazione...</span>
+            </div>
+            
+            <div class="instructions">
+                <strong>📋 Istruzioni:</strong>
+                <ol>
+                    <li>Clicca "🚀 Inizia Test" per attivare il monitoraggio</li>
+                    <li>Collega il lettore RFID USB-C al Mac</li>
+                    <li>Scansiona un tag RFID e osserva i log</li>
+                    <li>Se non funziona, prova a digitare nel campo di test</li>
+                </ol>
+            </div>
+            
+            <button id="startTest" class="btn success">🚀 Inizia Test</button>
+            <button id="clearLog" class="btn danger">🗑️ Pulisci Log</button>
+            <button id="testManual" class="btn">⌨️ Test Manuale</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log Eventi (Tempo Reale)</div>
+            <div id="eventLog" class="log-area">
+                <div style="color: #999;">I log appariranno qui quando attivi il test...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Ultimo Tag Rilevato</div>
+            <div id="lastTagResult">
+                <div style="color: #999; text-align: center;">Nessun tag rilevato ancora...</div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Note Importanti:</strong><br>
+            • Il lettore RFID deve essere in modalità HID (tastiera)<br>
+            • Se non funziona, prova a cambiare cavo USB-C<br>
+            • Alcuni lettori potrebbero richiedere driver specifici<br>
+            • Testa prima in un editor di testo (TextEdit) per verificare il funzionamento
+        </div>
+    </div>
+
+    <script>
+        let isTestActive = false;
+        let rfidBuffer = '';
+        let rfidTimeout = null;
+        let eventCount = 0;
+        let lastEventTime = null;
+        let lastTag = null;
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const startTestBtn = document.getElementById('startTest');
+        const clearLogBtn = document.getElementById('clearLog');
+        const testManualBtn = document.getElementById('testManual');
+        const eventLog = document.getElementById('eventLog');
+        const lastTagResult = document.getElementById('lastTagResult');
+
+        // Informazioni sistema
+        function updateSystemInfo() {
+            document.getElementById('osInfo').textContent = navigator.platform;
+            document.getElementById('browserInfo').textContent = navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+                                                               navigator.userAgent.includes('Safari') ? 'Safari' : 
+                                                               navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Altro';
+            document.getElementById('versionInfo').textContent = navigator.userAgent.match(/Chrome\/(\d+)/)?.[1] || 
+                                                                navigator.userAgent.match(/Safari\/(\d+)/)?.[1] || 
+                                                                navigator.userAgent.match(/Firefox\/(\d+)/)?.[1] || 'Sconosciuta';
+            document.getElementById('usbSupport').textContent = 'usb' in navigator ? 'Supportato' : 'Non supportato';
+        }
+
+        // Funzione per loggare eventi
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#34c759',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff',
+                success: '#34c759'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.5rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+            
+            eventCount++;
+            lastEventTime = new Date();
+        }
+
+        // Funzione per mostrare l'ultimo tag
+        function showLastTag(tag) {
+            lastTag = tag;
+            lastTagResult.innerHTML = `
+                <div class="tag-result">
+                    <div style="font-size: 1.2rem; font-weight: 600; margin-bottom: 0.5rem;">🎯 Tag RFID Rilevato!</div>
+                    <div class="tag-code">${tag}</div>
+                    <div style="font-size: 0.9rem; color: #999;">
+                        Lunghezza: ${tag.length} caratteri | 
+                        Tipo: ${/^[0-9]+$/.test(tag) ? 'Numerico' : 'Alfanumerico'}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Test manuale
+        function testManual() {
+            const testTag = prompt('Inserisci un codice RFID per testare (es: 123456789):');
+            if (testTag && testTag.trim()) {
+                logEvent(`🧪 Test manuale: "${testTag.trim()}"`, 'success');
+                showLastTag(testTag.trim());
+            }
+        }
+
+        // Gestione input universale per RFID
+        document.addEventListener('keydown', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`⌨️ Keydown: "${e.key}" (code: ${e.code}, keyCode: ${e.keyCode})`, 'debug');
+            
+            // Cattura caratteri alfanumerici
+            if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                logEvent(`🎯 Carattere RFID: "${e.key}"`, 'warning');
+                rfidBuffer += e.key;
+                
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 TAG RFID COMPLETO: "${rfidBuffer.trim()}"`, 'success');
+                        showLastTag(rfidBuffer.trim());
+                        rfidBuffer = '';
+                    }
+                }, 300);
+            }
+            
+            // Gestione Enter
+            if (e.key === 'Enter' && rfidBuffer.length > 0) {
+                e.preventDefault();
+                logEvent(`🎯 TAG RFID (Enter): "${rfidBuffer.trim()}"`, 'success');
+                showLastTag(rfidBuffer.trim());
+                rfidBuffer = '';
+            }
+        });
+
+        // Gestione input events (per lettori che si comportano come tastiera)
+        document.addEventListener('input', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`📥 Input event: "${e.target.value}"`, 'debug');
+            
+            if (e.target.value && e.target.value.length > 0) {
+                rfidBuffer += e.target.value;
+                logEvent(`📦 Buffer aggiornato: "${rfidBuffer}"`, 'info');
+                
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 TAG RFID (Input): "${rfidBuffer.trim()}"`, 'success');
+                        showLastTag(rfidBuffer.trim());
+                        rfidBuffer = '';
+                        e.target.value = '';
+                    }
+                }, 200);
+            }
+        });
+
+        // Pulsante inizia test
+        startTestBtn.addEventListener('click', function() {
+            isTestActive = !isTestActive;
+            
+            if (isTestActive) {
+                systemStatus.className = 'status ready';
+                systemStatus.innerHTML = '<span>✅</span><span>Test Attivo - Collega il lettore RFID e scansiona un tag</span>';
+                startTestBtn.textContent = '⏹️ Ferma Test';
+                logEvent('🚀 Test RFID avviato', 'success');
+                logEvent('📱 Sistema pronto per ricevere input RFID', 'info');
+                logEvent('🔌 Collega il lettore RFID USB-C e scansiona un tag', 'debug');
+                logEvent('💡 Suggerimento: se non funziona, prova a digitare in TextEdit prima', 'debug');
+            } else {
+                systemStatus.className = 'status waiting';
+                systemStatus.innerHTML = '<span>⏳</span><span>Test Fermato</span>';
+                startTestBtn.textContent = '🚀 Inizia Test';
+                logEvent('⏹️ Test RFID fermato', 'warning');
+            }
+        });
+
+        // Pulsante test manuale
+        testManualBtn.addEventListener('click', testManual);
+
+        // Pulsante pulisci log
+        clearLogBtn.addEventListener('click', function() {
+            eventLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            lastTagResult.innerHTML = '<div style="color: #999; text-align: center;">Nessun tag rilevato ancora...</div>';
+            eventCount = 0;
+            rfidBuffer = '';
+            lastTag = null;
+        });
+
+        // Inizializzazione
+        updateSystemInfo();
+        logEvent('🔍 Test RFID per Mac caricato', 'success');
+        logEvent(`🖥️ Sistema: ${navigator.platform}`, 'debug');
+        logEvent(`🌐 Browser: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Altro'}`, 'debug');
+        logEvent(`🔌 USB: ${'usb' in navigator ? 'Supportato' : 'Non supportato'}`, 'debug');
+    </script>
+</body>
+</html> 

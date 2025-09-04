@@ -35,13 +35,13 @@ class ProdottoType extends AbstractType
                 'attr' => ['accept' => 'image/*'],
                 'constraints' => [
                     new File([
-                        'maxSize' => '1024k',
+                        'maxSize' => '10M',
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',
-                            'image/gif',
+                            'image/webp',
                         ],
-                        'mimeTypesMessage' => 'Per favore, carica un\'immagine valida (jpeg, png, gif)',
+                        'mimeTypesMessage' => 'Per favore, carica un\'immagine valida (JPEG, PNG, WebP)',
                     ]),
                 ],
             ]);

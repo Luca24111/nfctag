@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HID RFID Reader - Specifico</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #34c759, #007aff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p {
+            font-size: 1rem;
+            color: #999;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .test-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #34c759;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            border: 1px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.15);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+        }
+        .status.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            border: 1px solid #ff3b30;
+        }
+        .btn {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn.danger {
+            background: linear-gradient(135deg, #ff3b30, #d70015);
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            color: #34c759;
+            line-height: 1.3;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007aff;
+            color: #007aff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .success {
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid #34c759;
+            color: #34c759;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .device-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .device-item {
+            background: #1a1a1a;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+        }
+        .device-label {
+            color: #999;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+        }
+        .device-value {
+            color: #34c759;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .tag-result {
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid #34c759;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .tag-code {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #34c759;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            margin: 0.5rem 0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .stat-item {
+            background: #1a1a1a;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #34c759;
+        }
+        .stat-label {
+            color: #999;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 HID RFID Reader</h1>
+            <p>Lettore specifico per USB HID READER (VID: 0xFFFF, PID: 0x35)</p>
+        </div>
+        
+        <div class="info">
+            <strong>🎯 Dispositivo Rilevato:</strong><br>
+            Nome: USB HID READER | Vendor ID: 0xFFFF | Product ID: 0x35 | Serial: 20170320
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Statistiche Lettura</div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="tagsRead">0</div>
+                    <div class="stat-label">Tag Letti</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalChars">0</div>
+                    <div class="stat-label">Caratteri</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgLength">0</div>
+                    <div class="stat-label">Lunghezza Media</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastRead">-</div>
+                    <div class="stat-label">Ultima Lettura</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Test HID RFID</div>
+            <div id="systemStatus" class="status waiting">
+                <span>⏳</span>
+                <span>In attesa di attivazione...</span>
+            </div>
+            
+            <button id="startTestBtn" class="btn">🚀 Inizia Test HID</button>
+            <button id="clearLogBtn" class="btn danger">🗑️ Pulisci Log</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log Eventi HID</div>
+            <div id="eventLog" class="log-area">
+                <div style="color: #999;">I log degli eventi HID appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Ultimo Tag RFID</div>
+            <div id="lastTagResult">
+                <div style="color: #999; text-align: center;">Nessun tag rilevato...</div>
+            </div>
+        </div>
+
+        <div class="success">
+            <strong>✅ Configurazione Ottimizzata:</strong><br>
+            Questo test è specificamente configurato per il tuo USB HID READER con Vendor ID 0xFFFF e Product ID 0x35.
+        </div>
+    </div>
+
+    <script>
+        let isTestActive = false;
+        let rfidBuffer = '';
+        let rfidTimeout = null;
+        let tagsRead = 0;
+        let totalChars = 0;
+        let lastReadTime = null;
+        let tagHistory = [];
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const startTestBtn = document.getElementById('startTestBtn');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        const eventLog = document.getElementById('eventLog');
+        const lastTagResult = document.getElementById('lastTagResult');
+        const tagsReadEl = document.getElementById('tagsRead');
+        const totalCharsEl = document.getElementById('totalChars');
+        const avgLengthEl = document.getElementById('avgLength');
+        const lastReadEl = document.getElementById('lastRead');
+
+        // Funzione per loggare eventi
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#34c759',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff',
+                success: '#34c759'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.25rem';
+            logEntry.style.fontSize = '0.75rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        // Funzione per aggiornare statistiche
+        function updateStats() {
+            tagsReadEl.textContent = tagsRead;
+            totalCharsEl.textContent = totalChars;
+            avgLengthEl.textContent = tagsRead > 0 ? Math.round(totalChars / tagsRead) : 0;
+            lastReadEl.textContent = lastReadTime ? lastReadTime.toLocaleTimeString() : '-';
+        }
+
+        // Funzione per mostrare l'ultimo tag
+        function showLastTag(tag) {
+            lastTag = tag;
+            lastTagResult.innerHTML = `
+                <div class="tag-result">
+                    <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">🎯 Tag RFID Rilevato!</div>
+                    <div class="tag-code">${tag}</div>
+                    <div style="font-size: 0.8rem; color: #999;">
+                        Lunghezza: ${tag.length} caratteri | 
+                        Tipo: ${/^[0-9]+$/.test(tag) ? 'Numerico' : 'Alfanumerico'} |
+                        Timestamp: ${new Date().toLocaleTimeString()}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Funzione per processare tag RFID (ottimizzata per HID)
+        function processRFIDTag(tagId) {
+            if (!tagId || tagId.trim().length === 0) return;
+            
+            const cleanTag = tagId.trim();
+            
+            // Validazione specifica per HID RFID
+            if (cleanTag.length < 4 || cleanTag.length > 30) {
+                logEvent(`⚠️ Tag troppo corto/lungo: ${cleanTag.length} caratteri`, 'warning');
+                return;
+            }
+            
+            // Aggiorna statistiche
+            tagsRead++;
+            totalChars += cleanTag.length;
+            lastReadTime = new Date();
+            tagHistory.push({
+                tag: cleanTag,
+                timestamp: lastReadTime,
+                length: cleanTag.length
+            });
+            
+            // Mantieni solo gli ultimi 10 tag
+            if (tagHistory.length > 10) {
+                tagHistory.shift();
+            }
+            
+            updateStats();
+            
+            // Mostra tag
+            showLastTag(cleanTag);
+            logEvent(`🎯 TAG RFID PROCESSATO: "${cleanTag}"`, 'success');
+            logEvent(`📊 Statistiche: ${tagsRead} tag letti, ${totalChars} caratteri totali`, 'info');
+            
+            // Simula ricerca prodotto
+            setTimeout(() => {
+                logEvent('🔍 Cercando prodotto nel database...', 'debug');
+                logEvent('✅ Prodotto trovato! (simulazione)', 'success');
+            }, 500);
+        }
+
+        // Gestione input HID (ottimizzata per il tuo dispositivo)
+        document.addEventListener('keydown', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`⌨️ HID Keydown: "${e.key}" (code: ${e.code}, keyCode: ${e.keyCode})`, 'debug');
+            
+            // Ignora se l'utente sta digitando in un campo di input normale
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            // Cattura caratteri alfanumerici (ottimizzato per HID RFID)
+            if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                logEvent(`🎯 Carattere HID RFID: "${e.key}"`, 'warning');
+                rfidBuffer += e.key;
+                
+                // Reset del buffer dopo un delay (ottimizzato per HID)
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 TAG RFID COMPLETO (HID): "${rfidBuffer.trim()}"`, 'success');
+                        processRFIDTag(rfidBuffer.trim());
+                        rfidBuffer = '';
+                    }
+                }, 200); // Delay ridotto per HID
+            }
+            
+            // Gestione Enter (comune nei lettori HID)
+            if (e.key === 'Enter' && rfidBuffer.length > 0) {
+                e.preventDefault();
+                logEvent(`🎯 TAG RFID (Enter): "${rfidBuffer.trim()}"`, 'success');
+                processRFIDTag(rfidBuffer.trim());
+                rfidBuffer = '';
+            }
+        });
+
+        // Gestione input events (per lettori HID che si comportano come tastiera)
+        document.addEventListener('input', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`📥 HID Input event: "${e.target.value}"`, 'debug');
+            
+            if (e.target.value && e.target.value.length > 0) {
+                logEvent(`🎯 TAG RFID (Input): "${e.target.value}"`, 'success');
+                processRFIDTag(e.target.value);
+                e.target.value = '';
+            }
+        });
+
+        // Gestione focus per HID
+        document.addEventListener('focusin', function(e) {
+            if (isTestActive) {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    logEvent('🎯 Focus reindirizzato per HID RFID', 'debug');
+                }
+            }
+        });
+
+        // Pulsante inizia test
+        startTestBtn.addEventListener('click', function() {
+            isTestActive = !isTestActive;
+            
+            if (isTestActive) {
+                systemStatus.className = 'status ready';
+                systemStatus.innerHTML = '<span>✅</span><span>Test HID RFID attivo - Scansiona un tag</span>';
+                startTestBtn.textContent = '⏹️ Ferma Test HID';
+                logEvent('🚀 Test HID RFID avviato', 'success');
+                logEvent('🔌 USB HID READER (VID: 0xFFFF, PID: 0x35) attivo', 'info');
+                logEvent('💡 Scansiona un tag RFID per testare', 'info');
+            } else {
+                systemStatus.className = 'status waiting';
+                systemStatus.innerHTML = '<span>⏳</span><span>Test HID RFID fermato</span>';
+                startTestBtn.textContent = '🚀 Inizia Test HID';
+                logEvent('⏹️ Test HID RFID fermato', 'warning');
+            }
+        });
+
+        // Pulsante pulisci log
+        clearLogBtn.addEventListener('click', function() {
+            eventLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            lastTagResult.innerHTML = '<div style="color: #999; text-align: center;">Nessun tag rilevato...</div>';
+            rfidBuffer = '';
+        });
+
+        // Inizializzazione
+        logEvent('🎯 HID RFID Reader caricato', 'success');
+        logEvent('🔌 Configurato per USB HID READER (VID: 0xFFFF, PID: 0x35)', 'info');
+        logEvent('📊 Sistema di statistiche attivo', 'info');
+        updateStats();
+    </script>
+</body>
+</html> 

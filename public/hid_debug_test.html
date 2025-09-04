@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HID Debug Test - Diagnostica Avanzata</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff3b30, #ff9500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .test-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ff3b30;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            border: 1px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.15);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+        }
+        .status.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            border: 1px solid #ff3b30;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff3b30, #d70015);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn.success {
+            background: linear-gradient(135deg, #34c759, #28a745);
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 300px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007aff;
+            color: #007aff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid #ff9500;
+            color: #ff9500;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .input-test {
+            background: #1a1a1a;
+            border: 2px solid #ff3b30;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .input-field {
+            width: 100%;
+            background: #2a2a2a;
+            border: 1px solid #ff3b30;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: #34c759;
+            box-shadow: 0 0 0 2px rgba(52, 199, 89, 0.2);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .stat-item {
+            background: #1a1a1a;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ff3b30;
+        }
+        .stat-label {
+            color: #999;
+            font-size: 0.7rem;
+        }
+        .event-details {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 HID Debug Test</h1>
+            <p>Diagnostica avanzata per USB HID READER (VID: 0xFFFF, PID: 0x35)</p>
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ Problema Rilevato:</strong><br>
+            Il lettore HID non sta leggendo i tag. Questo test ci aiuterà a capire il perché.
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Statistiche Eventi</div>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="keydownCount">0</div>
+                    <div class="stat-label">Keydown</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="keyupCount">0</div>
+                    <div class="stat-label">Keyup</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="inputCount">0</div>
+                    <div class="stat-label">Input</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="focusCount">0</div>
+                    <div class="stat-label">Focus</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="bufferLength">0</div>
+                    <div class="stat-label">Buffer</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="lastEvent">-</div>
+                    <div class="stat-label">Ultimo Evento</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Test Input Manuale</div>
+            <div class="input-test">
+                <input type="text" id="manualInput" class="input-field" placeholder="Digita qui per testare l'input manuale...">
+                <div style="font-size: 0.8rem; color: #999; margin-bottom: 0.5rem;">
+                    Digita caratteri per simulare il lettore RFID
+                </div>
+                <button id="clearManualBtn" class="btn">🗑️ Pulisci Input</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔧 Controlli Debug</div>
+            <div id="systemStatus" class="status waiting">
+                <span>⏳</span>
+                <span>In attesa di attivazione...</span>
+            </div>
+            
+            <button id="startDebugBtn" class="btn">🚀 Inizia Debug HID</button>
+            <button id="stopDebugBtn" class="btn success">⏹️ Ferma Debug</button>
+            <button id="clearLogBtn" class="btn">🗑️ Pulisci Log</button>
+            <button id="testFocusBtn" class="btn">🎯 Test Focus</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log Eventi Dettagliati</div>
+            <div id="eventLog" class="log-area">
+                <div style="color: #999;">I log degli eventi dettagliati appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>🔍 Modalità Debug Attiva:</strong><br>
+            Questo test registra TUTTI gli eventi di input per capire come il lettore HID invia i dati.
+        </div>
+    </div>
+
+    <script>
+        let isDebugActive = false;
+        let rfidBuffer = '';
+        let rfidTimeout = null;
+        let eventCounts = {
+            keydown: 0,
+            keyup: 0,
+            input: 0,
+            focus: 0
+        };
+        let lastEventTime = null;
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const startDebugBtn = document.getElementById('startDebugBtn');
+        const stopDebugBtn = document.getElementById('stopDebugBtn');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        const testFocusBtn = document.getElementById('testFocusBtn');
+        const eventLog = document.getElementById('eventLog');
+        const manualInput = document.getElementById('manualInput');
+        const clearManualBtn = document.getElementById('clearManualBtn');
+
+        // Contatori
+        const keydownCountEl = document.getElementById('keydownCount');
+        const keyupCountEl = document.getElementById('keyupCount');
+        const inputCountEl = document.getElementById('inputCount');
+        const focusCountEl = document.getElementById('focusCount');
+        const bufferLengthEl = document.getElementById('bufferLength');
+        const lastEventEl = document.getElementById('lastEvent');
+
+        // Funzione per loggare eventi con dettagli completi
+        function logEvent(message, type = 'info', details = null) {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#007aff',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#34c759',
+                success: '#34c759',
+                keydown: '#ff9500',
+                keyup: '#ff3b30',
+                input: '#34c759',
+                focus: '#007aff'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.5rem';
+            logEntry.style.fontSize = '0.75rem';
+            logEntry.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+            logEntry.style.paddingBottom = '0.25rem';
+            
+            let logContent = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            if (details) {
+                logContent += `<div class="event-details">${details}</div>`;
+            }
+            
+            logEntry.innerHTML = logContent;
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        // Funzione per aggiornare statistiche
+        function updateStats() {
+            keydownCountEl.textContent = eventCounts.keydown;
+            keyupCountEl.textContent = eventCounts.keyup;
+            inputCountEl.textContent = eventCounts.input;
+            focusCountEl.textContent = eventCounts.focus;
+            bufferLengthEl.textContent = rfidBuffer.length;
+            lastEventEl.textContent = lastEventTime ? lastEventTime.toLocaleTimeString() : '-';
+        }
+
+        // Funzione per creare dettagli evento
+        function createEventDetails(e) {
+            return `
+                <strong>Evento:</strong> ${e.type}<br>
+                <strong>Target:</strong> ${e.target.tagName}${e.target.id ? '#' + e.target.id : ''}<br>
+                <strong>Key:</strong> "${e.key}"<br>
+                <strong>Code:</strong> ${e.code}<br>
+                <strong>KeyCode:</strong> ${e.keyCode}<br>
+                <strong>CharCode:</strong> ${e.charCode}<br>
+                <strong>Ctrl:</strong> ${e.ctrlKey}<br>
+                <strong>Alt:</strong> ${e.altKey}<br>
+                <strong>Shift:</strong> ${e.shiftKey}<br>
+                <strong>Meta:</strong> ${e.metaKey}<br>
+                <strong>Repeat:</strong> ${e.repeat}<br>
+                <strong>Timestamp:</strong> ${e.timeStamp}
+            `;
+        }
+
+        // Event listener per keydown (GLOBALE)
+        document.addEventListener('keydown', function(e) {
+            if (!isDebugActive) return;
+            
+            eventCounts.keydown++;
+            lastEventTime = new Date();
+            
+            const details = createEventDetails(e);
+            logEvent(`⌨️ KEYDOWN: "${e.key}" (${e.code})`, 'keydown', details);
+            
+            // Gestione caratteri per RFID
+            if (e.key.length === 1) {
+                logEvent(`🎯 Carattere rilevato: "${e.key}"`, 'debug');
+                rfidBuffer += e.key;
+                
+                // Reset timeout
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 BUFFER COMPLETO: "${rfidBuffer}"`, 'success');
+                        processRFIDTag(rfidBuffer);
+                        rfidBuffer = '';
+                    }
+                }, 300);
+            }
+            
+            // Gestione Enter
+            if (e.key === 'Enter') {
+                logEvent(`⏎ ENTER rilevato`, 'warning');
+                if (rfidBuffer.length > 0) {
+                    logEvent(`🎯 BUFFER (ENTER): "${rfidBuffer}"`, 'success');
+                    processRFIDTag(rfidBuffer);
+                    rfidBuffer = '';
+                }
+            }
+            
+            updateStats();
+        });
+
+        // Event listener per keyup (GLOBALE)
+        document.addEventListener('keyup', function(e) {
+            if (!isDebugActive) return;
+            
+            eventCounts.keyup++;
+            lastEventTime = new Date();
+            
+            const details = createEventDetails(e);
+            logEvent(`⌨️ KEYUP: "${e.key}" (${e.code})`, 'keyup', details);
+            
+            updateStats();
+        });
+
+        // Event listener per input (GLOBALE)
+        document.addEventListener('input', function(e) {
+            if (!isDebugActive) return;
+            
+            eventCounts.input++;
+            lastEventTime = new Date();
+            
+            logEvent(`📥 INPUT: "${e.target.value}"`, 'input', `
+                <strong>Target:</strong> ${e.target.tagName}${e.target.id ? '#' + e.target.id : ''}<br>
+                <strong>Value:</strong> "${e.target.value}"<br>
+                <strong>Length:</strong> ${e.target.value.length}
+            `);
+            
+            if (e.target.value && e.target.value.length > 0) {
+                logEvent(`🎯 INPUT RFID: "${e.target.value}"`, 'success');
+                processRFIDTag(e.target.value);
+                e.target.value = '';
+            }
+            
+            updateStats();
+        });
+
+        // Event listener per focus (GLOBALE)
+        document.addEventListener('focusin', function(e) {
+            if (!isDebugActive) return;
+            
+            eventCounts.focus++;
+            lastEventTime = new Date();
+            
+            logEvent(`🎯 FOCUS IN: ${e.target.tagName}${e.target.id ? '#' + e.target.id : ''}`, 'focus', `
+                <strong>Target:</strong> ${e.target.tagName}${e.target.id ? '#' + e.target.id : ''}<br>
+                <strong>Class:</strong> ${e.target.className}<br>
+                <strong>Type:</strong> ${e.target.type || 'N/A'}
+            `);
+            
+            updateStats();
+        });
+
+        // Event listener per focusout
+        document.addEventListener('focusout', function(e) {
+            if (!isDebugActive) return;
+            
+            logEvent(`🎯 FOCUS OUT: ${e.target.tagName}${e.target.id ? '#' + e.target.id : ''}`, 'focus');
+        });
+
+        // Funzione per processare tag RFID
+        function processRFIDTag(tagId) {
+            if (!tagId || tagId.trim().length === 0) return;
+            
+            const cleanTag = tagId.trim();
+            logEvent(`🎯 PROCESSING RFID TAG: "${cleanTag}"`, 'success', `
+                <strong>Length:</strong> ${cleanTag.length}<br>
+                <strong>Type:</strong> ${/^[0-9]+$/.test(cleanTag) ? 'Numeric' : 'Alphanumeric'}<br>
+                <strong>Valid:</strong> ${cleanTag.length >= 4 && cleanTag.length <= 30 ? 'Yes' : 'No'}
+            `);
+            
+            // Reset buffer
+            rfidBuffer = '';
+            updateStats();
+        }
+
+        // Input manuale per test
+        manualInput.addEventListener('input', function(e) {
+            if (isDebugActive) {
+                logEvent(`📝 MANUAL INPUT: "${e.target.value}"`, 'debug');
+            }
+        });
+
+        // Pulsanti controllo
+        startDebugBtn.addEventListener('click', function() {
+            isDebugActive = true;
+            systemStatus.className = 'status ready';
+            systemStatus.innerHTML = '<span>✅</span><span>Debug HID attivo - Scansiona un tag</span>';
+            logEvent('🚀 Debug HID avviato', 'success');
+            logEvent('🔍 Tutti gli eventi di input vengono registrati', 'info');
+            logEvent('💡 Scansiona un tag RFID o digita manualmente', 'info');
+        });
+
+        stopDebugBtn.addEventListener('click', function() {
+            isDebugActive = false;
+            systemStatus.className = 'status waiting';
+            systemStatus.innerHTML = '<span>⏳</span><span>Debug HID fermato</span>';
+            logEvent('⏹️ Debug HID fermato', 'warning');
+        });
+
+        clearLogBtn.addEventListener('click', function() {
+            eventLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            rfidBuffer = '';
+            eventCounts = { keydown: 0, keyup: 0, input: 0, focus: 0 };
+            updateStats();
+        });
+
+        testFocusBtn.addEventListener('click', function() {
+            logEvent('🎯 Test focus manuale', 'debug');
+            manualInput.focus();
+        });
+
+        clearManualBtn.addEventListener('click', function() {
+            manualInput.value = '';
+            logEvent('🗑️ Input manuale pulito', 'debug');
+        });
+
+        // Inizializzazione
+        logEvent('🔍 HID Debug Test caricato', 'success');
+        logEvent('📊 Sistema di monitoraggio eventi attivo', 'info');
+        logEvent('⚠️ Clicca "Inizia Debug HID" per iniziare', 'warning');
+        updateStats();
+    </script>
+</body>
+</html> 

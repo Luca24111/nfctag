@@ -23,13 +23,15 @@ class NfcController extends AbstractController
     public function readNfc(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         $nfcId = $request->request->get('nfcId');
-        if (!$nfcId) {
-            return new JsonResponse(['error' => 'NFC id is missing'], 400);
+        
+        // Validazione input
+        if (!$nfcId || !is_numeric($nfcId) || $nfcId <= 0 || $nfcId > 999999999) {
+            return new JsonResponse(['error' => 'Invalid NFC ID'], 400);
         }
 
         $em = $doctrine->getManager();
         $repo = $em->getRepository(Prodotto::class);
-        $product = $repo->findOneBy(['nfcId' => (int)$nfcId]);
+        $product = $repo->findByNfcId((int)$nfcId);
 
         if (!$product) {
             // redirect alla creazione con nfcId in query
@@ -42,9 +44,12 @@ class NfcController extends AbstractController
             ], 404);
         }
 
-        // esiste già: inverto lo stato
-        $product->setOut(!$product->isOut())
-                ->setUpdateDate(new \DateTime());
+        // esiste già: inverto lo stato e sincronizzo anche 'avaiable'
+        $newOut = !$product->isOut();
+        $product
+            ->setOut($newOut)
+            ->setAvaiable(!$newOut)
+            ->setUpdateDate(new \DateTime());
         $em->flush();
 
         return new JsonResponse([

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Base RFID</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-box {
+            background: #111;
+            border: 2px solid #34c759;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            background: #222;
+            border: 2px solid #555;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 18px;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+        .input-field:focus {
+            border-color: #34c759;
+            outline: none;
+        }
+        .status {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .ready { color: #34c759; }
+        .waiting { color: #ff9500; }
+        .btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        .btn:hover { background: #0056cc; }
+        .log {
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 15px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test Base RFID</h1>
+        
+        <div class="test-box">
+            <h2>Test 1: Input Diretto</h2>
+            <p>Questo campo dovrebbe ricevere input dal lettore RFID:</p>
+            <input type="text" id="directInput" class="input-field" placeholder="Scansiona un tag RFID qui...">
+            <div class="status waiting" id="status1">⏳ In attesa di input...</div>
+        </div>
+
+        <div class="test-box">
+            <h2>Test 2: Eventi Globali</h2>
+            <p>Questo test cattura tutti gli eventi keydown globali:</p>
+            <button id="startGlobalBtn" class="btn">🚀 Inizia Test Globale</button>
+            <button id="clearBtn" class="btn">🗑️ Pulisci</button>
+            <div class="status waiting" id="status2">⏳ Test globale non attivo</div>
+            <div id="globalLog" class="log">
+                <div style="color: #999;">I log degli eventi globali appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="test-box">
+            <h2>Test 3: Verifica Hardware</h2>
+            <p>Informazioni sul sistema:</p>
+            <div id="systemInfo" style="font-family: monospace; font-size: 14px; color: #999;">
+                Caricamento informazioni sistema...
+            </div>
+        </div>
+
+        <div style="background: #ff9500; color: #000; padding: 20px; border-radius: 10px; margin: 20px 0;">
+            <h3>⚠️ Istruzioni:</h3>
+            <ol>
+                <li><strong>Collega il lettore RFID</strong> USB-C al dispositivo</li>
+                <li><strong>Test 1:</strong> Clicca nel campo sopra e scansiona un tag</li>
+                <li><strong>Test 2:</strong> Clicca "Inizia Test Globale" e scansiona un tag</li>
+                <li><strong>Se non funziona:</strong> Prova a scansionare in un editor di testo normale</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        let globalTestActive = false;
+        let rfidBuffer = '';
+
+        const directInput = document.getElementById('directInput');
+        const status1 = document.getElementById('status1');
+        const status2 = document.getElementById('status2');
+        const globalLog = document.getElementById('globalLog');
+        const startGlobalBtn = document.getElementById('startGlobalBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const systemInfo = document.getElementById('systemInfo');
+
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#34c759',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff'
+            };
+            
+            const entry = document.createElement('div');
+            entry.style.color = colors[type] || colors.info;
+            entry.style.marginBottom = '5px';
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            
+            globalLog.appendChild(entry);
+            globalLog.scrollTop = globalLog.scrollHeight;
+        }
+
+        function updateSystemInfo() {
+            const info = [
+                `Sistema: ${navigator.platform}`,
+                `Browser: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Altro'}`,
+                `User Agent: ${navigator.userAgent.substring(0, 50)}...`,
+                `Touch Support: ${'ontouchstart' in window ? 'Sì' : 'No'}`,
+                `USB Support: ${'usb' in navigator ? 'Sì' : 'No'}`,
+                `Timestamp: ${new Date().toLocaleString()}`
+            ];
+            
+            systemInfo.innerHTML = info.join('<br>');
+        }
+
+        // Test 1: Input diretto
+        directInput.addEventListener('input', function(e) {
+            if (e.target.value && e.target.value.length > 0) {
+                status1.textContent = `✅ Input ricevuto: "${e.target.value}"`;
+                status1.className = 'status ready';
+                logEvent(`📥 Input diretto: "${e.target.value}"`, 'info');
+            }
+        });
+
+        directInput.addEventListener('focus', function() {
+            status1.textContent = '🎯 Campo attivo - Scansiona un tag RFID';
+            status1.className = 'status ready';
+        });
+
+        // Test 2: Eventi globali
+        document.addEventListener('keydown', function(e) {
+            if (!globalTestActive) return;
+            
+            logEvent(`⌨️ Keydown: "${e.key}" (code: ${e.code}, keyCode: ${e.keyCode})`, 'debug');
+            
+            // Ignora se l'utente sta digitando nel campo di input
+            if (e.target === directInput) return;
+            
+            // Cattura caratteri alfanumerici
+            if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                logEvent(`🎯 Carattere RFID: "${e.key}"`, 'warning');
+                rfidBuffer += e.key;
+            }
+            
+            // Gestione Enter
+            if (e.key === 'Enter') {
+                if (rfidBuffer.length > 0) {
+                    logEvent(`🎯 TAG RFID COMPLETO: "${rfidBuffer}"`, 'info');
+                    rfidBuffer = '';
+                }
+            }
+        });
+
+        // Pulsante inizia test globale
+        startGlobalBtn.addEventListener('click', function() {
+            globalTestActive = !globalTestActive;
+            
+            if (globalTestActive) {
+                status2.textContent = '✅ Test globale attivo - Scansiona un tag RFID';
+                status2.className = 'status ready';
+                startGlobalBtn.textContent = '⏹️ Ferma Test Globale';
+                logEvent('🚀 Test globale avviato', 'info');
+                logEvent('🔌 Collega il lettore RFID e scansiona un tag', 'info');
+            } else {
+                status2.textContent = '⏳ Test globale fermato';
+                status2.className = 'status waiting';
+                startGlobalBtn.textContent = '🚀 Inizia Test Globale';
+                logEvent('⏹️ Test globale fermato', 'warning');
+            }
+        });
+
+        // Pulsante pulisci
+        clearBtn.addEventListener('click', function() {
+            globalLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            rfidBuffer = '';
+        });
+
+        // Inizializzazione
+        updateSystemInfo();
+        logEvent('🔍 Test Base RFID caricato', 'info');
+        logEvent('💡 Clicca nel campo sopra e scansiona un tag RFID', 'info');
+    </script>
+</body>
+</html> 

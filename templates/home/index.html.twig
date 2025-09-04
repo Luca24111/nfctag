@@ -3,144 +3,334 @@
 {% block title %}Inventario{% endblock %}
 
 {% block body %}
-<!-- Link a SF Pro Font -->
-<link href="https://fonts.cdnfonts.com/css/sf-pro-display" rel="stylesheet">
-
 <style>
-    body {
-        font-size: 1.1rem;
-        font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        text-align: center;
-        background-color: #121212;
-        color: white;
+  body {
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    letter-spacing: -0.04em;
+  }
+
+  .home-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Header Apple */
+  .header-section {
+    text-align: left;
+    margin-bottom: 3rem;
+  }
+
+  .main-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .subtitle {
+    font-size: 1.1rem;
+    color: #999;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* Categories */
+  .categories-section {
+    margin-bottom: 3rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 1.5rem 0;
+  }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+
+  .category-card {
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .category-card:hover {
+    transform: translateY(-1px);
+    background: #2a2a2a;
+    border-color: #007aff;
+  }
+
+  .category-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    color: white;
+  }
+
+  .category-icon.in {
+    background: #34c759;
+  }
+
+  .category-icon.out {
+    background: #ff3b30;
+  }
+
+  .category-icon.all {
+    background: #007aff;
+  }
+
+  .category-content {
+    flex: 1;
+  }
+
+  .category-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .category-description {
+    font-size: 0.875rem;
+    color: #999;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .category-count {
+    font-size: 0.875rem;
+    color: #999;
+    font-weight: 500;
+  }
+
+  /* Stats Cards */
+  .stats-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .stat-card {
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-1px);
+    background: #2a2a2a;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.25rem 0;
+  }
+
+  .stat-label {
+    font-size: 0.875rem;
+    color: #999;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* Quick Action */
+  .quick-action {
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .quick-action h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .quick-action p {
+    font-size: 0.875rem;
+    color: #999;
+    margin: 0 0 1.5rem 0;
+    line-height: 1.4;
+  }
+
+  .rfid-input {
+    position: fixed;
+    top: -1000px;
+    left: -1000px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .action-btn {
+    background: #007aff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .action-btn:hover {
+    background: #0056cc;
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 768px) {
+    .home-container {
+      padding: 1.5rem 1rem;
     }
 
-    .homepage-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin: 1rem;
-        margin-bottom: 2rem;  /* più spazio sotto */
-        gap: 0.5rem;          /* spazio tra titolo e bottone */
-    }
-    .homepage-header h2 {
-        font-size: 2.6rem;
-        font-weight: 450;
-        color: white;
-        margin: 0;
-        flex: 1;              /* titolo occupa tutto lo spazio disponibile */
-        text-align: left;
-        letter-spacing: -0.04em;
+    .main-title {
+      font-size: 2rem;
     }
 
-    /* Bottone Aggiungi prodotto */
-    .add-btn {
-        background-color: #ffffff;
-        color: #424244;
-        border: none;
-        border-radius: 16px;
-        font-size: 0.8rem;    /* leggermente più grande per leggibilità mobile */
-        font-weight: 500;
-        padding: 0.6rem 1rem;  /* padding aumentato */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        white-space: nowrap;
-    }
-    .add-btn i {
-        margin-left: 0.4rem;
-        font-size: 0.9rem;
-    }
-    .add-btn:hover {
-        background-color: #f5f5f5;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+    .categories-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
     }
 
-    .container {
-        padding: 0 1rem 2rem;
+    .category-card {
+      padding: 1.25rem;
     }
 
-    .inventory-card-link {
-        display: block;
-        text-decoration: none;
-        color: inherit;
-        margin-bottom: 1rem;
+    .stats-section {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .main-title {
+      font-size: 1.75rem;
     }
 
-    .inventory-card {
-        background-color: #1e1e1e;
-        border-radius: 24px;
-        padding: 2.8rem 2.4rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: #e0e0e0;
-        transition: background-color 0.3s ease, transform 0.2s;
-        font-size: 1.35rem;
-        min-height: 120px;
-        letter-spacing: -0.04em
-    }
-    .inventory-card:hover {
-        background-color: #2a2a2a;
-        cursor: pointer;
-        transform: translateY(-2px);
-    }
-    .fa-icon {
-        font-size: 2.6rem;
-        color: #e0e0e0;
-        opacity: 0.25;
+    .category-title {
+      font-size: 1rem;
     }
 
-    @media (max-width: 576px) {
-        .homepage-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .add-btn {
-            width: 100%;
-            justify-content: center;
-        }
-        .inventory-card {
-            padding: 2.2rem 1.6rem;
-            font-size: 1.25rem;
-            min-height: 110px;
-        }
-        .fa-icon {
-            font-size: 2.4rem;
-        }
+    .stat-number {
+      font-size: 1.75rem;
     }
+  }
 </style>
 
+<div class="home-container">
+  <!-- Header -->
+  <div class="header-section">
+    <h1 class="main-title">Inventario</h1>
+    <p class="subtitle">Gestisci i tuoi prodotti in modo semplice ed efficiente</p>
+  </div>
 
-
-<div class="homepage-header">
-    <h2>Inventario</h2>
-   
-</div>
-
-<div class="container">
-    <a href="{{ path('app_out_magazzino') }}" class="inventory-card-link">
-        <div class="inventory-card">
-            <div>Fuori dal magazzino.</div>
-            <i class="fas fa-truck fa-icon"></i>
+  <!-- Categories -->
+  <div class="categories-section">
+    <h2 class="section-title">Categorie</h2>
+    <div class="categories-grid">
+      <a href="{{ path('app_magazzino') }}" class="category-card">
+        <div class="category-icon in">
+          <i class="fas fa-boxes"></i>
         </div>
-    </a>
-
-    <a href="{{ path('app_magazzino') }}" class="inventory-card-link">
-        <div class="inventory-card">
-            <div>In magazzino.</div>
-            <i class="fas fa-boxes fa-icon"></i>
+        <div class="category-content">
+          <div class="category-title">In Magazzino</div>
+          <div class="category-description">Gestisci i prodotti disponibili</div>
         </div>
-    </a>
+        <div class="category-count">{{ stats.in_magazzino }}</div>
+      </a>
 
-    <a href="{{ path('app_tutti_prodotti') }}" class="inventory-card-link">
-        <div class="inventory-card">
-            <div>Tutti i prodotti.</div>
-            <i class="fas fa-warehouse fa-icon"></i>
+      <a href="{{ path('app_out_magazzino') }}" class="category-card">
+        <div class="category-icon out">
+          <i class="fas fa-truck"></i>
         </div>
-    </a>
+        <div class="category-content">
+          <div class="category-title">Fuori Magazzino</div>
+          <div class="category-description">Monitora i prodotti in uso</div>
+        </div>
+        <div class="category-count">{{ stats.fuori_magazzino }}</div>
+      </a>
+
+      <a href="{{ path('app_tutti_prodotti') }}" class="category-card">
+        <div class="category-icon all">
+          <i class="fas fa-warehouse"></i>
+        </div>
+        <div class="category-content">
+          <div class="category-title">Tutti i Prodotti</div>
+          <div class="category-description">Esplora l'intero catalogo</div>
+        </div>
+        <div class="category-count">{{ stats.total }}</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Statistiche -->
+  <div class="stats-section">
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.in_magazzino }}</div>
+      <div class="stat-label">In Magazzino</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.fuori_magazzino }}</div>
+      <div class="stat-label">Fuori Magazzino</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">{{ stats.total }}</div>
+      <div class="stat-label">Totale Prodotti</div>
+    </div>
+  </div>
+
+  <!-- Quick Action -->
+  <div class="quick-action">
+    <h3>Azioni Rapide</h3>
+    <p>Gestisci il tuo inventario in modo efficiente</p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <a href="{{ path('app_prodotto_nuovo') }}" class="action-btn">
+        <i class="fas fa-plus"></i>
+        Nuovo Prodotto
+      </a>
+      <a href="{{ path('app_genera_prodotti_finti') }}" class="action-btn" style="background: #ff9500;" onclick="return confirm('Generare 50.000 prodotti finti? Questo processo potrebbe richiedere alcuni minuti.')">
+        <i class="fas fa-database"></i>
+        Genera 50k Prodotti
+      </a>
+      <a href="{{ path('app_elimina_prodotti_finti') }}" class="action-btn" style="background: #ff3b30;" onclick="return confirm('Eliminare tutti i prodotti finti?')">
+        <i class="fas fa-trash"></i>
+        Elimina Prodotti Finti
+      </a>
+    </div>
+  </div>
 </div>
 {% endblock %}

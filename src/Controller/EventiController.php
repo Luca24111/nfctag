@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
@@ -103,6 +104,45 @@ class EventiController extends AbstractController
         $nfcId = $request->request->get('nfc_Id');
         $prodotto = $prodRepo->findOneBy(['nfcId' => $nfcId]);
 
+        // Controlla se è una richiesta AJAX
+        if ($request->isXmlHttpRequest()) {
+                    if (!$prodotto) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Tag NFC non riconosciuto o prodotto non registrato'
+            ]);
+        }
+
+            // Verifica se il prodotto è già associato all'evento
+            if ($evento->getProdotti()->contains($prodotto)) {
+                return new JsonResponse([
+                    'success' => false,
+                    'message' => 'Questo prodotto è già associato all\'evento'
+                ]);
+            }
+
+            // Assegna l'evento al prodotto e sincronizza entrambi i lati
+            $prodotto->addEvento($evento);
+            $evento->addProdotto($prodotto);
+
+            $em->persist($prodotto);
+            $em->persist($evento);
+            $em->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Prodotto associato con successo',
+                'product' => [
+                    'id' => $prodotto->getId(),
+                    'name' => $prodotto->getName(),
+                    'isOut' => $prodotto->isOut()
+                ],
+                'eventoId' => $evento->getId(),
+                'csrfToken' => $this->container->get('security.csrf.token_manager')->getToken('remove-prodotto'.$evento->getId().'-'.$prodotto->getId())->getValue()
+            ]);
+        }
+
+        // Richiesta normale (non AJAX)
         if (!$prodotto) {
             $this->addFlash('error', sprintf('Prodotto non trovato per il tag NFC: %s', $nfcId));
         } else {
@@ -148,7 +188,6 @@ class EventiController extends AbstractController
             $prodotto->removeEvento($evento);
 
             $em->flush();
-            $this->addFlash('success', 'Prodotto rimosso dall’evento.');
         } else {
             $this->addFlash('error', 'Prodotto non trovato.');
         }

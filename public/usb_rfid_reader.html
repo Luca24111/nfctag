@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB RFID Reader - Accesso Diretto</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header p {
+            font-size: 1rem;
+            color: #999;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .test-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            border: 1px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.15);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+        }
+        .status.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            border: 1px solid #ff3b30;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn.success {
+            background: linear-gradient(135deg, #34c759, #28a745);
+        }
+        .btn.danger {
+            background: linear-gradient(135deg, #ff3b30, #d70015);
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            color: #ff6b35;
+            line-height: 1.3;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007aff;
+            color: #007aff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid #ff9500;
+            color: #ff9500;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .success {
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid #34c759;
+            color: #34c759;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .device-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .device-item {
+            background: #1a1a1a;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+        }
+        .device-label {
+            color: #999;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+        }
+        .device-value {
+            color: #ff6b35;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .data-display {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+        }
+        .hex-display {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.7rem;
+            color: #34c759;
+            margin-top: 0.5rem;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔌 USB RFID Reader</h1>
+            <p>Accesso diretto alla porta USB-C del telefono Android</p>
+        </div>
+        
+        <div class="info">
+            <strong>🎯 Obiettivo:</strong> Accedere direttamente alla porta USB-C del telefono Android per leggere i dati del dispositivo RFID collegato.
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Informazioni Sistema</div>
+            <div class="device-info">
+                <div class="device-item">
+                    <div class="device-label">Sistema</div>
+                    <div class="device-value" id="osInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Browser</div>
+                    <div class="device-value" id="browserInfo">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">USB API</div>
+                    <div class="device-value" id="usbSupport">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">HTTPS</div>
+                    <div class="device-value" id="httpsSupport">Caricamento...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔍 Scansione Dispositivi USB</div>
+            <div id="systemStatus" class="status waiting">
+                <span>⏳</span>
+                <span>In attesa di scansione dispositivi USB...</span>
+            </div>
+            
+            <button id="scanDevicesBtn" class="btn">🔍 Scansiona Dispositivi</button>
+            <button id="requestDeviceBtn" class="btn success">🔌 Richiedi Dispositivo</button>
+            <button id="clearLogBtn" class="btn danger">🗑️ Pulisci Log</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log USB (Tempo Reale)</div>
+            <div id="eventLog" class="log-area">
+                <div style="color: #999;">I log USB appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📦 Dispositivo Connesso</div>
+            <div id="connectedDevice">
+                <div style="color: #999; text-align: center;">Nessun dispositivo connesso...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Dati Ricevuti</div>
+            <div id="dataDisplay" class="data-display">
+                <div style="color: #999;">I dati del dispositivo appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Note Importanti:</strong><br>
+            • Richiede HTTPS per funzionare (WebUSB API)<br>
+            • Il browser deve supportare WebUSB<br>
+            • Potrebbero essere richiesti permessi specifici<br>
+            • Funziona meglio su Chrome per Android
+        </div>
+
+        <div class="success">
+            <strong>✅ Se Funziona:</strong><br>
+            Potremo leggere direttamente i dati dal lettore RFID e capire come processarli!
+        </div>
+    </div>
+
+    <script>
+        let connectedDevice = null;
+        let isReading = false;
+        let eventCount = 0;
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const scanDevicesBtn = document.getElementById('scanDevicesBtn');
+        const requestDeviceBtn = document.getElementById('requestDeviceBtn');
+        const clearLogBtn = document.getElementById('clearLogBtn');
+        const eventLog = document.getElementById('eventLog');
+        const connectedDeviceDiv = document.getElementById('connectedDevice');
+        const dataDisplay = document.getElementById('dataDisplay');
+
+        // Informazioni sistema
+        function updateSystemInfo() {
+            document.getElementById('osInfo').textContent = navigator.platform;
+            document.getElementById('browserInfo').textContent = navigator.userAgent.includes('Chrome') ? 'Chrome' : 
+                                                                navigator.userAgent.includes('Safari') ? 'Safari' : 
+                                                                navigator.userAgent.includes('Firefox') ? 'Firefox' : 'Altro';
+            document.getElementById('usbSupport').textContent = 'usb' in navigator ? 'Supportato' : 'Non supportato';
+            document.getElementById('httpsSupport').textContent = location.protocol === 'https:' ? 'Sì' : 'No (Richiesto)';
+        }
+
+        // Funzione per loggare eventi
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#ff6b35',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff',
+                success: '#34c759'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.25rem';
+            logEntry.style.fontSize = '0.75rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+            
+            eventCount++;
+        }
+
+        // Funzione per mostrare dispositivo connesso
+        function showConnectedDevice(device) {
+            connectedDevice = device;
+            connectedDeviceDiv.innerHTML = `
+                <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid #34c759; border-radius: 8px; padding: 1rem;">
+                    <div style="font-weight: 600; color: #34c759; margin-bottom: 0.5rem;">✅ Dispositivo Connesso</div>
+                    <div style="font-size: 0.8rem; margin-bottom: 0.25rem;"><strong>Nome:</strong> ${device.productName || 'Sconosciuto'}</div>
+                    <div style="font-size: 0.8rem; margin-bottom: 0.25rem;"><strong>Vendor ID:</strong> 0x${device.vendorId.toString(16).toUpperCase()}</div>
+                    <div style="font-size: 0.8rem; margin-bottom: 0.25rem;"><strong>Product ID:</strong> 0x${device.productId.toString(16).toUpperCase()}</div>
+                    <div style="font-size: 0.8rem; margin-bottom: 0.25rem;"><strong>Serial:</strong> ${device.serialNumber || 'N/A'}</div>
+                    <div style="font-size: 0.8rem;"><strong>Configurazioni:</strong> ${device.configurations.length}</div>
+                </div>
+            `;
+        }
+
+        // Funzione per mostrare dati ricevuti
+        function showData(data, type = 'raw') {
+            const timestamp = new Date().toLocaleTimeString();
+            let displayData = '';
+            
+            if (type === 'hex') {
+                displayData = Array.from(data).map(byte => byte.toString(16).padStart(2, '0')).join(' ');
+            } else if (type === 'text') {
+                displayData = new TextDecoder().decode(data);
+            } else {
+                displayData = Array.from(data).join(', ');
+            }
+            
+            dataDisplay.innerHTML = `
+                <div style="margin-bottom: 0.5rem;">
+                    <strong>📊 Dati Ricevuti (${type.toUpperCase()}) - ${timestamp}</strong>
+                </div>
+                <div class="hex-display">${displayData}</div>
+                <div style="font-size: 0.7rem; color: #999; margin-top: 0.5rem;">
+                    Lunghezza: ${data.length} bytes | Tipo: ${type}
+                </div>
+            `;
+        }
+
+        // Scansione dispositivi USB esistenti
+        async function scanDevices() {
+            logEvent('🔍 Scansionando dispositivi USB...', 'info');
+            systemStatus.className = 'status waiting';
+            systemStatus.innerHTML = '<span>🔍</span><span>Scansione in corso...</span>';
+            
+            if (!('usb' in navigator)) {
+                logEvent('❌ WebUSB API non supportata', 'error');
+                systemStatus.className = 'status error';
+                systemStatus.innerHTML = '<span>❌</span><span>WebUSB non supportato</span>';
+                return;
+            }
+            
+            try {
+                const devices = await navigator.usb.getDevices();
+                logEvent(`📱 Dispositivi USB trovati: ${devices.length}`, 'info');
+                
+                if (devices.length === 0) {
+                    logEvent('⚠️ Nessun dispositivo USB trovato', 'warning');
+                    logEvent('💡 Prova a collegare il lettore RFID e clicca "Richiedi Dispositivo"', 'info');
+                } else {
+                    devices.forEach((device, index) => {
+                        logEvent(`📦 Dispositivo ${index + 1}:`, 'info');
+                        logEvent(`   Nome: ${device.productName || 'Sconosciuto'}`, 'debug');
+                        logEvent(`   Vendor ID: 0x${device.vendorId.toString(16).toUpperCase()}`, 'debug');
+                        logEvent(`   Product ID: 0x${device.productId.toString(16).toUpperCase()}`, 'debug');
+                        logEvent(`   Serial: ${device.serialNumber || 'N/A'}`, 'debug');
+                        
+                        // Verifica se potrebbe essere un lettore RFID
+                        if (device.productName && 
+                            (device.productName.toLowerCase().includes('rfid') || 
+                             device.productName.toLowerCase().includes('reader') ||
+                             device.productName.toLowerCase().includes('scanner'))) {
+                            logEvent(`🎯 POTENZIALE LETTORE RFID TROVATO!`, 'success');
+                        }
+                    });
+                }
+                
+                systemStatus.className = 'status ready';
+                systemStatus.innerHTML = '<span>✅</span><span>Scansione completata</span>';
+                
+            } catch (error) {
+                logEvent(`❌ Errore scansione: ${error.message}`, 'error');
+                systemStatus.className = 'status error';
+                systemStatus.innerHTML = '<span>❌</span><span>Errore scansione</span>';
+            }
+        }
+
+        // Richiesta dispositivo USB
+        async function requestDevice() {
+            logEvent('🔌 Richiedendo accesso dispositivo USB...', 'info');
+            systemStatus.className = 'status waiting';
+            systemStatus.innerHTML = '<span>🔌</span><span>Richiesta accesso...</span>';
+            
+            if (!('usb' in navigator)) {
+                logEvent('❌ WebUSB API non supportata', 'error');
+                return;
+            }
+            
+            try {
+                const device = await navigator.usb.requestDevice({
+                    filters: [] // Accetta qualsiasi dispositivo
+                });
+                
+                logEvent('✅ Accesso dispositivo concesso!', 'success');
+                logEvent(`📦 Dispositivo selezionato: ${device.productName || 'Sconosciuto'}`, 'info');
+                
+                showConnectedDevice(device);
+                
+                // Prova a connettere e leggere dati
+                await connectAndReadDevice(device);
+                
+            } catch (error) {
+                logEvent(`❌ Errore accesso dispositivo: ${error.message}`, 'error');
+                systemStatus.className = 'status error';
+                systemStatus.innerHTML = '<span>❌</span><span>Accesso negato</span>';
+            }
+        }
+
+        // Connessione e lettura dispositivo
+        async function connectAndReadDevice(device) {
+            try {
+                logEvent('🔗 Connessione al dispositivo...', 'info');
+                await device.open();
+                logEvent('✅ Dispositivo connesso', 'success');
+                
+                // Seleziona configurazione
+                await device.selectConfiguration(1);
+                logEvent('✅ Configurazione selezionata', 'success');
+                
+                // Trova endpoint di input
+                const inputEndpoint = device.configuration.interfaces[0].alternate.endpoints.find(
+                    endpoint => endpoint.direction === 'in'
+                );
+                
+                if (inputEndpoint) {
+                    logEvent(`📥 Endpoint di input trovato: ${inputEndpoint.endpointNumber}`, 'success');
+                    
+                    // Inizia lettura continua
+                    isReading = true;
+                    readDeviceData(device, inputEndpoint);
+                    
+                } else {
+                    logEvent('⚠️ Nessun endpoint di input trovato', 'warning');
+                }
+                
+                systemStatus.className = 'status ready';
+                systemStatus.innerHTML = '<span>✅</span><span>Dispositivo connesso e in lettura</span>';
+                
+            } catch (error) {
+                logEvent(`❌ Errore connessione: ${error.message}`, 'error');
+                systemStatus.className = 'status error';
+                systemStatus.innerHTML = '<span>❌</span><span>Errore connessione</span>';
+            }
+        }
+
+        // Lettura dati dal dispositivo
+        async function readDeviceData(device, endpoint) {
+            while (isReading) {
+                try {
+                    const result = await device.transferIn(endpoint.endpointNumber, 64);
+                    
+                    if (result.data && result.data.byteLength > 0) {
+                        const data = new Uint8Array(result.data.buffer);
+                        logEvent(`📊 Dati ricevuti: ${data.length} bytes`, 'success');
+                        showData(data, 'hex');
+                        
+                        // Prova a interpretare come testo
+                        try {
+                            const text = new TextDecoder().decode(data);
+                            if (text.trim().length > 0) {
+                                logEvent(`📝 Come testo: "${text.trim()}"`, 'info');
+                            }
+                        } catch (e) {
+                            // Ignora errori di decodifica testo
+                        }
+                    }
+                    
+                    // Pausa breve per non sovraccaricare
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                } catch (error) {
+                    if (isReading) {
+                        logEvent(`❌ Errore lettura: ${error.message}`, 'error');
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Event listeners
+        scanDevicesBtn.addEventListener('click', scanDevices);
+        requestDeviceBtn.addEventListener('click', requestDevice);
+        clearLogBtn.addEventListener('click', function() {
+            eventLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            dataDisplay.innerHTML = '<div style="color: #999;">I dati del dispositivo appariranno qui...</div>';
+            eventCount = 0;
+        });
+
+        // Inizializzazione
+        updateSystemInfo();
+        logEvent('🔌 USB RFID Reader caricato', 'success');
+        logEvent(`🌐 Browser: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Altro'}`, 'debug');
+        logEvent(`🔒 HTTPS: ${location.protocol === 'https:' ? 'Sì' : 'No'}`, 'debug');
+        logEvent(`🔌 USB: ${'usb' in navigator ? 'Supportato' : 'Non supportato'}`, 'debug');
+        
+        if (location.protocol !== 'https:') {
+            logEvent('⚠️ HTTPS richiesto per WebUSB API', 'warning');
+        }
+    </script>
+</body>
+</html> 

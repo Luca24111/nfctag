@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test RFID Android</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            margin: 0;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 100%;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .test-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #34c759;
+        }
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            color: #34c759;
+        }
+        .status {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34c759;
+            border: 1px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.2);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+        }
+        .btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .btn:hover {
+            background: #0056cc;
+        }
+        .btn.danger {
+            background: #ff3b30;
+        }
+        .btn.danger:hover {
+            background: #d70015;
+        }
+        .btn.success {
+            background: #34c759;
+        }
+        .btn.success:hover {
+            background: #28a745;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007aff;
+            color: #007aff;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid #ff9500;
+            color: #ff9500;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .device-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .device-item {
+            background: #1a1a1a;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+        .device-label {
+            color: #999;
+            margin-bottom: 0.25rem;
+        }
+        .device-value {
+            color: #34c759;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Test RFID Android</h1>
+        
+        <div class="info">
+            <strong>🔧 Test specifico per Android:</strong><br>
+            Questo test simula come un'app mobile gestisce i lettori RFID USB-C
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Informazioni Dispositivo</div>
+            <div class="device-info">
+                <div class="device-item">
+                    <div class="device-label">User Agent</div>
+                    <div class="device-value" id="userAgent">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Piattaforma</div>
+                    <div class="device-value" id="platform">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">Touch Support</div>
+                    <div class="device-value" id="touchSupport">Caricamento...</div>
+                </div>
+                <div class="device-item">
+                    <div class="device-label">USB Support</div>
+                    <div class="device-value" id="usbSupport">Caricamento...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Test Input RFID</div>
+            <div id="systemStatus" class="status waiting">
+                ⏳ In attesa di attivazione...
+            </div>
+            <button id="startTest" class="btn success">🚀 Inizia Test</button>
+            <button id="clearLog" class="btn danger">🗑️ Pulisci</button>
+            <button id="testUSB" class="btn">🔌 Test USB</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log Eventi Android</div>
+            <div id="eventLog" class="log-area">
+                <div style="color: #999;">I log appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Note per Android:</strong><br>
+            • I lettori RFID USB-C su Android potrebbero richiedere permessi speciali<br>
+            • Alcuni browser potrebbero non supportare l'accesso USB<br>
+            • Prova con Chrome o Firefox per Android
+        </div>
+    </div>
+
+    <script>
+        let isTestActive = false;
+        let rfidBuffer = '';
+        let rfidTimeout = null;
+        let eventCount = 0;
+        let lastEventTime = null;
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const startTestBtn = document.getElementById('startTest');
+        const clearLogBtn = document.getElementById('clearLog');
+        const testUSBBtn = document.getElementById('testUSB');
+        const eventLog = document.getElementById('eventLog');
+
+        // Informazioni dispositivo
+        document.getElementById('userAgent').textContent = navigator.userAgent.substring(0, 50) + '...';
+        document.getElementById('platform').textContent = navigator.platform;
+        document.getElementById('touchSupport').textContent = 'ontouchstart' in window ? 'Sì' : 'No';
+        document.getElementById('usbSupport').textContent = 'usb' in navigator ? 'Sì' : 'No';
+
+        // Funzione per loggare eventi
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#34c759',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff',
+                usb: '#ff6b35'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.25rem';
+            logEntry.style.fontSize = '0.75rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+            
+            eventCount++;
+            lastEventTime = new Date();
+        }
+
+        // Test USB API
+        async function testUSBAPI() {
+            logEvent('🔌 Testando USB API...', 'usb');
+            
+            if ('usb' in navigator) {
+                logEvent('✅ USB API disponibile', 'usb');
+                
+                try {
+                    // Richiedi permessi USB
+                    const devices = await navigator.usb.getDevices();
+                    logEvent(`📱 Dispositivi USB trovati: ${devices.length}`, 'usb');
+                    
+                    devices.forEach((device, index) => {
+                        logEvent(`📦 Dispositivo ${index + 1}: ${device.productName || 'Sconosciuto'} (VID: ${device.vendorId}, PID: ${device.productId})`, 'usb');
+                    });
+                    
+                    if (devices.length === 0) {
+                        logEvent('⚠️ Nessun dispositivo USB trovato. Prova a collegare il lettore RFID', 'warning');
+                    }
+                } catch (error) {
+                    logEvent(`❌ Errore USB: ${error.message}`, 'error');
+                }
+            } else {
+                logEvent('❌ USB API non disponibile in questo browser', 'error');
+            }
+        }
+
+        // Gestione input universale per Android
+        document.addEventListener('keydown', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`⌨️ Keydown: "${e.key}" (code: ${e.code}, keyCode: ${e.keyCode})`, 'debug');
+            
+            // Cattura caratteri alfanumerici
+            if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                logEvent(`🎯 Carattere RFID: "${e.key}"`, 'warning');
+                rfidBuffer += e.key;
+                
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 TAG RFID COMPLETO: "${rfidBuffer.trim()}"`, 'info');
+                        logEvent(`📏 Lunghezza: ${rfidBuffer.trim().length} caratteri`, 'debug');
+                        logEvent(`🔤 Tipo: ${/^[0-9]+$/.test(rfidBuffer.trim()) ? 'Numerico' : 'Alfanumerico'}`, 'debug');
+                        
+                        // Simula notifica Android
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification('Tag RFID Rilevato', {
+                                body: `Codice: ${rfidBuffer.trim()}`,
+                                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2334c759"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>'
+                            });
+                        }
+                        
+                        rfidBuffer = '';
+                    }
+                }, 300);
+            }
+            
+            // Gestione Enter
+            if (e.key === 'Enter' && rfidBuffer.length > 0) {
+                e.preventDefault();
+                logEvent(`🎯 TAG RFID (Enter): "${rfidBuffer.trim()}"`, 'info');
+                rfidBuffer = '';
+            }
+        });
+
+        // Gestione input events (per lettori che si comportano come tastiera)
+        document.addEventListener('input', function(e) {
+            if (!isTestActive) return;
+            
+            logEvent(`📥 Input event: "${e.target.value}"`, 'debug');
+            
+            if (e.target.value && e.target.value.length > 0) {
+                rfidBuffer += e.target.value;
+                logEvent(`📦 Buffer aggiornato: "${rfidBuffer}"`, 'info');
+                
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        logEvent(`🎯 TAG RFID (Input): "${rfidBuffer.trim()}"`, 'info');
+                        rfidBuffer = '';
+                        e.target.value = '';
+                    }
+                }, 200);
+            }
+        });
+
+        // Gestione focus per Android
+        document.addEventListener('focusin', function(e) {
+            if (!isTestActive) return;
+            logEvent(`🎯 Focus in: ${e.target.tagName}`, 'debug');
+        });
+
+        // Gestione touch events (per Android)
+        document.addEventListener('touchstart', function(e) {
+            if (!isTestActive) return;
+            logEvent(`👆 Touch start: ${e.touches.length} tocchi`, 'debug');
+        });
+
+        // Pulsante inizia test
+        startTestBtn.addEventListener('click', function() {
+            isTestActive = !isTestActive;
+            
+            if (isTestActive) {
+                systemStatus.className = 'status ready';
+                systemStatus.innerHTML = '✅ Test Attivo - Collega il lettore RFID e scansiona un tag';
+                startTestBtn.textContent = '⏹️ Ferma Test';
+                logEvent('🚀 Test RFID Android avviato', 'info');
+                logEvent('📱 Sistema pronto per ricevere input RFID', 'info');
+                logEvent('🔌 Collega il lettore RFID USB-C e scansiona un tag', 'debug');
+                
+                // Richiedi permessi notifiche
+                if ('Notification' in window && Notification.permission === 'default') {
+                    Notification.requestPermission();
+                }
+            } else {
+                systemStatus.className = 'status waiting';
+                systemStatus.innerHTML = '⏳ Test Fermato';
+                startTestBtn.textContent = '🚀 Inizia Test';
+                logEvent('⏹️ Test RFID fermato', 'warning');
+            }
+        });
+
+        // Pulsante test USB
+        testUSBBtn.addEventListener('click', testUSBAPI);
+
+        // Pulsante pulisci log
+        clearLogBtn.addEventListener('click', function() {
+            eventLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            eventCount = 0;
+            rfidBuffer = '';
+        });
+
+        // Log iniziale
+        logEvent('📱 Test RFID Android caricato', 'info');
+        logEvent(`🌐 Browser: ${navigator.userAgent.substring(0, 30)}...`, 'debug');
+        logEvent(`📱 Piattaforma: ${navigator.platform}`, 'debug');
+        logEvent(`👆 Touch: ${'ontouchstart' in window ? 'Supportato' : 'Non supportato'}`, 'debug');
+        logEvent(`🔌 USB: ${'usb' in navigator ? 'Supportato' : 'Non supportato'}`, 'debug');
+    </script>
+</body>
+</html> 

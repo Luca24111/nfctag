@@ -3,38 +3,1014 @@
 {% block title %}Impostazioni{% endblock %}
 
 {% block body %}
-<div class="settings-page" style="padding:1rem;max-width:600px;margin:2rem auto;color:white;">
-  <h1>Impostazioni</h1>
+<style>
+  :root {
+    --color-success: #28a745;
+    --color-error: #dc3545;
+    --color-info: #007bff;
+    --color-warning: #ffc107;
+    --accent-color: #007aff;
+    --accent-hover: #0056cc;
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+  }
 
-  {# Messaggi flash #}
-  {% for label, msgs in app.flashes %}
-    {% for msg in msgs %}
-      <div class="flash-{{ label }}" style="background:#28a745;padding:0.75rem;margin-bottom:1rem;">
-        {{ msg }}
+  [data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-tertiary: #e9ecef;
+    --text-primary: #212529;
+    --text-secondary: #6c757d;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+  }
+
+  body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    padding: 0;
+    letter-spacing: -0.04em;
+  }
+
+  .settings-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* Header della pagina */
+  .page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .header-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #007aff 0%, #0056cc 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    color: white;
+    box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+    margin: 0 auto 1.5rem auto;
+  }
+
+  .header-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.04em;
+  }
+
+  .header-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* Sezioni impostazioni */
+  .settings-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 25px var(--shadow-color);
+    backdrop-filter: blur(10px);
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-title i {
+    color: var(--accent-color);
+    font-size: 1.2rem;
+  }
+
+  /* Gruppi di impostazioni */
+  .setting-group {
+    margin-bottom: 2rem;
+  }
+
+  .setting-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .setting-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .setting-item:last-child {
+    border-bottom: none;
+  }
+
+  .setting-info {
+    flex: 1;
+  }
+
+  .setting-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+  }
+
+  .setting-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .setting-control {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* Toggle Switch */
+  .toggle-switch {
+    position: relative;
+    width: 50px;
+    height: 28px;
+    background: var(--bg-tertiary);
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+  }
+
+  .toggle-switch.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+  }
+
+  .toggle-slider {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 22px;
+    height: 22px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px var(--shadow-color);
+  }
+
+  .toggle-switch.active .toggle-slider {
+    transform: translateX(22px);
+  }
+
+  /* Select personalizzato */
+  .custom-select {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+  }
+
+  .custom-select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+  }
+
+  .custom-select option {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 0.5rem;
+  }
+
+  /* Input personalizzato */
+  .custom-input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 120px;
+  }
+
+  .custom-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+  }
+
+  .custom-input::placeholder {
+    color: var(--text-secondary);
+  }
+
+  /* Pulsanti */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 122, 255, 0.4);
+  }
+
+  .btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg-secondary);
+    border-color: var(--accent-color);
+    transform: translateY(-2px);
+  }
+
+  /* Footer azioni */
+  .settings-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .settings-container {
+      padding: 1rem;
+    }
+    
+    .settings-section {
+      padding: 1.5rem;
+    }
+    
+    .setting-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    
+    .setting-control {
+      width: 100%;
+      justify-content: flex-end;
+    }
+    
+    .settings-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>
+
+<div class="settings-container">
+  <!-- Header della pagina -->
+  <div class="page-header">
+    <div class="header-icon">
+      <i class="fas fa-cog"></i>
+    </div>
+    <h1 class="header-title">Impostazioni</h1>
+    <p class="header-subtitle">Personalizza la tua esperienza con Tagly</p>
+  </div>
+
+  <!-- Sezione Aspetto -->
+  <div class="settings-section">
+    <h2 class="section-title">
+      <i class="fas fa-palette"></i>
+      Aspetto
+    </h2>
+    
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Tema</div>
+          <div class="setting-description">Scegli tra tema chiaro e scuro</div>
+        </div>
+        <div class="setting-control">
+          <select id="themeSelect" class="custom-select">
+            <option value="dark">Scuro</option>
+            <option value="light">Chiaro</option>
+            <option value="auto">Automatico</option>
+          </select>
+        </div>
       </div>
-    {% endfor %}
-  {% endfor %}
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Animazioni</div>
+          <div class="setting-description">Abilita o disabilita le animazioni</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="animationsToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <form method="post">
-    <div style="margin-bottom:1rem;">
-      <label for="settings_multi" style="display:block;margin-bottom:0.5rem;">Abilita scansione multipla</label>
-      <input type="checkbox" id="settings_multi" name="settings[multiScan]" {{ settings.multiScan ? 'checked' : '' }}>
+  <!-- Sezione Notifiche -->
+  <div class="settings-section">
+    <h2 class="section-title">
+      <i class="fas fa-bell"></i>
+      Notifiche
+    </h2>
+    
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Notifiche Push</div>
+          <div class="setting-description">Ricevi notifiche per aggiornamenti importanti</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="pushNotificationsToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Notifiche Email</div>
+          <div class="setting-description">Ricevi riepiloghi via email</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="emailNotificationsToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div style="margin-bottom:1rem;">
-      <label for="settings_notifications" style="display:block;margin-bottom:0.5rem;">Notifiche push</label>
-      <input type="checkbox" id="settings_notifications" name="settings[notifications]" {{ settings.notifications ? 'checked' : '' }}>
+  </div>
+
+  <!-- Sezione Sincronizzazione Multi-Dispositivo -->
+  <div class="settings-section">
+    <h2 class="section-title">
+      <i class="fas fa-sync-alt"></i>
+      Sincronizzazione Multi-Dispositivo
+    </h2>
+    
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Sincronizzazione NFC</div>
+          <div class="setting-description">Sincronizza le scansioni NFC tra dispositivi</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="nfcSyncToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Sincronizzazione Automatica</div>
+          <div class="setting-description">Sincronizza automaticamente ogni 30 secondi</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="autoSyncToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Notifiche Sincronizzazione</div>
+          <div class="setting-description">Ricevi notifiche per nuove scansioni da altri dispositivi</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="syncNotificationsToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Intervallo Sincronizzazione</div>
+          <div class="setting-description">Frequenza della sincronizzazione automatica</div>
+        </div>
+        <div class="setting-control">
+          <select id="syncIntervalSelect" class="custom-select">
+            <option value="15">15 secondi</option>
+            <option value="30">30 secondi</option>
+            <option value="60">1 minuto</option>
+            <option value="300">5 minuti</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Sincronizzazione Offline</div>
+          <div class="setting-description">Salva le scansioni offline per sincronizzarle quando online</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="offlineSyncToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div style="margin-bottom:1rem;">
-      <label for="settings_language" style="display:block;margin-bottom:0.5rem;">Lingua interfaccia</label>
-      <select id="settings_language" name="settings[language]">
-        <option value="it" {{ settings.language == 'it' ? 'selected' : '' }}>Italiano</option>
-        <option value="en" {{ settings.language == 'en' ? 'selected' : '' }}>English</option>
-      </select>
+  </div>
+
+  <!-- Sezione Privacy -->
+  <div class="settings-section">
+    <h2 class="section-title">
+      <i class="fas fa-shield-alt"></i>
+      Privacy e Sicurezza
+    </h2>
+    
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Auto-logout</div>
+          <div class="setting-description">Disconnetti automaticamente dopo inattività</div>
+        </div>
+        <div class="setting-control">
+          <select id="autoLogoutSelect" class="custom-select">
+            <option value="never">Mai</option>
+            <option value="15">15 minuti</option>
+            <option value="30">30 minuti</option>
+            <option value="60">1 ora</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Cronologia Ricerche</div>
+          <div class="setting-description">Salva le tue ricerche recenti</div>
+        </div>
+        <div class="setting-control">
+          <div class="toggle-switch" id="searchHistoryToggle">
+            <div class="toggle-slider"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <button type="submit"
-            style="padding:0.75rem 1.5rem;border:none;border-radius:8px;background:var(--color-info);color:white;cursor:pointer;">
-      Salva impostazioni
+  </div>
+
+  <!-- Sezione Preferenze -->
+  <div class="settings-section">
+    <h2 class="section-title">
+      <i class="fas fa-sliders-h"></i>
+      Preferenze
+    </h2>
+    
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Lingua</div>
+          <div class="setting-description">Scegli la lingua dell'interfaccia</div>
+        </div>
+        <div class="setting-control">
+          <select id="languageSelect" class="custom-select">
+            <option value="it">Italiano</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Fuso Orario</div>
+          <div class="setting-description">Imposta il tuo fuso orario</div>
+        </div>
+        <div class="setting-control">
+          <select id="timezoneSelect" class="custom-select">
+            <option value="Europe/Rome">Roma (UTC+1)</option>
+            <option value="Europe/London">Londra (UTC+0)</option>
+            <option value="America/New_York">New York (UTC-5)</option>
+            <option value="Asia/Tokyo">Tokyo (UTC+9)</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Formato Data</div>
+          <div class="setting-description">Scegli il formato per le date</div>
+        </div>
+        <div class="setting-control">
+          <select id="dateFormatSelect" class="custom-select">
+            <option value="dd/mm/yyyy">DD/MM/YYYY</option>
+            <option value="mm/dd/yyyy">MM/DD/YYYY</option>
+            <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sezione Statistiche Sincronizzazione -->
+  <div class="settings-section" id="sync-stats-section" style="display: none;">
+    <h2 class="section-title">
+      <i class="fas fa-chart-line"></i>
+      Statistiche Sincronizzazione
+    </h2>
+    
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Scansioni Sincronizzate</div>
+          <div class="setting-description">Numero totale di scansioni sincronizzate</div>
+        </div>
+        <div class="setting-control">
+          <span id="totalScansCount" class="custom-input" style="text-align: center; min-width: 80px;">0</span>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Dispositivi Attivi</div>
+          <div class="setting-description">Dispositivi connessi nelle ultime 24 ore</div>
+        </div>
+        <div class="setting-control">
+          <span id="activeDevicesCount" class="custom-input" style="text-align: center; min-width: 80px;">0</span>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Ultima Sincronizzazione</div>
+          <div class="setting-description">Quando è avvenuta l'ultima sincronizzazione</div>
+        </div>
+        <div class="setting-control">
+          <span id="lastSyncTime" class="custom-input" style="text-align: center; min-width: 120px;">Mai</span>
+        </div>
+      </div>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <div class="setting-label">Stato Connessione</div>
+          <div class="setting-description">Stato attuale della connessione</div>
+        </div>
+        <div class="setting-control">
+          <span id="connectionStatus" class="custom-input" style="text-align: center; min-width: 80px; background: var(--color-error); color: white;">Offline</span>
+        </div>
+      </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <button id="refreshSyncStats" class="btn-secondary">
+        <i class="fas fa-sync"></i>
+        Aggiorna Statistiche
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer azioni -->
+  <div class="settings-actions">
+    <button class="btn-secondary" id="resetSettings">
+      <i class="fas fa-undo"></i>
+      Ripristina Default
     </button>
-  </form>
+    <button class="btn-primary" id="saveSettings">
+      <i class="fas fa-save"></i>
+      Salva Impostazioni
+    </button>
+  </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Inizializza le impostazioni
+  initializeSettings();
+  
+  // Event listeners
+  document.getElementById('themeSelect').addEventListener('change', updateTheme);
+  document.getElementById('animationsToggle').addEventListener('click', toggleAnimations);
+  document.getElementById('pushNotificationsToggle').addEventListener('click', togglePushNotifications);
+  document.getElementById('emailNotificationsToggle').addEventListener('click', toggleEmailNotifications);
+  document.getElementById('autoLogoutSelect').addEventListener('change', updateAutoLogout);
+  document.getElementById('searchHistoryToggle').addEventListener('click', toggleSearchHistory);
+  document.getElementById('languageSelect').addEventListener('change', updateLanguage);
+  document.getElementById('timezoneSelect').addEventListener('change', updateTimezone);
+  document.getElementById('dateFormatSelect').addEventListener('change', updateDateFormat);
+  
+  // Event listeners per sincronizzazione
+  document.getElementById('nfcSyncToggle').addEventListener('click', toggleNfcSync);
+  document.getElementById('autoSyncToggle').addEventListener('click', toggleAutoSync);
+  document.getElementById('syncNotificationsToggle').addEventListener('click', toggleSyncNotifications);
+  document.getElementById('syncIntervalSelect').addEventListener('change', updateSyncInterval);
+  document.getElementById('offlineSyncToggle').addEventListener('click', toggleOfflineSync);
+  document.getElementById('refreshSyncStats').addEventListener('click', refreshSyncStats);
+  
+  document.getElementById('resetSettings').addEventListener('click', resetSettings);
+  document.getElementById('saveSettings').addEventListener('click', saveSettings);
+});
+
+function initializeSettings() {
+  // Carica le impostazioni salvate
+  const settings = JSON.parse(localStorage.getItem('taglySettings') || '{}');
+  
+  // Imposta i valori correnti
+  if (settings.theme) {
+    document.getElementById('themeSelect').value = settings.theme;
+  }
+  
+  if (settings.animations !== undefined) {
+    document.getElementById('animationsToggle').classList.toggle('active', settings.animations);
+  }
+  
+  if (settings.pushNotifications !== undefined) {
+    document.getElementById('pushNotificationsToggle').classList.toggle('active', settings.pushNotifications);
+  }
+  
+  if (settings.emailNotifications !== undefined) {
+    document.getElementById('emailNotificationsToggle').classList.toggle('active', settings.emailNotifications);
+  }
+  
+  if (settings.autoLogout) {
+    document.getElementById('autoLogoutSelect').value = settings.autoLogout;
+  }
+  
+  if (settings.searchHistory !== undefined) {
+    document.getElementById('searchHistoryToggle').classList.toggle('active', settings.searchHistory);
+  }
+  
+  if (settings.language) {
+    document.getElementById('languageSelect').value = settings.language;
+  }
+  
+  if (settings.timezone) {
+    document.getElementById('timezoneSelect').value = settings.timezone;
+  }
+  
+  if (settings.dateFormat) {
+    document.getElementById('dateFormatSelect').value = settings.dateFormat;
+  }
+  
+  // Imposta i valori per le impostazioni di sincronizzazione
+  if (settings.nfcSync !== undefined) {
+    document.getElementById('nfcSyncToggle').classList.toggle('active', settings.nfcSync);
+    // Mostra/nascondi sezione statistiche
+    const statsSection = document.getElementById('sync-stats-section');
+    if (statsSection) {
+      statsSection.style.display = settings.nfcSync ? 'block' : 'none';
+    }
+  }
+  
+  if (settings.autoSync !== undefined) {
+    document.getElementById('autoSyncToggle').classList.toggle('active', settings.autoSync);
+    if (settings.autoSync) {
+      startAutoSync();
+    }
+  }
+  
+  if (settings.syncNotifications !== undefined) {
+    document.getElementById('syncNotificationsToggle').classList.toggle('active', settings.syncNotifications);
+  }
+  
+  if (settings.syncInterval) {
+    document.getElementById('syncIntervalSelect').value = settings.syncInterval;
+  }
+  
+  if (settings.offlineSync !== undefined) {
+    document.getElementById('offlineSyncToggle').classList.toggle('active', settings.offlineSync);
+  }
+  
+  // Aggiorna stato connessione
+  updateConnectionStatus();
+  
+  // Carica statistiche iniziali se la sincronizzazione è attiva
+  if (settings.nfcSync) {
+    refreshSyncStats();
+  }
+}
+
+function updateTheme() {
+  const theme = document.getElementById('themeSelect').value;
+  if (window.setTheme) {
+    window.setTheme(theme);
+  }
+  saveSetting('theme', theme);
+}
+
+function toggleAnimations() {
+  const toggle = document.getElementById('animationsToggle');
+  toggle.classList.toggle('active');
+  const enabled = toggle.classList.contains('active');
+  saveSetting('animations', enabled);
+  
+  // Applica le animazioni
+  document.body.style.setProperty('--animation-duration', enabled ? '0.3s' : '0s');
+}
+
+function togglePushNotifications() {
+  const toggle = document.getElementById('pushNotificationsToggle');
+  toggle.classList.toggle('active');
+  const enabled = toggle.classList.contains('active');
+  saveSetting('pushNotifications', enabled);
+  
+  if (enabled) {
+    requestNotificationPermission();
+  }
+}
+
+function toggleEmailNotifications() {
+  const toggle = document.getElementById('emailNotificationsToggle');
+  toggle.classList.toggle('active');
+  const enabled = toggle.classList.contains('active');
+  saveSetting('emailNotifications', enabled);
+}
+
+function updateAutoLogout() {
+  const value = document.getElementById('autoLogoutSelect').value;
+  saveSetting('autoLogout', value);
+}
+
+function toggleSearchHistory() {
+  const toggle = document.getElementById('searchHistoryToggle');
+  toggle.classList.toggle('active');
+  const enabled = toggle.classList.contains('active');
+  saveSetting('searchHistory', enabled);
+}
+
+function updateLanguage() {
+  const language = document.getElementById('languageSelect').value;
+  saveSetting('language', language);
+  // Qui potresti implementare il cambio lingua
+}
+
+function updateTimezone() {
+  const timezone = document.getElementById('timezoneSelect').value;
+  saveSetting('timezone', timezone);
+}
+
+function updateDateFormat() {
+    const dateFormat = document.getElementById('dateFormatSelect').value;
+    saveSetting('dateFormat', dateFormat);
+}
+
+// Funzioni per sincronizzazione
+function toggleNfcSync() {
+    const toggle = document.getElementById('nfcSyncToggle');
+    toggle.classList.toggle('active');
+    const enabled = toggle.classList.contains('active');
+    saveSetting('nfcSync', enabled);
+    
+    // Mostra/nascondi sezione statistiche
+    const statsSection = document.getElementById('sync-stats-section');
+    if (statsSection) {
+        statsSection.style.display = enabled ? 'block' : 'none';
+    }
+    
+    // Aggiorna stato connessione
+    updateConnectionStatus();
+}
+
+function toggleAutoSync() {
+    const toggle = document.getElementById('autoSyncToggle');
+    toggle.classList.toggle('active');
+    const enabled = toggle.classList.contains('active');
+    saveSetting('autoSync', enabled);
+    
+    if (enabled) {
+        // Avvia sincronizzazione automatica
+        startAutoSync();
+    } else {
+        // Ferma sincronizzazione automatica
+        stopAutoSync();
+    }
+}
+
+function toggleSyncNotifications() {
+    const toggle = document.getElementById('syncNotificationsToggle');
+    toggle.classList.toggle('active');
+    const enabled = toggle.classList.contains('active');
+    saveSetting('syncNotifications', enabled);
+    
+    if (enabled) {
+        requestNotificationPermission();
+    }
+}
+
+function updateSyncInterval() {
+    const interval = document.getElementById('syncIntervalSelect').value;
+    saveSetting('syncInterval', interval);
+    
+    // Riavvia sincronizzazione automatica se attiva
+    if (document.getElementById('autoSyncToggle').classList.contains('active')) {
+        stopAutoSync();
+        startAutoSync();
+    }
+}
+
+function toggleOfflineSync() {
+    const toggle = document.getElementById(' cantonToggle');
+    toggle.classList.toggle('active');
+    const enabled = toggle.classList.contains('active');
+    saveSetting('offlineSync', enabled);
+}
+
+function refreshSyncStats() {
+    // Simula caricamento statistiche
+    const totalScans = document.getElementById('totalScansCount');
+    const activeDevices = document.getElementById('activeDevicesCount');
+    const lastSync = document.getElementById('lastSyncTime');
+    const connectionStatus = document.getElementById('connectionStatus');
+    
+    if (totalScans) {
+        totalScans.textContent = Math.floor(Math.random() * 100) + 50;
+    }
+    
+    if (activeDevices) {
+        activeDevices.textContent = Math.floor(Math.random() * 5) + 1;
+    }
+    
+    if (lastSync) {
+        lastSync.textContent = new Date().toLocaleTimeString();
+    }
+    
+    if (connectionStatus) {
+        const isOnline = navigator.onLine;
+        connectionStatus.textContent = isOnline ? 'Online' : 'Offline';
+        connectionStatus.style.background = isOnline ? 'var(--color-success)' : 'var(--color-error)';
+    }
+}
+
+function updateConnectionStatus() {
+    const connectionStatus = document.getElementById('connectionStatus');
+    if (connectionStatus) {
+        const isOnline = navigator.onLine;
+        connectionStatus.textContent = isOnline ? 'Online' : 'Offline';
+        connectionStatus.style.background = isOnline ? 'var(--color-success)' : 'var(--color-error)';
+    }
+}
+
+// Funzioni per sincronizzazione automatica
+let autoSyncInterval = null;
+
+function startAutoSync() {
+    if (autoSyncInterval) {
+        clearInterval(autoSyncInterval);
+    }
+    
+    const interval = parseInt(document.getElementById('syncIntervalSelect').value) * 1000;
+    autoSyncInterval = setInterval(() => {
+        if (navigator.onLine && document.getElementById('nfcSyncToggle').classList.contains('active')) {
+            console.log('Sincronizzazione automatica in corso...');
+            // Qui andrebbe la logica di sincronizzazione reale
+        }
+    }, interval);
+    
+    console.log(`Sincronizzazione automatica avviata ogni ${interval/1000} secondi`);
+}
+
+function stopAutoSync() {
+    if (autoSyncInterval) {
+        clearInterval(autoSyncInterval);
+        autoSyncInterval = null;
+        console.log('Sincronizzazione automatica fermata');
+    }
+}
+
+function updateSyncFeatures(settings) {
+    // Aggiorna la sincronizzazione automatica
+    if (settings.autoSync) {
+        startAutoSync();
+    } else {
+        stopAutoSync();
+    }
+    
+    // Mostra/nascondi sezione statistiche
+    const statsSection = document.getElementById('sync-stats-section');
+    if (statsSection) {
+        statsSection.style.display = settings.nfcSync ? 'block' : 'none';
+    }
+    
+    // Aggiorna stato connessione
+    updateConnectionStatus();
+    
+    // Carica statistiche se la sincronizzazione è attiva
+    if (settings.nfcSync) {
+        refreshSyncStats();
+    }
+    
+    console.log('Funzionalità di sincronizzazione aggiornate:', settings);
+}
+
+function saveSetting(key, value) {
+    const settings = JSON.parse(localStorage.getItem('taglySettings') || '{}');
+    settings[key] = value;
+    localStorage.setItem('taglySettings', JSON.stringify(settings));
+}
+
+function resetSettings() {
+  if (confirm('Sei sicuro di voler ripristinare tutte le impostazioni ai valori predefiniti?')) {
+    localStorage.removeItem('taglySettings');
+    location.reload();
+  }
+}
+
+function saveSettings() {
+  // Salva tutte le impostazioni correnti
+  const settings = {
+    theme: document.getElementById('themeSelect').value,
+    animations: document.getElementById('animationsToggle').classList.contains('active'),
+    pushNotifications: document.getElementById('pushNotificationsToggle').classList.contains('active'),
+    emailNotifications: document.getElementById('emailNotificationsToggle').classList.contains('active'),
+    autoLogout: document.getElementById('autoLogoutSelect').value,
+    searchHistory: document.getElementById('searchHistoryToggle').classList.contains('active'),
+    language: document.getElementById('languageSelect').value,
+    timezone: document.getElementById('timezoneSelect').value,
+    dateFormat: document.getElementById('dateFormatSelect').value,
+    
+    // Impostazioni di sincronizzazione
+    nfcSync: document.getElementById('nfcSyncToggle').classList.contains('active'),
+    autoSync: document.getElementById('autoSyncToggle').classList.contains('active'),
+    syncNotifications: document.getElementById('syncNotificationsToggle').classList.contains('active'),
+    syncInterval: document.getElementById('syncIntervalSelect').value,
+    offlineSync: document.getElementById('offlineSyncToggle').classList.contains('active')
+  };
+  
+  localStorage.setItem('taglySettings', JSON.stringify(settings));
+  
+  // Mostra conferma
+  const saveBtn = document.getElementById('saveSettings');
+  const originalText = saveBtn.innerHTML;
+  saveBtn.innerHTML = '<i class="fas fa-check"></i> Salvato!';
+  saveBtn.style.background = 'linear-gradient(135deg, #34c759 0%, #30d158 100%)';
+  
+  setTimeout(() => {
+    saveBtn.innerHTML = originalText;
+    saveBtn.style.background = '';
+  }, 2000);
+  
+  // Aggiorna le funzionalità in base alle nuove impostazioni
+  updateSyncFeatures(settings);
+}
+
+function requestNotificationPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(permission => {
+      if (permission !== 'granted') {
+        // Disabilita il toggle se i permessi non sono concessi
+        document.getElementById('pushNotificationsToggle').classList.remove('active');
+        saveSetting('pushNotifications', false);
+        alert('I permessi per le notifiche non sono stati concessi');
+      }
+    });
+  }
+}
+</script>
 {% endblock %}

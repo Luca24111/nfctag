@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Compatibility Test - HID RFID</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #007aff, #34c759);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .test-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #007aff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status.success {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            border: 1px solid #34c759;
+        }
+        .status.warning {
+            background: rgba(255, 149, 0, 0.15);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+        }
+        .status.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            border: 1px solid #ff3b30;
+        }
+        .btn {
+            background: linear-gradient(135deg, #007aff, #0056cc);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn.success {
+            background: linear-gradient(135deg, #34c759, #28a745);
+        }
+        .btn.warning {
+            background: linear-gradient(135deg, #ff9500, #ff6b35);
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007aff;
+            color: #007aff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .warning {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid #ff9500;
+            color: #ff9500;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .success {
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid #34c759;
+            color: #34c759;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .browser-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .info-item {
+            background: #1a1a1a;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.8rem;
+        }
+        .info-label {
+            color: #999;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+        }
+        .info-value {
+            color: #34c759;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .test-card {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        .test-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .test-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .test-status {
+            font-size: 0.8rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .test-status.success {
+            background: rgba(52, 199, 89, 0.2);
+            color: #34c759;
+        }
+        .test-status.warning {
+            background: rgba(255, 149, 0, 0.2);
+            color: #ff9500;
+        }
+        .test-status.error {
+            background: rgba(255, 59, 48, 0.2);
+            color: #ff3b30;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 Browser Compatibility Test</h1>
+            <p>Test di compatibilità per HID RFID Reader</p>
+        </div>
+        
+        <div class="info">
+            <strong>🔍 Obiettivo:</strong><br>
+            Verificare se il problema è nel browser, nel dispositivo o nella configurazione.
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📊 Informazioni Browser</div>
+            <div class="browser-info">
+                <div class="info-item">
+                    <div class="info-label">User Agent</div>
+                    <div class="info-value" id="userAgent">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Platform</div>
+                    <div class="info-value" id="platform">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Browser</div>
+                    <div class="info-value" id="browser">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Version</div>
+                    <div class="info-value" id="version">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">HTTPS</div>
+                    <div class="info-value" id="https">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Touch Support</div>
+                    <div class="info-value" id="touchSupport">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🧪 Test di Compatibilità</div>
+            <div class="test-grid">
+                <div class="test-card">
+                    <div class="test-icon">⌨️</div>
+                    <div class="test-name">Keyboard Events</div>
+                    <div class="test-status" id="keyboardStatus">Testando...</div>
+                    <button class="btn" onclick="testKeyboard()">Test</button>
+                </div>
+                <div class="test-card">
+                    <div class="test-icon">🔌</div>
+                    <div class="test-name">USB API</div>
+                    <div class="test-status" id="usbStatus">Testando...</div>
+                    <button class="btn" onclick="testUSB()">Test</button>
+                </div>
+                <div class="test-card">
+                    <div class="test-icon">🎯</div>
+                    <div class="test-name">HID Support</div>
+                    <div class="test-status" id="hidStatus">Testando...</div>
+                    <button class="btn" onclick="testHID()">Test</button>
+                </div>
+                <div class="test-card">
+                    <div class="test-icon">🔒</div>
+                    <div class="test-name">Permissions</div>
+                    <div class="test-status" id="permissionStatus">Testando...</div>
+                    <button class="btn" onclick="testPermissions()">Test</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔧 Test Manuale</div>
+            <div id="manualTestStatus" class="status warning">
+                <span>⏳</span>
+                <span>In attesa di test manuale...</span>
+            </div>
+            
+            <button id="startManualTest" class="btn">🚀 Inizia Test Manuale</button>
+            <button id="stopManualTest" class="btn success">⏹️ Ferma Test</button>
+            <button id="clearLog" class="btn">🗑️ Pulisci Log</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log Test</div>
+            <div id="testLog" class="log-area">
+                <div style="color: #999;">I log dei test appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="success">
+            <strong>✅ Test Completati:</strong><br>
+            Questo test ti aiuterà a capire se il problema è nel browser o nel dispositivo.
+        </div>
+    </div>
+
+    <script>
+        let isManualTestActive = false;
+        let testResults = {};
+
+        // Elementi DOM
+        const manualTestStatus = document.getElementById('manualTestStatus');
+        const startManualTest = document.getElementById('startManualTest');
+        const stopManualTest = document.getElementById('stopManualTest');
+        const clearLog = document.getElementById('clearLog');
+        const testLog = document.getElementById('testLog');
+
+        // Funzione per loggare
+        function logTest(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#007aff',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                success: '#34c759'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.25rem';
+            logEntry.style.fontSize = '0.75rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            testLog.appendChild(logEntry);
+            testLog.scrollTop = testLog.scrollHeight;
+        }
+
+        // Funzione per aggiornare status
+        function updateTestStatus(testId, status, message) {
+            const statusEl = document.getElementById(testId);
+            statusEl.textContent = message;
+            statusEl.className = `test-status ${status}`;
+            testResults[testId] = status;
+        }
+
+        // Rileva informazioni browser
+        function detectBrowser() {
+            const userAgent = navigator.userAgent;
+            const platform = navigator.platform;
+            
+            document.getElementById('userAgent').textContent = userAgent.substring(0, 50) + '...';
+            document.getElementById('platform').textContent = platform;
+            document.getElementById('https').textContent = window.location.protocol === 'https:' ? 'Sì' : 'No';
+            document.getElementById('touchSupport').textContent = 'ontouchstart' in window ? 'Sì' : 'No';
+            
+            // Rileva browser
+            let browser = 'Sconosciuto';
+            let version = 'Sconosciuta';
+            
+            if (userAgent.includes('Chrome')) {
+                browser = 'Chrome';
+                version = userAgent.match(/Chrome\/(\d+)/)?.[1] || 'Sconosciuta';
+            } else if (userAgent.includes('Firefox')) {
+                browser = 'Firefox';
+                version = userAgent.match(/Firefox\/(\d+)/)?.[1] || 'Sconosciuta';
+            } else if (userAgent.includes('Safari')) {
+                browser = 'Safari';
+                version = userAgent.match(/Version\/(\d+)/)?.[1] || 'Sconosciuta';
+            } else if (userAgent.includes('Edge')) {
+                browser = 'Edge';
+                version = userAgent.match(/Edge\/(\d+)/)?.[1] || 'Sconosciuta';
+            }
+            
+            document.getElementById('browser').textContent = browser;
+            document.getElementById('version').textContent = version;
+            
+            logTest(`🌐 Browser rilevato: ${browser} ${version}`, 'info');
+            logTest(`📱 Piattaforma: ${platform}`, 'info');
+            logTest(`🔒 HTTPS: ${window.location.protocol === 'https:' ? 'Sì' : 'No'}`, 'info');
+        }
+
+        // Test Keyboard Events
+        function testKeyboard() {
+            logTest('⌨️ Testando eventi tastiera...', 'info');
+            
+            let keydownReceived = false;
+            let keyupReceived = false;
+            
+            const keydownHandler = () => {
+                keydownReceived = true;
+                logTest('✅ Keydown event ricevuto', 'success');
+                document.removeEventListener('keydown', keydownHandler);
+            };
+            
+            const keyupHandler = () => {
+                keyupReceived = true;
+                logTest('✅ Keyup event ricevuto', 'success');
+                document.removeEventListener('keyup', keyupHandler);
+            };
+            
+            document.addEventListener('keydown', keydownHandler);
+            document.addEventListener('keyup', keyupHandler);
+            
+            setTimeout(() => {
+                if (keydownReceived && keyupReceived) {
+                    updateTestStatus('keyboardStatus', 'success', '✅ Funziona');
+                    logTest('✅ Test tastiera completato con successo', 'success');
+                } else {
+                    updateTestStatus('keyboardStatus', 'error', '❌ Fallito');
+                    logTest('❌ Test tastiera fallito', 'error');
+                }
+            }, 5000);
+            
+            logTest('💡 Premi un tasto qualsiasi entro 5 secondi...', 'warning');
+        }
+
+        // Test USB API
+        function testUSB() {
+            logTest('🔌 Testando USB API...', 'info');
+            
+            if ('usb' in navigator) {
+                logTest('✅ WebUSB API disponibile', 'success');
+                updateTestStatus('usbStatus', 'success', '✅ Disponibile');
+            } else {
+                logTest('❌ WebUSB API non disponibile', 'error');
+                updateTestStatus('usbStatus', 'error', '❌ Non disponibile');
+            }
+        }
+
+        // Test HID Support
+        function testHID() {
+            logTest('🎯 Testando HID support...', 'info');
+            
+            if ('hid' in navigator) {
+                logTest('✅ WebHID API disponibile', 'success');
+                updateTestStatus('hidStatus', 'success', '✅ Disponibile');
+            } else {
+                logTest('❌ WebHID API non disponibile', 'error');
+                updateTestStatus('hidStatus', 'error', '❌ Non disponibile');
+            }
+        }
+
+        // Test Permissions
+        function testPermissions() {
+            logTest('🔒 Testando permessi...', 'info');
+            
+            if ('permissions' in navigator) {
+                logTest('✅ Permissions API disponibile', 'success');
+                updateTestStatus('permissionStatus', 'success', '✅ Disponibile');
+            } else {
+                logTest('❌ Permissions API non disponibile', 'error');
+                updateTestStatus('permissionStatus', 'error', '❌ Non disponibile');
+            }
+        }
+
+        // Test manuale
+        startManualTest.addEventListener('click', function() {
+            isManualTestActive = true;
+            manualTestStatus.className = 'status success';
+            manualTestStatus.innerHTML = '<span>✅</span><span>Test manuale attivo - Scansiona un tag</span>';
+            logTest('🚀 Test manuale avviato', 'success');
+            logTest('💡 Scansiona un tag RFID per testare', 'info');
+        });
+
+        stopManualTest.addEventListener('click', function() {
+            isManualTestActive = false;
+            manualTestStatus.className = 'status warning';
+            manualTestStatus.innerHTML = '<span>⏳</span><span>Test manuale fermato</span>';
+            logTest('⏹️ Test manuale fermato', 'warning');
+        });
+
+        clearLog.addEventListener('click', function() {
+            testLog.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+        });
+
+        // Event listeners per test manuale
+        document.addEventListener('keydown', function(e) {
+            if (!isManualTestActive) return;
+            
+            logTest(`⌨️ KEYDOWN: "${e.key}" (${e.code})`, 'success');
+        });
+
+        document.addEventListener('input', function(e) {
+            if (!isManualTestActive) return;
+            
+            logTest(`📥 INPUT: "${e.target.value}"`, 'success');
+        });
+
+        // Inizializzazione
+        detectBrowser();
+        logTest('🌐 Browser Compatibility Test caricato', 'success');
+        logTest('🔍 Esegui i test per verificare la compatibilità', 'info');
+        
+        // Auto-test iniziale
+        setTimeout(() => {
+            testUSB();
+            testHID();
+            testPermissions();
+        }, 1000);
+    </script>
+</body>
+</html> 

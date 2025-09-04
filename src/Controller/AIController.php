@@ -23,12 +23,7 @@ class AIController extends AbstractController
         }
 
         // Ricerca avanzata con QueryBuilder
-        $prodotti = $prodottoRepository->createQueryBuilder('p')
-            ->where('LOWER(p.name) LIKE LOWER(:query)')
-            ->setParameter('query', '%' . $question . '%')
-            ->setMaxResults(5)
-            ->getQuery()
-            ->getResult();
+        $prodotti = $prodottoRepository->searchProdotti($question, 1, 5);
 
         if (count($prodotti) > 0) {
             $answer = '<div style="margin-bottom: 1rem;"><strong>Risultati trovati per "' . htmlspecialchars($question) . '":</strong></div>';

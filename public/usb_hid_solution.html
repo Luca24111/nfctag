@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB HID Solution - Lettore RFID</title>
+    <style>
+        body {
+            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            margin: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 100%;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #34c759, #007aff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .test-section {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .test-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #34c759;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status.ready {
+            background: rgba(52, 199, 89, 0.15);
+            color: #34c759;
+            border: 1px solid #34c759;
+        }
+        .status.waiting {
+            background: rgba(255, 149, 0, 0.15);
+            color: #ff9500;
+            border: 1px solid #ff9500;
+        }
+        .status.error {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            border: 1px solid #ff3b30;
+        }
+        .btn {
+            background: linear-gradient(135deg, #34c759, #28a745);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn.warning {
+            background: linear-gradient(135deg, #ff9500, #ff6b35);
+        }
+        .btn.danger {
+            background: linear-gradient(135deg, #ff3b30, #d70015);
+        }
+        .log-area {
+            background: #1a1a1a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 250px;
+            overflow-y: auto;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+        .info {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007aff;
+            color: #007aff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .success {
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid #34c759;
+            color: #34c759;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        .tag-result {
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid #34c759;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .tag-code {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #34c759;
+            font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+            margin: 0.5rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔌 USB HID Solution</h1>
+            <p>Lettore RFID via WebUSB API (VID: 0xFFFF, PID: 0x35)</p>
+        </div>
+        
+        <div class="info">
+            <strong>🎯 Soluzione WebUSB:</strong><br>
+            Usando WebUSB API per comunicare direttamente con il dispositivo USB HID READER.
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🔧 Controlli USB</div>
+            <div id="systemStatus" class="status waiting">
+                <span>⏳</span>
+                <span>In attesa di connessione...</span>
+            </div>
+            
+            <button id="connectBtn" class="btn">🔌 Connetti Dispositivo</button>
+            <button id="disconnectBtn" class="btn danger">🔌 Disconnetti</button>
+            <button id="startReadingBtn" class="btn warning">📖 Inizia Lettura</button>
+            <button id="stopReadingBtn" class="btn">⏹️ Ferma Lettura</button>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">📝 Log USB</div>
+            <div id="usbLog" class="log-area">
+                <div style="color: #999;">I log USB appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">🎯 Ultimo Tag RFID</div>
+            <div id="lastTagResult">
+                <div style="color: #999; text-align: center;">Nessun tag rilevato...</div>
+            </div>
+        </div>
+
+        <div class="success">
+            <strong>✅ Soluzione WebUSB:</strong><br>
+            Questa soluzione bypassa i limiti del browser usando direttamente l'API WebUSB.
+        </div>
+    </div>
+
+    <script>
+        let usbDevice = null;
+        let isReading = false;
+
+        // Elementi DOM
+        const systemStatus = document.getElementById('systemStatus');
+        const connectBtn = document.getElementById('connectBtn');
+        const disconnectBtn = document.getElementById('disconnectBtn');
+        const startReadingBtn = document.getElementById('startReadingBtn');
+        const stopReadingBtn = document.getElementById('stopReadingBtn');
+        const usbLog = document.getElementById('usbLog');
+        const lastTagResult = document.getElementById('lastTagResult');
+
+        // Funzione per loggare
+        function logUSB(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#007aff',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                success: '#34c759',
+                usb: '#34c759'
+            };
+            
+            const logEntry = document.createElement('div');
+            logEntry.style.color = colors[type] || colors.info;
+            logEntry.style.marginBottom = '0.25rem';
+            logEntry.style.fontSize = '0.75rem';
+            logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+            
+            usbLog.appendChild(logEntry);
+            usbLog.scrollTop = usbLog.scrollHeight;
+        }
+
+        // Funzione per mostrare tag
+        function showTag(tag) {
+            lastTagResult.innerHTML = `
+                <div class="tag-result">
+                    <div style="font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">🎯 Tag RFID Rilevato!</div>
+                    <div class="tag-code">${tag}</div>
+                    <div style="font-size: 0.8rem; color: #999;">
+                        Timestamp: ${new Date().toLocaleTimeString()}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Funzione per processare dati USB
+        function processUSBData(data) {
+            try {
+                // Converti i dati USB in stringa
+                const decoder = new TextDecoder();
+                const text = decoder.decode(data);
+                
+                logUSB(`📥 Dati USB ricevuti: ${text}`, 'usb');
+                
+                // Rimuovi caratteri non validi
+                const cleanText = text.replace(/[^\w\d]/g, '');
+                
+                if (cleanText.length >= 4 && cleanText.length <= 30) {
+                    showTag(cleanText);
+                    logUSB(`🎯 TAG RFID PROCESSATO: "${cleanText}"`, 'success');
+                } else {
+                    logUSB(`⚠️ Dati non validi: "${cleanText}"`, 'warning');
+                }
+            } catch (error) {
+                logUSB(`❌ Errore processamento: ${error.message}`, 'error');
+            }
+        }
+
+        // Funzione per leggere dati USB
+        async function readUSBData() {
+            if (!usbDevice || !isReading) return;
+            
+            try {
+                // Per dispositivi HID, usiamo l'endpoint 0x81 (endpoint 1 con direzione IN)
+                // Prima verifichiamo la configurazione del dispositivo
+                logUSB('🔍 Verificando configurazione dispositivo...', 'info');
+                
+                const configuration = usbDevice.configuration;
+                logUSB(`📊 Configurazioni disponibili: ${configuration.interfaces.length}`, 'info');
+                
+                for (let i = 0; i < configuration.interfaces.length; i++) {
+                    const interface = configuration.interfaces[i];
+                    logUSB(`🔌 Interfaccia ${i}: ${interface.alternates.length} alternative`, 'info');
+                    
+                    for (let j = 0; j < interface.alternates.length; j++) {
+                        const alternate = interface.alternates[j];
+                        logUSB(`📋 Alternativa ${j}: ${alternate.endpoints.length} endpoint`, 'info');
+                        
+                        for (let k = 0; k < alternate.endpoints.length; k++) {
+                            const endpoint = alternate.endpoints[k];
+                            logUSB(`🎯 Endpoint ${k}: ${endpoint.endpointNumber} (${endpoint.direction})`, 'info');
+                        }
+                    }
+                }
+                
+                // Prova diversi endpoint per HID
+                const possibleEndpoints = [1, 0x81, 129]; // Endpoint comuni per HID
+                
+                for (const endpointNumber of possibleEndpoints) {
+                    try {
+                        logUSB(`🔍 Testando endpoint ${endpointNumber}...`, 'info');
+                        
+                        // Prova a leggere dall'endpoint
+                        const result = await usbDevice.transferIn(endpointNumber, 64);
+                        
+                        if (result.data && result.data.byteLength > 0) {
+                            logUSB(`✅ Endpoint ${endpointNumber} funzionante!`, 'success');
+                            
+                            // Processa i dati
+                            processUSBData(result.data);
+                            
+                            // Continua a leggere dall'endpoint funzionante
+                            if (isReading) {
+                                setTimeout(() => readUSBDataFromEndpoint(endpointNumber), 100);
+                            }
+                            return;
+                        }
+                    } catch (endpointError) {
+                        logUSB(`❌ Endpoint ${endpointNumber} non funzionante: ${endpointError.message}`, 'warning');
+                    }
+                }
+                
+                // Se nessun endpoint funziona, prova polling
+                logUSB('🔄 Nessun endpoint diretto funzionante, provo polling...', 'warning');
+                if (isReading) {
+                    setTimeout(readUSBData, 500);
+                }
+                
+            } catch (error) {
+                logUSB(`❌ Errore lettura USB: ${error.message}`, 'error');
+                isReading = false;
+            }
+        }
+
+        // Funzione per leggere da un endpoint specifico
+        async function readUSBDataFromEndpoint(endpointNumber) {
+            if (!usbDevice || !isReading) return;
+            
+            try {
+                const result = await usbDevice.transferIn(endpointNumber, 64);
+                
+                if (result.data && result.data.byteLength > 0) {
+                    processUSBData(result.data);
+                }
+                
+                // Continua a leggere
+                if (isReading) {
+                    setTimeout(() => readUSBDataFromEndpoint(endpointNumber), 100);
+                }
+            } catch (error) {
+                logUSB(`❌ Errore endpoint ${endpointNumber}: ${error.message}`, 'error');
+                // Riprova con endpoint discovery
+                if (isReading) {
+                    setTimeout(readUSBData, 1000);
+                }
+            }
+        }
+
+        // Connetti dispositivo
+        connectBtn.addEventListener('click', async function() {
+            try {
+                logUSB('🔌 Richiesta connessione dispositivo...', 'info');
+                
+                // Richiedi accesso al dispositivo specifico
+                usbDevice = await navigator.usb.requestDevice({
+                    filters: [{
+                        vendorId: 0xFFFF,
+                        productId: 0x35
+                    }]
+                });
+                
+                logUSB('✅ Dispositivo selezionato', 'success');
+                logUSB(`📊 Nome: ${usbDevice.productName || 'USB HID READER'}`, 'info');
+                logUSB(`🔌 VID: 0x${usbDevice.vendorId.toString(16).toUpperCase()}`, 'info');
+                logUSB(`🎯 PID: 0x${usbDevice.productId.toString(16).toUpperCase()}`, 'info');
+                
+                // Apri connessione
+                await usbDevice.open();
+                logUSB('✅ Connessione aperta', 'success');
+                
+                // Seleziona configurazione (solitamente la prima)
+                await usbDevice.selectConfiguration(1);
+                logUSB('✅ Configurazione selezionata', 'success');
+                
+                // Per dispositivi HID, prova a richiedere l'interfaccia 0
+                try {
+                    await usbDevice.claimInterface(0);
+                    logUSB('✅ Interfaccia 0 richiesta', 'success');
+                } catch (interfaceError) {
+                    logUSB(`⚠️ Errore interfaccia 0: ${interfaceError.message}`, 'warning');
+                    
+                    // Prova interfaccia 1 se la 0 fallisce
+                    try {
+                        await usbDevice.claimInterface(1);
+                        logUSB('✅ Interfaccia 1 richiesta', 'success');
+                    } catch (interfaceError2) {
+                        logUSB(`⚠️ Errore interfaccia 1: ${interfaceError2.message}`, 'warning');
+                        logUSB('💡 Provo senza richiedere interfaccia specifica...', 'info');
+                    }
+                }
+                
+                // Aggiorna UI
+                systemStatus.className = 'status ready';
+                systemStatus.innerHTML = '<span>✅</span><span>Dispositivo connesso</span>';
+                
+                logUSB('🎯 Dispositivo pronto per la lettura', 'success');
+                logUSB('💡 Clicca "Inizia Lettura" per testare gli endpoint', 'info');
+                
+            } catch (error) {
+                logUSB(`❌ Errore connessione: ${error.message}`, 'error');
+                systemStatus.className = 'status error';
+                systemStatus.innerHTML = '<span>❌</span><span>Errore connessione</span>';
+            }
+        });
+
+        // Disconnetti dispositivo
+        disconnectBtn.addEventListener('click', async function() {
+            if (usbDevice) {
+                try {
+                    isReading = false;
+                    await usbDevice.close();
+                    usbDevice = null;
+                    
+                    systemStatus.className = 'status waiting';
+                    systemStatus.innerHTML = '<span>⏳</span><span>Dispositivo disconnesso</span>';
+                    
+                    logUSB('🔌 Dispositivo disconnesso', 'warning');
+                } catch (error) {
+                    logUSB(`❌ Errore disconnessione: ${error.message}`, 'error');
+                }
+            }
+        });
+
+        // Inizia lettura
+        startReadingBtn.addEventListener('click', function() {
+            if (!usbDevice) {
+                logUSB('❌ Nessun dispositivo connesso', 'error');
+                return;
+            }
+            
+            isReading = true;
+            logUSB('📖 Avvio lettura dati USB...', 'info');
+            readUSBData();
+        });
+
+        // Ferma lettura
+        stopReadingBtn.addEventListener('click', function() {
+            isReading = false;
+            logUSB('⏹️ Lettura fermata', 'warning');
+        });
+
+        // Inizializzazione
+        logUSB('🔌 USB HID Solution caricato', 'success');
+        logUSB('🎯 Configurato per USB HID READER (VID: 0xFFFF, PID: 0x35)', 'info');
+        logUSB('💡 Clicca "Connetti Dispositivo" per iniziare', 'info');
+    </script>
+</body>
+</html> 

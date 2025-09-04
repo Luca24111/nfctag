@@ -1,79 +1,58 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}Dashboard{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends 'base.html.twig' %}
 
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+{% block title %}NFC{% endblock %}
 
-    <style>
-        body {
-            font-size: 1.1rem;
-            font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            text-align: center;
-            background-color: #121212;
-            color: white;
-        }
-        .container {
-            padding: 40px 20px;
-        }
-        h1, h2 {
-            color: #ffffff;
-        }
-        p, span, a {
-            color: #d0d0d0;
-        }
-        a {
-            color: #64b5f6;
-            text-decoration: none;
-        }
-        a:hover {
-            color: #1e88e5;
-        }
-        .alert {
-            background-color: #1e1e1e;
-            border-left: 5px solid #64b5f6;
-            color: #ffffff;
-        }
-        .status-badge {
-            font-size: 0.9rem;
-            padding: 0.4em 0.8em;
-            border-radius: 1rem;
-            background-color: #2c2c2c;
-            display: inline-block;
-            margin-top: 10px;
-        }
-        .status-badge.ready {
-            background-color: #00796b;
-            color: #a7ffeb;
-        }
-        .status-badge.error {
-            background-color: #c62828;
-            color: #ffcdd2;
-        }
-        .status-badge.success {
-            background-color: #2e7d32;
-            color: #b9f6ca;
-        }
-        .product-card {
-            background-color: #1e1e1e;
-            border: 1px solid #333;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-    </style>
+{% block body %}
+<style>
+    .container {
+        padding: 40px 20px;
+    }
+    h1, h2 {
+        color: #ffffff;
+    }
+    p, span, a {
+        color: #d0d0d0;
+    }
+    a {
+        color: #64b5f6;
+        text-decoration: none;
+    }
+    a:hover {
+        color: #1e88e5;
+    }
+    .alert {
+        background-color: #1e1e1e;
+        border-left: 5px solid #64b5f6;
+        color: #ffffff;
+    }
+    .status-badge {
+        font-size: 0.9rem;
+        padding: 0.4em 0.8em;
+        border-radius: 1rem;
+        background-color: #2c2c2c;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    .status-badge.ready {
+        background-color: #00796b;
+        color: #a7ffeb;
+    }
+    .status-badge.error {
+        background-color: #c62828;
+        color: #ffcdd2;
+    }
+    .status-badge.success {
+        background-color: #2e7d32;
+        color: #b9f6ca;
+    }
+    .product-card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+</style>
 
-    {% block stylesheets %}{% endblock %}
-</head>
-<body>
-    {% block body %}{% endblock %}
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    {% block javascripts %}{% endblock %}
-</body>
-</html>
+{% block nfc_content %}{% endblock %}
+{% endblock %}

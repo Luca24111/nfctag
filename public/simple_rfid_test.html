@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test RFID Semplice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .test-area {
+            background: #2a2a2a;
+            border: 2px solid #34c759;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .ready { color: #34c759; }
+        .waiting { color: #ff9500; }
+        .error { color: #ff3b30; }
+        .log {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        .btn {
+            background: #007aff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .btn:hover { background: #0056cc; }
+        .btn.success { background: #34c759; }
+        .btn.danger { background: #ff3b30; }
+        .input-test {
+            width: 100%;
+            padding: 10px;
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test RFID Semplice</h1>
+        
+        <div class="test-area">
+            <h2>Status Lettore</h2>
+            <div id="status" class="status waiting">⏳ In attesa di input...</div>
+            
+            <button id="startBtn" class="btn success">🚀 Inizia Test</button>
+            <button id="clearBtn" class="btn danger">🗑️ Pulisci Log</button>
+            <button id="testBtn" class="btn">🧪 Test Manuale</button>
+        </div>
+
+        <div class="test-area">
+            <h2>Input Test</h2>
+            <input type="text" id="testInput" class="input-test" placeholder="Digita qui per testare o scansiona un tag RFID...">
+            <p style="font-size: 12px; color: #999;">Questo campo dovrebbe ricevere input dal lettore RFID</p>
+        </div>
+
+        <div class="test-area">
+            <h2>Log Eventi</h2>
+            <div id="log" class="log">
+                <div style="color: #999;">I log appariranno qui...</div>
+            </div>
+        </div>
+
+        <div class="test-area">
+            <h2>Ultimo Tag Rilevato</h2>
+            <div id="lastTag" style="font-size: 24px; font-weight: bold; color: #34c759; margin: 10px 0;">
+                Nessun tag rilevato
+            </div>
+        </div>
+
+        <div style="background: #ff9500; color: #000; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <strong>⚠️ Istruzioni:</strong><br>
+            1. Collega il lettore RFID USB-C<br>
+            2. Clicca "Inizia Test"<br>
+            3. Scansiona un tag RFID<br>
+            4. Osserva i log per vedere cosa succede
+        </div>
+    </div>
+
+    <script>
+        let isActive = false;
+        let rfidBuffer = '';
+        let rfidTimeout = null;
+
+        const status = document.getElementById('status');
+        const log = document.getElementById('log');
+        const lastTag = document.getElementById('lastTag');
+        const testInput = document.getElementById('testInput');
+        const startBtn = document.getElementById('startBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const testBtn = document.getElementById('testBtn');
+
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const colors = {
+                info: '#34c759',
+                warning: '#ff9500',
+                error: '#ff3b30',
+                debug: '#007aff'
+            };
+            
+            const entry = document.createElement('div');
+            entry.style.color = colors[type] || colors.info;
+            entry.style.marginBottom = '5px';
+            entry.innerHTML = `[${timestamp}] ${message}`;
+            
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function updateStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function processRFIDTag(tag) {
+            if (!tag || tag.trim().length === 0) return;
+            
+            const cleanTag = tag.trim();
+            logEvent(`🎯 TAG RFID RILEVATO: "${cleanTag}"`, 'info');
+            lastTag.textContent = cleanTag;
+            
+            // Simula ricerca prodotto
+            setTimeout(() => {
+                logEvent('🔍 Cercando prodotto nel database...', 'debug');
+                logEvent('✅ Prodotto trovato! (simulazione)', 'info');
+            }, 1000);
+        }
+
+        // Event listener per input nel campo di test
+        testInput.addEventListener('input', function(e) {
+            if (!isActive) return;
+            
+            logEvent(`📥 Input event: "${e.target.value}"`, 'debug');
+            
+            if (e.target.value && e.target.value.length > 0) {
+                processRFIDTag(e.target.value);
+                e.target.value = '';
+            }
+        });
+
+        // Event listener globale per keydown
+        document.addEventListener('keydown', function(e) {
+            if (!isActive) return;
+            
+            logEvent(`⌨️ Keydown: "${e.key}" (code: ${e.code})`, 'debug');
+            
+            // Ignora se l'utente sta digitando nel campo di test
+            if (e.target === testInput) return;
+            
+            // Cattura caratteri alfanumerici
+            if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                logEvent(`🎯 Carattere RFID: "${e.key}"`, 'warning');
+                rfidBuffer += e.key;
+                
+                clearTimeout(rfidTimeout);
+                rfidTimeout = setTimeout(() => {
+                    if (rfidBuffer.length > 0) {
+                        processRFIDTag(rfidBuffer);
+                        rfidBuffer = '';
+                    }
+                }, 300);
+            }
+            
+            // Gestione Enter
+            if (e.key === 'Enter' && rfidBuffer.length > 0) {
+                e.preventDefault();
+                processRFIDTag(rfidBuffer);
+                rfidBuffer = '';
+            }
+        });
+
+        // Event listener per focus
+        document.addEventListener('focusin', function(e) {
+            if (isActive) {
+                logEvent(`🎯 Focus in: ${e.target.tagName}`, 'debug');
+            }
+        });
+
+        // Pulsante inizia test
+        startBtn.addEventListener('click', function() {
+            isActive = !isActive;
+            
+            if (isActive) {
+                updateStatus('✅ Test attivo - Scansiona un tag RFID', 'ready');
+                startBtn.textContent = '⏹️ Ferma Test';
+                logEvent('🚀 Test RFID avviato', 'info');
+                logEvent('🔌 Collega il lettore RFID e scansiona un tag', 'info');
+                
+                // Focus sul campo di test
+                testInput.focus();
+            } else {
+                updateStatus('⏳ Test fermato', 'waiting');
+                startBtn.textContent = '🚀 Inizia Test';
+                logEvent('⏹️ Test RFID fermato', 'warning');
+            }
+        });
+
+        // Pulsante pulisci log
+        clearBtn.addEventListener('click', function() {
+            log.innerHTML = '<div style="color: #999;">Log puliti...</div>';
+            lastTag.textContent = 'Nessun tag rilevato';
+            rfidBuffer = '';
+        });
+
+        // Pulsante test manuale
+        testBtn.addEventListener('click', function() {
+            const testTag = prompt('Inserisci un codice RFID per testare:');
+            if (testTag && testTag.trim()) {
+                logEvent(`🧪 Test manuale: "${testTag.trim()}"`, 'info');
+                processRFIDTag(testTag.trim());
+            }
+        });
+
+        // Inizializzazione
+        logEvent('🔍 Test RFID Semplice caricato', 'info');
+        logEvent(`🌐 Browser: ${navigator.userAgent.includes('Chrome') ? 'Chrome' : navigator.userAgent.includes('Safari') ? 'Safari' : 'Altro'}`, 'debug');
+        logEvent(`📱 Piattaforma: ${navigator.platform}`, 'debug');
+        logEvent(`👆 Touch: ${'ontouchstart' in window ? 'Supportato' : 'Non supportato'}`, 'debug');
+    </script>
+</body>
+</html> 

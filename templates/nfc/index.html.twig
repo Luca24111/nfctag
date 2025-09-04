@@ -17,15 +17,14 @@
         --color-success: #28a745;
         --color-error: #dc3545;
         --color-info: #007bff;
-        --color-bg-dark: #121212;
     }
 
     body {
         font-size: 1.1rem;
         font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         text-align: center;
-        background-color: var(--color-bg-dark);
-        color: white;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
     }
 
     .nfc-wrapper {
@@ -84,7 +83,7 @@
         font-size: 1.4rem;
         font-weight: 500;
         opacity: 0.6;
-        color: #ffffff;
+        color: var(--text-primary);
         letter-spacing: -0.04em;
         margin-bottom: 1.5rem;
         transition: opacity 0.4s ease;
@@ -95,14 +94,14 @@
 
     .product-info {
         margin-top: 2rem;
-        background: linear-gradient(135deg, #2a2a2a 0%, #1e1e1e 100%);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
         border-radius: 16px;
         padding: 1.5rem;
         width: 90%;
         max-width: 380px;
         margin: 0 auto;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+        box-shadow: 0 4px 20px var(--shadow-color);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         opacity: 0;
         transform: translateY(20px);
@@ -114,14 +113,14 @@
     }
     .product-info:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.7);
+        box-shadow: 0 8px 30px var(--shadow-color);
     }
 
     .product-name {
         font-size: 1.5rem;
         letter-spacing: -0.04em;
         font-weight: 500;
-        color: #ffffff;
+        color: var(--text-primary);
         margin-bottom: 0.75rem;
     }
 
@@ -139,7 +138,7 @@
         display: inline-block;
         font-size: 1rem;
         font-weight: 500;
-        color: #fff;
+        color: var(--text-primary);
         padding: 0.4rem 0.8rem;
         border-radius: 12px;
         text-transform: uppercase;
@@ -165,27 +164,27 @@
         position: absolute;
         top: 10px;
         right: 10px;
-        background: rgba(44, 44, 46, 0.8);
+        background: var(--bg-tertiary);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid var(--border-color);
         border-radius: 50%;
         width: 32px;
         height: 32px;
-        color: white;
+        color: var(--text-primary);
         font-size: 1.2rem;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
         transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 12px var(--shadow-color);
     }
     
     .close-button:hover {
-        background: rgba(44, 44, 46, 0.9) !important;
+        background: var(--bg-secondary) !important;
         transform: scale(1.1);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 6px 16px var(--shadow-color);
     }
 
     .status-glow-success {
@@ -208,7 +207,7 @@
     }
     #scan-history-list li {
         padding:0.25rem 0;
-        border-bottom:1px solid rgba(255,255,255,0.1);
+        border-bottom:1px solid var(--border-color);
     }
     #scan-history-list li:last-child {
         border-bottom:none;
@@ -236,6 +235,8 @@
       color: white !important;
   }
   
+
+  
   /* Multiscan button pulsing blue effect */
   .btn-multiscan-active {
       background: rgba(0, 122, 255, 0.9) !important;
@@ -243,7 +244,7 @@
       border-color: rgba(0, 122, 255, 0.3) !important;
       transform: scale(1.05) !important;
       animation: pulseBlue 2s infinite;
-      box-shadow: 0 0 20px rgba(0, 122, 255, 0.6), 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+      box-shadow: 0 0 20px rgba(0, 122, 255, 0.6), 0 4px 12px rgba(0, 122, 255, 0.4);
   }
   .btn-multiscan-active i {
       color: white !important;
@@ -435,7 +436,7 @@
 <div class="button-row" style="display: flex; justify-content: space-between; width: 90%; max-width: 380px; margin: 1rem auto;">
   <button id="btn-multiscan" aria-label="Scansione Multipla"
           style="width: 48px; height: 48px; border: none; border-radius: 16px; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
-    <i class="fas fa-stream" style="color: white; font-size: 1.2rem;"></i>
+    <i class="fas fa-layer-group" style="color: white; font-size: 1.2rem;"></i>
   </button>
   <button id="btn-history" aria-label="Mostra Storico"
           style="width: 48px; height: 48px; border: none; border-radius: 16px; background: rgba(44, 44, 46, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);">
@@ -559,6 +560,8 @@
         </button>
     </div>
 </div>
+
+
 
 <script>
     let ndefAbortController;
@@ -1539,6 +1542,7 @@
 // Nuovi bottoni flottanti: multiscan & history
 const btnMulti = document.getElementById('btn-multiscan');
 const btnHistory = document.getElementById('btn-history');
+
 btnMulti.addEventListener('click', () => {
     multiScanMode = !multiScanMode;
     
@@ -1554,6 +1558,7 @@ btnMulti.addEventListener('click', () => {
         stopNfc();
     }
 });
+
 btnHistory.addEventListener('click', () => {
     const historyBox = document.getElementById('scan-history');
     const isHidden = historyBox.style.display === 'none' || !historyBox.style.display;
@@ -1562,6 +1567,535 @@ btnHistory.addEventListener('click', () => {
     // Toggle button style
     btnHistory.classList.toggle('btn-history-active', isHidden);
 });
+</script>
+
+<!-- Sistema di Sincronizzazione Multi-Dispositivo -->
+<script>
+class MultiDeviceSync {
+    constructor() {
+        this.deviceId = this.getOrCreateDeviceId();
+        this.lastSync = localStorage.getItem('lastSync') || null;
+        this.syncInterval = null;
+        this.isOnline = navigator.onLine;
+        this.pendingScans = JSON.parse(localStorage.getItem('pendingScans') || '[]');
+        
+        this.initialize();
+    }
+
+    initialize() {
+        this.updateDeviceIdDisplay();
+        this.updateLastSyncTime();
+        this.updateSyncState();
+        this.loadActiveDevices();
+        this.startAutoSync();
+        this.setupEventListeners();
+        this.log('Sistema di sincronizzazione inizializzato');
+    }
+
+    getOrCreateDeviceId() {
+        let deviceId = localStorage.getItem('deviceId');
+        if (!deviceId) {
+            deviceId = 'device_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('deviceId', deviceId);
+        }
+        return deviceId;
+    }
+
+    getDeviceInfo() {
+        return {
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            language: navigator.language,
+            screenResolution: `${screen.width}x${screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        };
+    }
+
+    async syncScanData(scanData) {
+        try {
+            const syncData = {
+                device_id: this.deviceId,
+                nfc_id: scanData.nfcId || '',
+                product_name: scanData.productName || '',
+                product_status: scanData.productStatus || 'unknown',
+                scan_type: scanData.scanType || 'read',
+                device_info: JSON.stringify(this.getDeviceInfo()),
+                location: scanData.location || 'unknown',
+                timestamp: new Date().toISOString()
+            };
+
+            const response = await fetch('/api/nfc/sync', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(syncData)
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.log(`Scansione sincronizzata: ${result.message}`);
+            this.updateLastSyncTime();
+            this.updateSyncState('Sincronizzato');
+            
+            return result;
+
+        } catch (error) {
+            console.error('Errore sincronizzazione:', error);
+            this.log(`Errore sincronizzazione: ${error.message}`);
+            this.updateSyncState('Errore');
+            
+            // Salva per sincronizzazione successiva
+            this.pendingScans.push(scanData);
+            localStorage.setItem('pendingScans', JSON.stringify(this.pendingScans));
+            
+            return { error: error.message };
+        }
+    }
+
+    async checkForUpdates() {
+        try {
+            const response = await fetch(`/api/nfc/sync/status?device_id=${this.deviceId}&last_sync=${this.lastSync || ''}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.scans && result.scans.length > 0) {
+                this.log(`Ricevuti ${result.scans.length} aggiornamenti da altri dispositivi`);
+                this.processIncomingScans(result.scans);
+                
+                // Conferma ricezione
+                await this.acknowledgeScans(result.scans.map(s => s.id));
+            }
+
+            return result;
+
+        } catch (error) {
+            console.error('Errore controllo aggiornamenti:', error);
+            this.log(`Errore controllo aggiornamenti: ${error.message}`);
+            return { error: error.message };
+        }
+    }
+
+    async loadActiveDevices() {
+        try {
+            const response = await fetch('/api/nfc/sync/devices');
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.displayActiveDevices(result.devices || []);
+
+        } catch (error) {
+            console.error('Errore caricamento dispositivi:', error);
+            this.log(`Errore caricamento dispositivi: ${error.message}`);
+        }
+    }
+
+    displayActiveDevices(devices) {
+        const devicesList = document.getElementById('active-devices-list');
+        if (!devicesList) return;
+
+        if (devices.length === 0) {
+            devicesList.innerHTML = '<div style="text-align: center; color: #666; font-size: 0.9rem; padding: 1rem;">Nessun dispositivo attivo</div>';
+            return;
+        }
+
+        devicesList.innerHTML = '';
+        devices.forEach(device => {
+            const deviceDiv = document.createElement('div');
+            deviceDiv.style.cssText = `
+                background: rgba(44, 44, 46, 0.6);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 12px;
+                padding: 0.75rem;
+                margin-bottom: 0.5rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            `;
+
+            const deviceInfo = document.createElement('div');
+            deviceInfo.innerHTML = `
+                <div style="color: white; font-size: 0.85rem; font-weight: 500;">${device.device_info || 'Dispositivo'}</div>
+                <div style="color: #999; font-size: 0.75rem;">Ultima attività: ${new Date(device.last_activity).toLocaleTimeString()}</div>
+            `;
+
+            const statusIndicator = document.createElement('div');
+            statusIndicator.style.cssText = `
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #34c759;
+                animation: pulse 2s infinite;
+            `;
+
+            deviceDiv.appendChild(deviceInfo);
+            deviceDiv.appendChild(statusIndicator);
+            devicesList.appendChild(deviceDiv);
+        });
+    }
+
+    async acknowledgeScans(scanIds) {
+        try {
+            const response = await fetch('/api/nfc/sync/ack', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ scan_ids: scanIds })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.log(`Confermati ${result.message}`);
+
+        } catch (error) {
+            console.error('Errore conferma scansioni:', error);
+            this.log(`Errore conferma: ${error.message}`);
+        }
+    }
+
+    processIncomingScans(scans) {
+        scans.forEach(scan => {
+            // Aggiorna lo storico locale
+            this.addScanToLocalHistory({
+                name: scan.product_name,
+                state: scan.product_status === 'in' ? 'In' : 'Fuori',
+                time: new Date(scan.timestamp).toLocaleTimeString(),
+                category: 'Sincronizzato',
+                device: scan.device_id
+            });
+
+            // Mostra notifica
+            if (typeof window.showNotification === 'function') {
+                window.showNotification(
+                    `Nuova scansione da ${scan.device_id}: ${scan.product_name}`,
+                    'info',
+                    3000
+                );
+            }
+        });
+    }
+
+    addScanToLocalHistory(scanData) {
+        // Aggiungi alla cronologia locale
+        const historyList = document.getElementById('scan-history-list');
+        if (!historyList) return;
+
+        const li = document.createElement('div');
+        li.style.cssText = `
+            background: rgba(52, 199, 89, 0.1);
+            border: 1px solid rgba(52, 199, 89, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        `;
+
+        const leftContent = document.createElement('div');
+        leftContent.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        `;
+
+        const productName = document.createElement('div');
+        productName.textContent = scanData.name;
+        productName.style.cssText = `
+            font-weight: 600;
+            color: white;
+            font-size: 0.95rem;
+        `;
+
+        const timeInfo = document.createElement('div');
+        timeInfo.textContent = `${scanData.time} (${scanData.device})`;
+        timeInfo.style.cssText = `
+            color: #34c759;
+            font-size: 0.8rem;
+        `;
+
+        const statusBadge = document.createElement('div');
+        statusBadge.textContent = scanData.state;
+        statusBadge.style.cssText = `
+            background: ${scanData.state === 'In' ? 'rgba(52, 199, 89, 0.2)' : 'rgba(255, 59, 48, 0.2)'};
+            color: ${scanData.state === 'In' ? '#34c759' : '#ff3b30'};
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            white-space: nowrap;
+        `;
+
+        leftContent.appendChild(productName);
+        leftContent.appendChild(timeInfo);
+        li.appendChild(leftContent);
+        li.appendChild(statusBadge);
+        historyList.appendChild(li);
+    }
+
+    startAutoSync() {
+        // Sincronizzazione automatica ogni 30 secondi
+        this.syncInterval = setInterval(async () => {
+            if (this.isOnline) {
+                await this.checkForUpdates();
+                await this.syncPendingScans();
+            }
+        }, 30000);
+
+        this.log('Sincronizzazione automatica avviata (30s)');
+    }
+
+    async syncPendingScans() {
+        if (this.pendingScans.length === 0) return;
+
+        this.log(`Sincronizzazione di ${this.pendingScans.length} scansioni in attesa...`);
+        
+        const successfulScans = [];
+        
+        for (const scan of this.pendingScans) {
+            try {
+                const result = await this.syncScanData(scan);
+                if (!result.error) {
+                    successfulScans.push(scan);
+                }
+            } catch (error) {
+                this.log(`Errore sincronizzazione scansione: ${error.message}`);
+            }
+        }
+
+        // Rimuovi le scansioni sincronizzate con successo
+        this.pendingScans = this.pendingScans.filter(scan => 
+            !successfulScans.some(s => s.nfcId === scan.nfcId)
+        );
+        
+        localStorage.setItem('pendingScans', JSON.stringify(this.pendingScans));
+        
+        if (successfulScans.length > 0) {
+            this.log(`${successfulScans.length} scansioni sincronizzate con successo`);
+        }
+    }
+
+    updateDeviceIdDisplay() {
+        const deviceIdDisplay = document.getElementById('device-id-display');
+        if (deviceIdDisplay) {
+            deviceIdDisplay.textContent = this.deviceId.substring(0, 20) + '...';
+        }
+    }
+
+    updateLastSyncTime() {
+        const lastSyncTime = document.getElementById('last-sync-time');
+        if (lastSyncTime) {
+            if (this.lastSync) {
+                const lastSyncDate = new Date(this.lastSync);
+                lastSyncTime.textContent = lastSyncDate.toLocaleTimeString();
+            } else {
+                lastSyncTime.textContent = 'Mai';
+            }
+        }
+    }
+
+    updateSyncState(state = 'In attesa') {
+        const syncState = document.getElementById('sync-state');
+        const syncIndicator = document.getElementById('sync-indicator');
+        
+        if (syncState) {
+            syncState.textContent = state;
+        }
+        
+        if (syncIndicator) {
+            if (state === 'Sincronizzato') {
+                syncIndicator.style.background = '#34c759';
+                syncIndicator.style.animation = 'none';
+            } else if (state === 'Errore') {
+                syncIndicator.style.background = '#ff3b30';
+                syncIndicator.style.animation = 'pulse 1s infinite';
+            } else {
+                syncIndicator.style.background = '#ff9500';
+                syncIndicator.style.animation = 'pulse 2s infinite';
+            }
+        }
+    }
+
+    log(message) {
+        const syncLog = document.getElementById('sync-log');
+        if (!syncLog) return;
+
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement('div');
+        logEntry.style.cssText = `
+            color: #34c759;
+            margin-bottom: 0.25rem;
+            font-size: 0.75rem;
+        `;
+        logEntry.textContent = `[${timestamp}] ${message}`;
+
+        syncLog.appendChild(logEntry);
+        syncLog.scrollTop = syncLog.scrollHeight;
+
+        // Mantieni solo gli ultimi 50 log
+        while (syncLog.children.length > 50) {
+            syncLog.removeChild(syncLog.firstChild);
+        }
+    }
+
+    setupEventListeners() {
+        // Event listener per cambiamenti di connessione
+        window.addEventListener('online', () => {
+            this.isOnline = true;
+            this.log('Connessione ripristinata');
+            this.updateSyncState('Online');
+            this.syncPendingScans();
+        });
+
+        window.addEventListener('offline', () => {
+            this.isOnline = false;
+            this.log('Connessione persa');
+            this.updateSyncState('Offline');
+        });
+
+        // Pulsante sincronizzazione manuale
+        const manualSyncBtn = document.getElementById('manual-sync');
+        if (manualSyncBtn) {
+            manualSyncBtn.addEventListener('click', async () => {
+                manualSyncBtn.disabled = true;
+                manualSyncBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizzando...';
+                
+                try {
+                    await this.checkForUpdates();
+                    await this.syncPendingScans();
+                    this.log('Sincronizzazione manuale completata');
+                } catch (error) {
+                    this.log(`Errore sincronizzazione manuale: ${error.message}`);
+                } finally {
+                    manualSyncBtn.disabled = false;
+                    manualSyncBtn.innerHTML = '<i class="fas fa-sync"></i> Sincronizza';
+                }
+            });
+        }
+
+        // Pulsante statistiche
+        const viewStatsBtn = document.getElementById('view-sync-stats');
+        if (viewStatsBtn) {
+            viewStatsBtn.addEventListener('click', () => {
+                this.showSyncStats();
+            });
+        }
+
+        // Pulsante chiudi
+        const closeBtn = document.getElementById('close-sync-box');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                document.getElementById('sync-box').style.display = 'none';
+                btnSync.classList.remove('btn-sync-active');
+            });
+        }
+    }
+
+    async showSyncStats() {
+        try {
+            const response = await fetch(`/api/nfc/sync/status?device_id=${this.deviceId}`);
+            const result = await response.json();
+            
+            const stats = {
+                scansRicevute: result.count || 0,
+                scansInAttesa: this.pendingScans.length,
+                ultimaSincronizzazione: this.lastSync ? new Date(this.lastSync).toLocaleString() : 'Mai',
+                statoConnessione: this.isOnline ? 'Online' : 'Offline'
+            };
+
+            let statsMessage = '📊 **Statistiche Sincronizzazione**\n\n';
+            statsMessage += `📱 Scansioni ricevute: ${stats.scansRicevute}\n`;
+            statsMessage += `⏳ Scansioni in attesa: ${stats.scansInAttesa}\n`;
+            statsMessage += `🕐 Ultima sincronizzazione: ${stats.ultimaSincronizzazione}\n`;
+            statsMessage += `🌐 Stato connessione: ${stats.statoConnessione}`;
+
+            if (typeof window.showNotification === 'function') {
+                window.showNotification(statsMessage, 'info', 8000);
+            } else {
+                alert(statsMessage);
+            }
+
+        } catch (error) {
+            this.log(`Errore caricamento statistiche: ${error.message}`);
+        }
+    }
+
+    destroy() {
+        if (this.syncInterval) {
+            clearInterval(this.syncInterval);
+        }
+        this.log('Sistema di sincronizzazione disattivato');
+    }
+}
+
+// Inizializza il sistema di sincronizzazione
+let multiDeviceSync = null;
+
+function initializeSyncSystem() {
+    if (!multiDeviceSync) {
+        multiDeviceSync = new MultiDeviceSync();
+    }
+}
+
+// Integra la sincronizzazione con le scansioni NFC esistenti
+function updateProductInfo(p) {
+    // Codice esistente...
+    productName.textContent = p.name;
+    const productImage = document.getElementById('product-image');
+    if (p.imageUrl) {
+        productImage.src = p.imageUrl;
+        productImage.classList.add('visible');
+        productImage.classList.remove('hidden');
+    } else {
+        productImage.src = '';
+        productImage.classList.remove('visible');
+        productImage.classList.add('hidden');
+    }
+    const stateText = p.out ? 'Fuori dal magazzino' : 'In magazzino';
+    productState.textContent = stateText;
+    productState.className = 'status-pill ' + (p.out ? 'out-warehouse' : 'in-warehouse');
+    productInfo.classList.remove('hidden');
+    productInfo.classList.add('visible');
+
+    productInfo.classList.remove('status-glow-success', 'status-glow-error');
+    void productInfo.offsetWidth;
+    productInfo.classList.add(p.out ? 'status-glow-error' : 'status-glow-success');
+
+    addScanToHistory(p);
+    
+    // Sincronizza con altri dispositivi
+    if (multiDeviceSync) {
+        multiDeviceSync.syncScanData({
+            nfcId: p.nfcId || 'unknown',
+            productName: p.name,
+            productStatus: p.out ? 'out' : 'in',
+            scanType: 'read',
+            location: 'magazzino'
+        });
+    }
+    
+    // Mostra notifica
+    if (typeof window.showNotification === 'function') {
+        const status = p.out ? 'uscito' : 'entrato';
+        window.showNotification(`${p.name} è ${status} dal magazzino`, p.out ? 'warning' : 'success', 4000);
+    }
+}
 </script>
 
 
